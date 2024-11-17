@@ -1,0 +1,20 @@
+{
+  "dependencies": {
+    "deepcopy": "^2.1.0",
+    "h3": "^1.13.0",
+    "yaml": "^2.6.0"
+  },
+  "scripts": {
+    "dev": "cd workdir/ && bun --hot run ../src/main.ts"
+  },
+  "name": "server",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^22.9.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

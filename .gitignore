@@ -174,5 +174,5 @@ dist
 # Finder (MacOS) folder config
 .DS_Store
 
-# 开发环境工作目录
-workdir/
+# 数据目录
+data/

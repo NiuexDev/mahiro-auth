@@ -1,17 +1,38 @@
-import { createApp, createRouter, defineEventHandler, toWebHandler } from "h3"
-import { getConfig, loadConfig } from "./service/config"
+declare global {
+    interface Array<T>{
+        includes(item: any): boolean
+    }
+}
 
+import { createApp, createRouter, defineEventHandler, getHeader, getRequestHost, setResponseHeader, toWebHandler } from "h3"
+import { useConfig, loadConfig } from "./service/config"
+import { getLogger } from "./service/logger"
+import { useRouter } from "./router"
+import { initDatabase } from "./service/database"
 await loadConfig()
-const config = getConfig()
+await initDatabase()
+
+const config = useConfig()
+const logger = getLogger()
+
+logger.info("启动服务中。")
 
 const app = createApp({
-    debug: true
+    debug: true,
+    onBeforeResponse(event) {
+        logger.debug(`${event.node.req.method} => ${event.node.req.url}`)
+    },
 })
-const router = createRouter()
-app.use(router)
+app.use(defineEventHandler((event)=>{
+    const origin = getHeader(event, "Origin")
+    if (config.server.corsOrigins.includes(origin)) setResponseHeader(event, "Access-Control-Allow-Origin", origin)
+}))
+app.use(useRouter())
 
 const server = Bun.serve({
     hostname: config.server.host,
     port: config.server.port,
     fetch: toWebHandler(app) as any,
 })
+
+logger.info(`启动成功。服务已运行于：${server.hostname}:${server.port}，Yggdrasil API：${config.server.apiBaseUrl}。`)

@@ -2,17 +2,28 @@
   "dependencies": {
     "deepcopy": "^2.1.0",
     "h3": "^1.13.0",
+    "mysql2": "^3.11.4",
+    "winston": "^3.17.0",
+    "winston-daily-rotate-file": "^5.0.0",
     "yaml": "^2.6.0"
   },
   "scripts": {
-    "dev": "cd workdir/ && bun --hot run ../src/main.ts"
+    "start": "bun src/main.ts",
+    "dev": "bun --watch src/main.ts",
+    "build": "unbuild --minify"
   },
-  "name": "server",
-  "module": "index.ts",
+  "unbuild": {
+    "entries": [
+      "src/main.ts"
+    ],
+    "outDir": "app/"
+  },
+  "name": "mahiro-auth-server",
   "type": "module",
   "devDependencies": {
     "@types/bun": "latest",
-    "@types/node": "^22.9.0"
+    "@types/node": "^22.9.0",
+    "unbuild": "^2.0.0"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"

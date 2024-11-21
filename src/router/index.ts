@@ -1,6 +1,6 @@
 import { createRouter, defineEventHandler, useBase } from "h3"
-import { useYggdrasil } from "./yggdrasil"
-import { useConfig } from "../service/config"
+import { useYggdrasil } from "@/router/yggdrasil"
+import { useConfig } from "@/service/config"
 import { joinUrl } from "@/util/url"
 
 import MeatApi from "@/api/meta"

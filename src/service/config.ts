@@ -1,7 +1,7 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises"
 import * as YAML from "yaml"
-import deepcopy from "deepcopy"
 import { createLogger, format, transports } from "winston"
+import deepcopy from "deepcopy"
 const { combine, timestamp, label, printf, colorize } = format
 
 const logger = createLogger({
@@ -56,37 +56,41 @@ export type ConfigType = {
     }
 }
 
-let config: ConfigType = {
-    server: {
-        host: "127.0.0.1",
-        port: 10721,
-        corsOrigins: [],
-        apiBaseUrl: "/yggdrasil",
-        logDir: "logs"
-    },
-    database: {
-        type: "sqlite",
-        sqlite: {
-            file: "database.db"
-        },
-        mysql: {
+function defaultConfig(): ConfigType {
+    return {
+        server: {
             host: "127.0.0.1",
-            port: 3306,
-            user: "",
+            port: 10721,
+            corsOrigins: [],
+            apiBaseUrl: "/yggdrasil",
+            logDir: "logs"
+        },
+        database: {
+            type: "sqlite",
+            sqlite: {
+                file: "database.sqlite"
+            },
+            mysql: {
+                host: "127.0.0.1",
+                port: 3306,
+                user: "",
+                password: "",
+                database: ""
+            }
+        },
+        email: {
+            host: "example.email.com",
+            port: 465,
+            username: "",
             password: "",
-            database: ""
+            encryption: "ssl",
+            fromAddress: "",
+            fromName: ""
         }
-    },
-    email: {
-        host: "example.email.com",
-        port: 465,
-        username: "",
-        password: "",
-        encryption: "ssl",
-        fromAddress: "",
-        fromName: ""
     }
 }
+
+let config: ConfigType
 
 const configPath = "config.yml"
 
@@ -195,6 +199,7 @@ export async function loadConfig(): Promise<void> {
         if (e.message === "No such file or directory") {
             logger.info("配置文件不存在，正在创建默认配置文件。")
             try {
+                config = defaultConfig()
                 writeFile(configPath, YAML.stringify(config))
             } catch (e) {
                 logger.error("写入配置文件失败。")
@@ -208,5 +213,9 @@ export async function loadConfig(): Promise<void> {
 }
 
 export function useConfig(): ConfigType {
+    return config
+}
+
+export function useConfigCopy(): ConfigType {
     return deepcopy(config)
 }

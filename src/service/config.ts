@@ -1,7 +1,8 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises"
-import * as YAML from "yaml"
+import YAML from "yaml"
 import { createLogger, format, transports } from "winston"
 import deepcopy from "deepcopy"
+import crypto from "crypto"
 const { combine, timestamp, label, printf, colorize } = format
 
 const logger = createLogger({
@@ -44,7 +45,7 @@ export type ConfigType = {
             password: string
             database: string
         }
-    },
+    }
     email: {
         host: string
         port: number
@@ -54,39 +55,51 @@ export type ConfigType = {
         fromAddress: string
         fromName: string
     }
+    secret: {
+        jwt: string
+        yggdrasil: {
+            privateKey: string
+            publicKey: string
+        }
+    }
 }
 
-function defaultConfig(): ConfigType {
-    return {
-        server: {
+crypto.generateKeyPairSync("rsa", {modulusLength: 4096,publicKeyEncoding: {type: "spki",format: "pem"},privateKeyEncoding: {type: "pkcs8",format: "pem"}})
+
+const defaultConfig: ConfigType = {
+    server: {
+        host: "127.0.0.1",
+        port: 10721,
+        corsOrigins: [],
+        apiBaseUrl: "/yggdrasil",
+        logDir: "log",
+        
+    },
+    database: {
+        type: "sqlite",
+        sqlite: {
+            file: "database.sqlite"
+        },
+        mysql: {
             host: "127.0.0.1",
-            port: 10721,
-            corsOrigins: [],
-            apiBaseUrl: "/yggdrasil",
-            logDir: "logs"
-        },
-        database: {
-            type: "sqlite",
-            sqlite: {
-                file: "database.sqlite"
-            },
-            mysql: {
-                host: "127.0.0.1",
-                port: 3306,
-                user: "",
-                password: "",
-                database: ""
-            }
-        },
-        email: {
-            host: "example.email.com",
-            port: 465,
-            username: "",
+            port: 3306,
+            user: "",
             password: "",
-            encryption: "ssl",
-            fromAddress: "",
-            fromName: ""
+            database: ""
         }
+    },
+    email: {
+        host: "example.email.com",
+        port: 465,
+        username: "",
+        password: "",
+        encryption: "ssl",
+        fromAddress: "",
+        fromName: ""
+    },
+    secret: {
+        jwt: crypto.randomBytes(32).toString("hex"),
+        yggdrasil: crypto.generateKeyPairSync("rsa", {modulusLength: 4096,publicKeyEncoding: {type: "spki",format: "pem"},privateKeyEncoding: {type: "pkcs8",format: "pem"}})
     }
 }
 
@@ -199,7 +212,7 @@ export async function loadConfig(): Promise<void> {
         if (e.message === "No such file or directory") {
             logger.info("配置文件不存在，正在创建默认配置文件。")
             try {
-                config = defaultConfig()
+                config = defaultConfig
                 writeFile(configPath, YAML.stringify(config))
             } catch (e) {
                 logger.error("写入配置文件失败。")

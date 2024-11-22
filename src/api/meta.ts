@@ -2,7 +2,7 @@ import { defineEventHandler } from "h3"
 
 export default defineEventHandler(() => {
     return {
-        title: "string",
+        title: "北屿验证",
         description: "string",
         
         allowUseUsernameLogin: true

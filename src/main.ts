@@ -4,7 +4,6 @@ import { getLogger } from "@/service/logger"
 import { useRouter } from "@/router"
 import { initDatabase } from "@/service/database"
 import { joinUrl } from "@/util/url"
-import * as Database from "@/service/database"
 await loadConfig()
 await initDatabase()
 

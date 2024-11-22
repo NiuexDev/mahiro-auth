@@ -3,6 +3,8 @@ import YAML from "yaml"
 import { createLogger, format, transports } from "winston"
 import deepcopy from "deepcopy"
 import crypto from "crypto"
+import { mergeObject } from "@/util/object"
+import { log } from "node:console"
 const { combine, timestamp, label, printf, colorize } = format
 
 const logger = createLogger({
@@ -25,7 +27,7 @@ const logger = createLogger({
     ]
 })
 
-export type ConfigType = {
+export interface Config {
     server: {
         host: string
         port: number
@@ -64,9 +66,7 @@ export type ConfigType = {
     }
 }
 
-crypto.generateKeyPairSync("rsa", {modulusLength: 4096,publicKeyEncoding: {type: "spki",format: "pem"},privateKeyEncoding: {type: "pkcs8",format: "pem"}})
-
-const defaultConfig: ConfigType = {
+const defaultConfig: Config = {
     server: {
         host: "127.0.0.1",
         port: 10721,
@@ -103,53 +103,76 @@ const defaultConfig: ConfigType = {
     }
 }
 
-let config: ConfigType
-
+let config: Config
 const configPath = "config.yml"
 
-function verifyConfig(config: any) {
-    if (!isObjectNotEmpty(config)) throw new ConfigError("格式错误。")
-
-    if (!isObjectNotEmpty(config.server)) throw ConfigErrorByMissingOrInvalid("server") 
-    {
-        if (typeof config.server.host !== "string"/* 待改为判断是否是合法host */) throw ConfigErrorWithReason("server.host", "不是合法的主机。")
-        if (!isValidPort(config.server.port)) throw ConfigErrorWithReason("server.port", "不是合法的端口。")
-        if (typeof config.server.corsOrigins !== 'object' || !Array.isArray(config.server.corsOrigins) || config.server.corsOrigins.every((item: any) => typeof item !== "string")) ConfigErrorWithReason("server.corsOrigins", "缺失或不为string[]。")
-        if (typeof config.server.apiBaseUrl !== "string") throw ConfigErrorByMissingOrInvalid("server.apiBaseUrl")
-        if (typeof config.server.logDir !== "string") throw ConfigErrorByMissingOrInvalid("server.logDir")
-        
-    }
-
-    if (!isObjectNotEmpty(config.database)) throw ConfigErrorByMissingOrInvalid("database")
-    {
-        if (config.database.type === "sqlite") {
-            if (!isObjectNotEmpty(config.database.sqlite)) throw ConfigErrorByMissingOrInvalid("database.sqlite")
-            if (typeof config.database.sqlite.file !== "string") throw ConfigErrorByMissingOrInvalid("database.sqlite.file")
-        } else if (config.database.type === "mysql") {
-            if (!isObjectNotEmpty(config.database.mysql)) throw ConfigErrorByMissingOrInvalid("database.mysql")
-            if (typeof config.database.mysql.host !== "string"/* 待改为判断是否是合法host */) throw ConfigErrorWithReason("database.mysql.host", "不是合法的主机。")
-            if (!isValidPort(config.database.mysql.port)) throw ConfigErrorWithReason("database.mysql.port", "不是合法的端口。")
-            if (typeof config.database.mysql.user !== "string") throw ConfigErrorByMissingOrInvalid("database.mysql.user")
-            if (typeof config.database.mysql.database !== "string") throw ConfigErrorByMissingOrInvalid("database.mysql.database")
-        } else {
-            throw ConfigErrorWithReason("database.type", "缺失或不为\"sqlite\"或\"mysql\"之一。")
+async function fixConfig(config: any) {
+    if (config === null) {
+        logger.info("配置文件不完整，正在从默认配置文件补全。")
+        try {
+            await writeFile(configPath, YAML.stringify(defaultConfig))
+            logger.info("补全完成，请检查配置文件。")
+            process.exit(0)
+        } catch (e: any) {
+            logger.error("补全配置文件失败。")
+            logger.error(`${e.name}: ${e.message}`)
         }
     }
-
-    if (!isObjectNotEmpty(config.email)) throw ConfigErrorByMissingOrInvalid("email")
-    {
-        if (typeof config.email.host !== "string"/* 待改为判断是否是合法host */) throw ConfigErrorWithReason("email.host", "不是合法的主机。")
-        if (!isValidPort(config.email.port)) throw ConfigErrorWithReason("email.port", "不是合法的端口。")
-        if (typeof config.email.username !== "string") throw ConfigErrorByMissingOrInvalid("email.username")
-        if (typeof config.email.password !== "string") throw ConfigErrorByMissingOrInvalid("email.password")
-        if (typeof config.email.encryption !== "string") throw ConfigErrorByMissingOrInvalid("email.encryption")
-        if (typeof config.email.fromAddress !== "string") throw ConfigErrorByMissingOrInvalid("email.fromAddress")
-        if (typeof config.email.fromName !== "string") throw ConfigErrorByMissingOrInvalid("email.fromName")
+    const {object: mergedConfig, modified} = mergeObject(config, defaultConfig)
+    if (modified) {
+        logger.info("配置文件不完整，正在从默认配置文件补全。")
+        try {
+            await writeFile(configPath, YAML.stringify(mergedConfig))
+            logger.info("补全完成，请检查配置文件。")
+            process.exit(0)
+        } catch (e: any) {
+            logger.error("补全配置文件失败。")
+            logger.error(`${e.name}: ${e.message}`)
+        }
     }
 }
 
-function isObjectNotEmpty(obj: any) {
-    return typeof obj === "object" && obj !== null
+function verifyConfig(config: Config) {
+    /**
+     * server
+     */
+    if (typeof config.server.host !== "string"/* 待改为判断是否是合法host */) throw ConfigErrorWithReason("server.host", config.server.host, "不是合法的主机。")
+    if (!isValidPort(config.server.port)) throw ConfigErrorWithReason("server.port", config.server.port, "不是合法的端口。")
+    if (typeof config.server.corsOrigins !== 'object' || !Array.isArray(config.server.corsOrigins) || config.server.corsOrigins.every((item: any) => typeof item !== "string")) ConfigErrorWithReason("server.corsOrigins", config.server.corsOrigins, "缺失或不为string[]。")
+    if (typeof config.server.apiBaseUrl !== "string") throw ConfigErrorByMissingOrInvalid("server.apiBaseUrl", config.server.apiBaseUrl)
+    if (typeof config.server.logDir !== "string") throw ConfigErrorByMissingOrInvalid("server.logDir", config.server.logDir)
+
+    /**
+     * database
+     */
+    if (config.database.type === "sqlite") {
+        if (typeof config.database.sqlite.file !== "string") throw ConfigErrorByMissingOrInvalid("database.sqlite.file", config.database.sqlite.file)
+    } else if (config.database.type === "mysql") {
+        if (typeof config.database.mysql.host !== "string"/* 待改为判断是否是合法host */) throw ConfigErrorWithReason("database.mysql.host", config.database.mysql.host, "不是合法的主机。")
+        if (!isValidPort(config.database.mysql.port)) throw ConfigErrorWithReason("database.mysql.port", config.database.mysql.port, "不是合法的端口。")
+        if (typeof config.database.mysql.user !== "string") throw ConfigErrorByMissingOrInvalid("database.mysql.user", config.database.mysql.user)
+        if (typeof config.database.mysql.database !== "string") throw ConfigErrorByMissingOrInvalid("database.mysql.database", config.database.mysql.database)
+    } else {
+        throw new ConfigError("配置项[database.type]不为\"sqlite\"或\"mysql\"之一。")
+    }
+
+    /**
+     * email
+     */
+    if (typeof config.email.host !== "string"/* 待改为判断是否是合法host */) throw ConfigErrorWithReason("email.host", config.email.host, "不是合法的主机。")
+    if (!isValidPort(config.email.port)) throw ConfigErrorWithReason("email.port", config.email.port, "不是合法的端口。")
+    if (typeof config.email.username !== "string") throw ConfigErrorByMissingOrInvalid("email.username", config.email.username)
+    if (typeof config.email.password !== "string") throw ConfigErrorByMissingOrInvalid("email.password", config.email.password)
+    if (typeof config.email.encryption !== "string") throw ConfigErrorByMissingOrInvalid("email.encryption", config.email.encryption)
+    if (typeof config.email.fromAddress !== "string") throw ConfigErrorByMissingOrInvalid("email.fromAddress", config.email.fromAddress)
+    if (typeof config.email.fromName !== "string") throw ConfigErrorByMissingOrInvalid("email.fromName", config.email.fromName)
+
+    /**
+     * secret
+     */
+    if (typeof config.secret.jwt !== "string") throw ConfigErrorByMissingOrInvalid("secret.jwt", config.secret.jwt)
+    if (typeof config.secret.yggdrasil.privateKey !== "string") throw ConfigErrorByMissingOrInvalid("secret.yggdrasil.privateKey", config.secret.yggdrasil.privateKey)
+    if (typeof config.secret.yggdrasil.publicKey !== "string") throw ConfigErrorByMissingOrInvalid("secret.yggdrasil.privateKey", config.secret.yggdrasil.publicKey)
 }
 
 function isValidPort(value: any) {
@@ -168,16 +191,15 @@ class ConfigError extends Error {
     }
 }
 
-function ConfigErrorByMissingOrInvalid(path: string) {
-    return ConfigErrorWithReason(path, "缺失或格式错误。")
+function ConfigErrorByMissingOrInvalid(path: string, value: any) {
+    return ConfigErrorWithReason(path, value, "格式错误。")
 }
 
-function ConfigErrorWithReason(path: string, reason: string) {
-    return new ConfigError(`配置项[${path}]${reason}`)
+function ConfigErrorWithReason(path: string, value: any, reason: string) {
+    return new ConfigError(`配置项([${path}]: ${JSON.stringify(value)})${reason}`)
 }
 
 export async function loadConfig(): Promise<void> {
-    logger.info("加载配置文件中。")
     try {
         process.chdir("data")
     } catch (e: any) {
@@ -191,15 +213,17 @@ export async function loadConfig(): Promise<void> {
             }
         } else {
             logger.error("无法读写数据目录。")
-            throw e
+            logger.error(`${e.name}: ${e.message}`)
         }   
     }
+    logger.info("加载配置文件中。")
     try {
         const configFile = await readFile(configPath, "utf-8")
         try {
-            const tempConfig = YAML.parse(configFile)
-            verifyConfig(tempConfig)
-            config = tempConfig
+            const resolvedConfig = YAML.parse(configFile)
+            await fixConfig(resolvedConfig)
+            verifyConfig(resolvedConfig)
+            config = resolvedConfig
             logger.info("配置文件已加载。") 
         } catch (e: any) {
             if (e.name === "YAMLParseError" || e.name === "ConfigError") {
@@ -212,11 +236,12 @@ export async function loadConfig(): Promise<void> {
         if (e.message === "No such file or directory") {
             logger.info("配置文件不存在，正在创建默认配置文件。")
             try {
-                config = defaultConfig
-                writeFile(configPath, YAML.stringify(config))
-            } catch (e) {
+                await writeFile(configPath, YAML.stringify(defaultConfig))
+                logger.info("创建完成，请检查配置文件。")
+                process.exit(0)
+            } catch (e: any) {
                 logger.error("写入配置文件失败。")
-                throw e
+                logger.error(`${e.name}: ${e.message}`)
             }
         } else {
             throw e
@@ -225,10 +250,10 @@ export async function loadConfig(): Promise<void> {
     return
 }
 
-export function useConfig(): ConfigType {
+export function useConfig(): Config {
     return config
 }
 
-export function useConfigCopy(): ConfigType {
+export function useConfigCopy(): Config {
     return deepcopy(config)
 }

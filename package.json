@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "deepcopy": "^2.1.0",
     "h3": "^1.13.0",
     "mysql2": "^3.11.4",
@@ -21,6 +22,7 @@
   "name": "mahiro-auth-server",
   "type": "module",
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/bun": "latest",
     "@types/node": "^22.9.0",
     "unbuild": "^2.0.0"

@@ -4,6 +4,7 @@ import { getLogger } from "@/service/logger"
 import { useRouter } from "@/router"
 import { initDatabase } from "@/service/database"
 import { joinUrl } from "@/util/url"
+import { version } from "@/../info"
 await loadConfig()
 await initDatabase()
 
@@ -32,5 +33,5 @@ const server = Bun.serve({
     fetch: toWebHandler(app) as any,
 })
 
-logger.info(`启动成功。`)
+logger.info(`启动成功，当前版本：v${version}。`)
 logger.info(`服务已运行于：http://${server.hostname}:${server.port}，YggdrasilAPI位于：${joinUrl(config.server.apiBaseUrl)}。`)

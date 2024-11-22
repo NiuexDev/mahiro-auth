@@ -178,3 +178,6 @@ dist
 data/
 
 /test.ts
+
+# 构建产物
+app.js

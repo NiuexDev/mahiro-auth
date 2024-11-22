@@ -1,4 +1,11 @@
 {
+  "name": "mahiro-auth-server",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/main.ts",
+    "build": "bun build.ts"
+  },
   "dependencies": {
     "bcrypt": "^5.1.1",
     "deepcopy": "^2.1.0",
@@ -8,24 +15,11 @@
     "winston-daily-rotate-file": "^5.0.0",
     "yaml": "^2.6.0"
   },
-  "scripts": {
-    "start": "bun src/main.ts",
-    "dev": "bun --watch src/main.ts",
-    "build": "unbuild --minify"
-  },
-  "unbuild": {
-    "entries": [
-      "src/main.ts"
-    ],
-    "outDir": "app/"
-  },
-  "name": "mahiro-auth-server",
-  "type": "module",
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/bun": "latest",
     "@types/node": "^22.9.0",
-    "unbuild": "^2.0.0"
+    "esbuild": "^0.24.0"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"

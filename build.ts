@@ -11,6 +11,6 @@ await build({
     packages : "external",
     platform: "node",
     target: "esnext",
-    format: "esm",
+    format: "esm"
 })
 await writeFile("dist/package.json", JSON.stringify({dependencies}))

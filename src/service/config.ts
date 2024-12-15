@@ -33,7 +33,10 @@ export interface Config {
         port: number
         corsOrigins: string[]
         apiBaseUrl: string
-        logDir: string
+        log: {
+            dir: string
+            logRequest: boolean
+        }
     }
     database: {
         type: "sqlite"|"mysql"
@@ -53,9 +56,17 @@ export interface Config {
         port: number
         username: string
         password: string
-        encryption: string
+        secure: boolean
         fromAddress: string
         fromName: string
+
+        template: {
+            enable: boolean
+            default: string
+            register: string
+            login: string
+            resetpasswd: string
+        }
     }
     secret: {
         jwt: string
@@ -72,7 +83,10 @@ const defaultConfig: Config = {
         port: 10721,
         corsOrigins: [],
         apiBaseUrl: "/yggdrasil",
-        logDir: "log",
+        log: {
+            dir: "log",
+            logRequest: false
+        },
         
     },
     database: {
@@ -93,9 +107,17 @@ const defaultConfig: Config = {
         port: 465,
         username: "",
         password: "",
-        encryption: "ssl",
+        secure: true,
         fromAddress: "",
-        fromName: ""
+        fromName: "",
+
+        template: {
+            enable: false,
+            default: "",
+            register: "",
+            login: "",
+            resetpasswd: ""
+        },
     },
     secret: {
         jwt: crypto.randomBytes(32).toString("hex"),
@@ -140,7 +162,8 @@ function verifyConfig(config: Config) {
     if (!isValidPort(config.server.port)) throw ConfigErrorWithReason("server.port", config.server.port, "不是合法的端口。")
     if (typeof config.server.corsOrigins !== 'object' || !Array.isArray(config.server.corsOrigins) || config.server.corsOrigins.every((item: any) => typeof item !== "string")) ConfigErrorWithReason("server.corsOrigins", config.server.corsOrigins, "缺失或不为string[]。")
     if (typeof config.server.apiBaseUrl !== "string") throw ConfigErrorByMissingOrInvalid("server.apiBaseUrl", config.server.apiBaseUrl)
-    if (typeof config.server.logDir !== "string") throw ConfigErrorByMissingOrInvalid("server.logDir", config.server.logDir)
+    if (typeof config.server.log.dir !== "string") throw ConfigErrorByMissingOrInvalid("server.logDir", config.server.log.dir)
+    if (typeof config.server.log.logRequest !== "boolean") throw ConfigErrorByMissingOrInvalid("server.logDir", config.server.log.logRequest)
 
     /**
      * database
@@ -163,9 +186,15 @@ function verifyConfig(config: Config) {
     if (!isValidPort(config.email.port)) throw ConfigErrorWithReason("email.port", config.email.port, "不是合法的端口。")
     if (typeof config.email.username !== "string") throw ConfigErrorByMissingOrInvalid("email.username", config.email.username)
     if (typeof config.email.password !== "string") throw ConfigErrorByMissingOrInvalid("email.password", config.email.password)
-    if (typeof config.email.encryption !== "string") throw ConfigErrorByMissingOrInvalid("email.encryption", config.email.encryption)
+    if (typeof config.email.secure !== "boolean") throw ConfigErrorByMissingOrInvalid("email.encryption", config.email.secure)
     if (typeof config.email.fromAddress !== "string") throw ConfigErrorByMissingOrInvalid("email.fromAddress", config.email.fromAddress)
     if (typeof config.email.fromName !== "string") throw ConfigErrorByMissingOrInvalid("email.fromName", config.email.fromName)
+
+    if (typeof config.email.template.enable !== "boolean") throw ConfigErrorByMissingOrInvalid("emailTemplate.enable", config.email.template.enable)
+    if (typeof config.email.template.default !== "string") throw ConfigErrorByMissingOrInvalid("emailTemplate.default", config.email.template.default)
+    if (typeof config.email.template.register !== "string") throw ConfigErrorByMissingOrInvalid("emailTemplate.register", config.email.template.register)
+    if (typeof config.email.template.login !== "string") throw ConfigErrorByMissingOrInvalid("emailTemplate.login", config.email.template.login)
+    if (typeof config.email.template.resetpasswd !== "string") throw ConfigErrorByMissingOrInvalid("emailTemplate.resetpasswd", config.email.template.resetpasswd)
 
     /**
      * secret
@@ -250,10 +279,11 @@ export async function loadConfig(): Promise<void> {
     return
 }
 
-export function useConfig(): Config {
+export async function useConfig(): Promise<Config> {
+    if (config === undefined) await loadConfig()
     return config
 }
 
-export function useConfigCopy(): Config {
-    return deepcopy(config)
+export async function useConfigCopy(): Promise<Config> {
+    return deepcopy(await useConfig())
 }

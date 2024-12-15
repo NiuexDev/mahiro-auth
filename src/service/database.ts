@@ -1,8 +1,8 @@
 import { createConnection, type Connection } from "mysql2/promise"
 import { Database as Sqlite } from "bun:sqlite"
 import { useConfig, type Config } from "@/service/config"
-import { log } from "console"
-import { mysqlTable, sqliteTable } from "@/model/user"
+import User from "@/model/user"
+import Code from "@/model/code"
 import { getLogger } from "./logger"
 import type { Logger } from "winston"
 
@@ -13,22 +13,23 @@ class DatabaseError extends Error {
     }
 }
 
-let config: Config
+let config = await useConfig()
+let logger = getLogger("database")
+
 let sqlite: Sqlite
 let mysql: Connection
 
-const dbTable = {
-    user: {
-        mysql: mysqlTable,
-        sqlite: sqliteTable,
-    }
-}
-
-let logger: Logger
-
 export async function initDatabase() {
-    logger = getLogger("database")
-    config = useConfig()
+    const dbTable = {
+        mysql: {
+            user: User.mysqlTable,
+            code: Code.mysqlTable,
+        },
+        sqlite: {
+            user: User.sqliteTable,
+            code: Code.sqliteTable,
+        }
+    }
     try {
         if (config.database.type === "sqlite") sqlite = new Sqlite(config.database.sqlite.file)
         if (config.database.type === "mysql") mysql = await createConnection({
@@ -45,13 +46,13 @@ export async function initDatabase() {
     logger.info("数据库已连接。")
 
     if (config.database.type === 'sqlite') {
-        for (const [name, table] of Object.entries(dbTable)) {
-            sqlite.exec(`CREATE TABLE IF NOT EXISTS ${name} (${table.sqlite})`)
+        for (const [name, columns] of Object.entries(dbTable.sqlite)) {
+            sqlite.exec(`CREATE TABLE IF NOT EXISTS ${name} (${columns})`)
         }
     }
     if (config.database.type === 'mysql') {
-        for (const [name, table] of Object.entries(dbTable)) {
-            await mysql.execute(`CREATE TABLE IF NOT EXISTS ${name} (${table.mysql})`)
+        for (const [name, columns] of Object.entries(dbTable)) {
+            await mysql.execute(`CREATE TABLE IF NOT EXISTS ${name} (${columns})`)
         }
     }
 }
@@ -145,6 +146,7 @@ export async function query(table: string, column: string[]|"*", where?: string,
         try {
             const result = sqlite.query(sql)
             if (whereParam === undefined) {
+                debugger
                 return result.all()
             } else {
                 return result.all(...whereParam)

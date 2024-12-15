@@ -177,4 +177,4 @@ dist
 # 数据目录
 data/
 
-/test.ts
+test/

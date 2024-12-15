@@ -4,7 +4,6 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "node",
-    "rootDir": "src",
     "declaration": true,
     "removeComments": true,
     "noImplicitAny": true,
@@ -26,7 +25,7 @@
   },
   "include": [
     "src/**/*",
-    "type.d.ts"
+    "type.ts"
   ],
   "exclude": [
     "node_modules"

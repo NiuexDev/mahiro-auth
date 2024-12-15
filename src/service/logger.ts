@@ -3,6 +3,8 @@ import DailyRotateFile from "winston-daily-rotate-file"
 import { useConfig, type Config } from "@/service/config"
 const { combine, timestamp, label, printf, colorize } = format
 
+const config = await useConfig()
+
 export const getLogger = (name: string = "main") => {
     return createLogger({
         level: "info",
@@ -25,7 +27,7 @@ export const getLogger = (name: string = "main") => {
                 datePattern: "YYYY-MM-DD",
                 zippedArchive: true,
                 filename: "%DATE%.log",
-                dirname: useConfig().server.logDir
+                dirname: config.server.log.dir
             })
         ]
     })

@@ -1,10 +1,8 @@
-import { createConnection, type Connection } from "mysql2/promise"
-import { Database as Sqlite } from "bun:sqlite"
-import { useConfig, type Config } from "@/service/config"
+import { } from "mongodb"
+import { useConfig } from "@/service/config"
 import User from "@/model/user"
 import Code from "@/model/code"
 import { getLogger } from "./logger"
-import type { Logger } from "winston"
 
 class DatabaseError extends Error {
     constructor(message: string) {
@@ -15,9 +13,6 @@ class DatabaseError extends Error {
 
 let config = await useConfig()
 let logger = getLogger("database")
-
-let sqlite: Sqlite
-let mysql: Connection
 
 export async function initDatabase() {
     const dbTable = {

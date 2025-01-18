@@ -13,4 +13,8 @@ await build({
     target: "esnext",
     format: "esm"
 })
-await writeFile("dist/package.json", JSON.stringify({dependencies}))
+// Reflect.deleteProperty(packageJson, "devDependencies")
+await writeFile("dist/package.json", JSON.stringify({
+    type: "module",
+    dependencies
+}))

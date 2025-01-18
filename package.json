@@ -1,4 +1,7 @@
 {
+  "name": "mahiro-auth-server",
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "dev": "bun --watch src/main.ts",
     "build": "bun build.ts"

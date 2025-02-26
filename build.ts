@@ -1,7 +1,6 @@
 import { build, BuildOptions, SameShape } from "esbuild"
 import packageJson from "./package.json" assert { type: "json" }
 import { writeFile, mkdir, access, constants } from "fs/promises"
-import { exec } from "node:child_process"
 import { $ } from "bun"
 
 try {
@@ -56,6 +55,5 @@ const platforms = [
 
 
 for (const platform of platforms) {
-    //  ${platform.includes("windows") ? " --windows-icon=src/assets/icon.ico" : ""}
     await $`bun build --compile --target=${platform} dist/executable.js --outfile "dist/${packageJson.name}_v${packageJson.version}_${platform}"`
 }

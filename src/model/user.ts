@@ -1,77 +1,39 @@
-import * as Database from "@/service/database"
-import { hash, compare } from "bcrypt"
-import { log } from "console"
-import { randomUUID } from "crypto"
+import { UUID } from "mongodb"
+import { model, Schema } from "mongoose"
+import { randomBytes, randomUUID } from "node:crypto"
 
-const tableName = "user"
 
-interface User {
-    id: number
-    email: string
-    password: string
-    uuid: string
-    name: string
-    skin: string
-    cape: string
+const idChar = Array.from("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+const idGenerator = () => {
+    return Array.from({ length:5 }, ()=>idChar[Math.floor(Math.random() * idChar.length)]).join("") + (Math.floor(Math.random()*1000)).toFixed().padStart(3, "0")
 }
 
-interface modifiable {
-    email?: string
-    password?: string
-    name?: string
-    skin?: string
-    cape?: string
-}
 
-const mysqlTable = `
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    uuid CHAR(32) NOT NULL UNIQUE,
-    name VARCHAR(255) UNIQUE,
-    skin VARCHAR(255),
-    cape VARCHAR(255)`
-
-const sqliteTable = `
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email TEXT NOT NULL UNIQUE,
-    password TEXT NOT NULL,
-    uuid TEXT NOT NULL UNIQUE,
-    name TEXT UNIQUE,
-    skin TEXT,
-    cape TEXT`
-
-async function create(email: string, password: string): Promise<number> {
-    const user = {
-        email,
-        password: await hash(password, 11),
-        uuid: randomUUID().replaceAll("-", "")
+const userSchema = new Schema({
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    id: { type: String, required: true, unique: true, default: idGenerator },
+    uuid: { type: UUID, required: true, unique: true, default: () => randomUUID() },
+    skin: String,
+    cape: String,
+    registerTime: { type: Date, default: Date.now },
+    lastLoginTime: Date, 
+    lastLoginIP: String
+}, {
+    statics: {
+        async register(
+            email: string,
+            password: string,
+        ) {
+            this.create({
+                email,
+                password: await Bun.password.hash(password, {
+                    algorithm: "bcrypt",
+                    cost: 12
+                })
+            })
+        },
     }
-    return (await Database.insert(tableName, user)).lastID
-}
+})
 
-async function get(where: string, whereParam: any[]): Promise<User[]> {
-    return await Database.query(tableName, "*", where, whereParam)
-}
-
-async function exist(where: string, whereParam: any[]) {
-    return (await get(where, whereParam)).length === 0 ? false : true
-}
-
-async function modify(id: number, data: modifiable) {
-    await Database.update(tableName, data, "id=?", [id])
-}
-
-async function remove(id: number) {
-    await Database.remove(tableName, "id=?", [id])
-}
-
-export default {
-    mysqlTable,
-    sqliteTable,
-    create,
-    get,
-    exist,
-    modify,
-    remove
-}
+export const User = model("user", userSchema)

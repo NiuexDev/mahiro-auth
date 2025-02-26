@@ -21,11 +21,11 @@
     "noEmitOnError": true,
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
   },
   "include": [
     "src/**/*",
-    "type.ts"
+    "type.d.ts"
   ],
   "exclude": [
     "node_modules"

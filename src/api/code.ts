@@ -1,4 +1,4 @@
-import Code from "@/model/code"
+import { Code } from "@/model/code"
 import { Config, useConfig } from "@/service/config"
 import { sendRegister } from "@/service/email"
 import { isEamil } from "@/util/regexp"
@@ -8,9 +8,8 @@ import { SentMessageInfo, Options } from "nodemailer/lib/smtp-transport"
 
 
 export default defineEventHandler(async (event) => {
-    const body: {email: string} = JSON.parse(await readBody(event))
+    const body: {email: string} = await readBody(event)
 
-    // log(typeof body, JSON.parse(body), body.email)
     if (
         body.email === undefined ||
         typeof body.email !== "string"
@@ -25,8 +24,7 @@ export default defineEventHandler(async (event) => {
             reason: "email"
         }
     }
-    const code = await Code.get(5*60)
-    log(code)
+    const code = await Code.generate(body.email, 6, 5*60)
     sendRegister(code.code, body.email)
     return {
         state: "success",

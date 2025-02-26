@@ -43,5 +43,5 @@ app.use(useRouter())
 
 createServer(toNodeListener(app)).listen(config.server.port, config.server.host)
 
-logger.info(`启动成功。${name} v${version}.`)
+logger.info(`${name} v${version}. 启动成功。`)
 logger.info(`服务已运行于：http://${config.server.host}:${config.server.port}，YggdrasilAPI位于：${joinUrl(config.server.apiBaseUrl)}。`)

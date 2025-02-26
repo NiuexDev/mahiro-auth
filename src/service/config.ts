@@ -1,10 +1,11 @@
-import { readFile, writeFile, mkdir } from "node:fs/promises"
+import { readFile, writeFile, mkdir, access, constants } from "node:fs/promises"
 import YAML from "yaml"
 import { createLogger, format, transports } from "winston"
 import deepcopy from "deepcopy"
 import crypto from "crypto"
 import { mergeObject } from "@/util/object"
 import { log } from "node:console"
+import { isNullishCoalesce, server } from "typescript"
 const { combine, timestamp, label, printf, colorize } = format
 
 const logger = createLogger({
@@ -39,17 +40,11 @@ export interface Config {
         }
     }
     database: {
-        type: "sqlite"|"mysql"
-        sqlite: {
-            file: string
-        }
-        mysql: {
-            host: string
-            port: number
-            user: string
-            password: string
-            database: string
-        }
+        host: string
+        port: number
+        user: string
+        password: string
+        database: string
     }
     email: {
         host: string
@@ -90,17 +85,11 @@ const defaultConfig: Config = {
         
     },
     database: {
-        type: "sqlite",
-        sqlite: {
-            file: "database.sqlite"
-        },
-        mysql: {
-            host: "127.0.0.1",
-            port: 3306,
-            user: "",
-            password: "",
-            database: ""
-        }
+        host: "127.0.0.1",
+        port: 27017,
+        user: "",
+        password: "",
+        database: "mahiro-auth"
     },
     email: {
         host: "example.email.com",
@@ -168,16 +157,11 @@ function verifyConfig(config: Config) {
     /**
      * database
      */
-    if (config.database.type === "sqlite") {
-        if (typeof config.database.sqlite.file !== "string") throw ConfigErrorByMissingOrInvalid("database.sqlite.file", config.database.sqlite.file)
-    } else if (config.database.type === "mysql") {
-        if (typeof config.database.mysql.host !== "string"/* 待改为判断是否是合法host */) throw ConfigErrorWithReason("database.mysql.host", config.database.mysql.host, "不是合法的主机。")
-        if (!isValidPort(config.database.mysql.port)) throw ConfigErrorWithReason("database.mysql.port", config.database.mysql.port, "不是合法的端口。")
-        if (typeof config.database.mysql.user !== "string") throw ConfigErrorByMissingOrInvalid("database.mysql.user", config.database.mysql.user)
-        if (typeof config.database.mysql.database !== "string") throw ConfigErrorByMissingOrInvalid("database.mysql.database", config.database.mysql.database)
-    } else {
-        throw new ConfigError("配置项[database.type]不为\"sqlite\"或\"mysql\"之一。")
-    }
+    if (typeof config.database.host !== "string"/* 待改为判断是否是合法host */) throw ConfigErrorWithReason("database.mysql.host", config.database.host, "不是合法的主机。")
+    if (!isValidPort(config.database.port)) throw ConfigErrorWithReason("database.mysql.port", config.database.port, "不是合法的端口。")
+    if (typeof config.database.user !== "string") throw ConfigErrorByMissingOrInvalid("database.mysql.user", config.database.user)
+    if (typeof config.database.password !== "string") throw ConfigErrorByMissingOrInvalid("database.mysql.user", config.database.password)
+    if (typeof config.database.database !== "string") throw ConfigErrorByMissingOrInvalid("database.mysql.database", config.database.database)
 
     /**
      * email
@@ -229,52 +213,51 @@ function ConfigErrorWithReason(path: string, value: any, reason: string) {
 }
 
 export async function loadConfig(): Promise<void> {
-    try {
-        process.chdir("data")
-    } catch (e: any) {
-        if (e.message === "No such file or directory") {
+    if (process.env.COMPILE_TYPE !== "executable") {
+        try {
+            await access("data", constants.F_OK)
+        } catch (e) {
             try {
                 await mkdir("data")
-                process.chdir("data")
             } catch (e) {
                 logger.error("创建数据目录失败或无法读写数据目录。")
                 throw e
             }
-        } else {
+        }
+        try {
+            process.chdir("data")
+        } catch (e: any) {
             logger.error("无法读写数据目录。")
-            logger.error(`${e.name}: ${e.message}`)
-        }   
+            throw e
+        }
+    }
+    try {
+        await access(configPath, constants.F_OK | constants.R_OK | constants.W_OK)
+    } catch (e: any) {
+        logger.info("配置文件不存在，正在创建默认配置文件。")
+        try {
+            await writeFile(configPath, YAML.stringify(defaultConfig))
+            logger.info("创建完成，请检查配置文件。")
+            process.exit(0)
+        } catch (e: any) {
+            logger.error("写入配置文件失败。")
+            throw e
+        }
     }
     logger.info("加载配置文件中。")
+    const configFile = await readFile(configPath, "utf-8")
     try {
-        const configFile = await readFile(configPath, "utf-8")
-        try {
-            const resolvedConfig = YAML.parse(configFile)
-            await fixConfig(resolvedConfig)
-            verifyConfig(resolvedConfig)
-            config = resolvedConfig
-            logger.info("配置文件已加载。") 
-        } catch (e: any) {
-            if (e.name === "YAMLParseError" || e.name === "ConfigError") {
-                logger.error(`${e.name}: ${e.message}`)
-                process.exit(1)
-            }
-            throw e
-        }
+        const resolvedConfig = YAML.parse(configFile)
+        await fixConfig(resolvedConfig)
+        verifyConfig(resolvedConfig)
+        config = resolvedConfig
+        logger.info("配置文件已加载。") 
     } catch (e: any) {
-        if (e.message === "No such file or directory") {
-            logger.info("配置文件不存在，正在创建默认配置文件。")
-            try {
-                await writeFile(configPath, YAML.stringify(defaultConfig))
-                logger.info("创建完成，请检查配置文件。")
-                process.exit(0)
-            } catch (e: any) {
-                logger.error("写入配置文件失败。")
-                logger.error(`${e.name}: ${e.message}`)
-            }
-        } else {
-            throw e
+        if (e.name === "YAMLParseError" || e.name === "ConfigError") {
+            logger.error(`${e.name}: ${e.message}`)
+            process.exit(1)
         }
+        throw e
     }
     return
 }

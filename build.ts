@@ -56,18 +56,18 @@ const platforms = [
 
 // await Promise.all(
 // const commands =
-    platforms.map(platform => {
-        const command = `bun build --compile --target=${platform} dist/executable.js --outfile "dist/${packageJson.name}_v${packageJson.version}_${platform}"`
-        return platform.includes("windows") ? command + " --windows-icon=src/assets/icon.ico" : command
-    })
-    .map(command => exec(command))
+    // platforms.map(platform => {
+    //     const command = `bun build --compile --target=${platform} dist/executable.js --outfile "dist/${packageJson.name}_v${packageJson.version}_${platform}"`
+    //     return platform.includes("windows") ? command + " --windows-icon=src/assets/icon.ico" : command
+    // })
+    // .map(command => exec(command))
 // )
 
 // await $`bun build dist/executable.js --compile --outfile "dist/${packageJson.name}_v${packageJson.version}_"`
 
 // await $`114514aaa ${commands[3]}`
 
-// for (const command of commands) {
+for (const platform of platforms) {
     // console.log(command)
-    // await $`${command}`
-// }
+    await $`bun build --compile --target=${platform} dist/executable.js --outfile "dist/${packageJson.name}_v${packageJson.version}_${platform}" ${platform.includes("windows") ? " --windows-icon=src/assets/icon.ico" : ""}`
+}

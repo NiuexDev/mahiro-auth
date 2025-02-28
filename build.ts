@@ -36,6 +36,7 @@ await writeFile("dist/package.json", JSON.stringify({
 
 await build({
     ...buildconfig,
+    minify: true,
     outfile: "dist/executable.js",
     define: {
         "process.env.COMPILE_TYPE": JSON.stringify("executable")

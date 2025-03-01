@@ -15,12 +15,17 @@ let { database } = await useConfig()
 let logger = getLogger("database")
 
 export async function initDatabase() {
-    await connect(`mongodb://${database.host}:${database.port}/`, {
-        user: database.user,
-        pass: database.password,
-        dbName: database.database
-    })
-    logger.info("数据库已连接。")
+    try {
+        await connect(`mongodb://${database.host}:${database.port}/`, {
+            user: database.user,
+            pass: database.password,
+            dbName: database.database
+        })
+    } catch (e: any) {
+        logger.error(`数据库连接失败。${e.message}`)
+        throw e
+    }
+        logger.info("数据库已连接。")
     // const a = await User.register("114@ceale.top", "00000")
 }
 

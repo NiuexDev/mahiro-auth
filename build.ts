@@ -34,15 +34,6 @@ await writeFile("dist/package.json", JSON.stringify({
     dependencies: packageJson.dependencies
 }))
 
-await build({
-    ...buildconfig,
-    minify: true,
-    outfile: "dist/executable.js",
-    define: {
-        "process.env.COMPILE_TYPE": JSON.stringify("executable")
-    }
-})
-
 const platforms = [
     "bun-linux-x64",
     "bun-linux-arm64",
@@ -56,5 +47,5 @@ const platforms = [
 
 
 for (const platform of platforms) {
-    await $`bun build --compile --target=${platform} dist/executable.js --outfile "dist/${packageJson.name}_v${packageJson.version}_${platform}"`
+    await $`bun build src/main.ts --compile --target=${platform} --define 'process.env.COMPILE_TYPE="executable"' --sourcemap --outfile "dist/${packageJson.name}_v${packageJson.version}_${platform}"`
 }

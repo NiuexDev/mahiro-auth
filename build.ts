@@ -9,7 +9,7 @@ try {
     await mkdir("dist")
 }
 
-const buildconfig: SameShape<BuildOptions, BuildOptions> = {
+await build({
     entryPoints: ["src/main.ts"],
     bundle: true,
     packages : "external",
@@ -18,11 +18,7 @@ const buildconfig: SameShape<BuildOptions, BuildOptions> = {
     format: "esm",
     loader: {
         ".html": "text"
-    }
-}
-
-await build({
-    ...buildconfig,
+    },
     outfile: "dist/app.js",
     define: {
         "process.env.COMPILE_TYPE": JSON.stringify("code")

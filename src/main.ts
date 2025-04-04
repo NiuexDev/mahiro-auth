@@ -6,7 +6,6 @@ import { initDatabase } from "@/service/database"
 import { joinUrl } from "@/util/url"
 import { name, version } from "@/../package.json"
 import { createServer } from "node:http"
-import { createServer as createNetServer } from "node:net"
 import "@/service/email"
 
 const config = await useConfig()
@@ -49,25 +48,34 @@ app.use(useRouter())
 
 const port = await ( async () => {
     let port = config.server.port
-    for (let i = 0; i < 2; i++) {
-        const occupied = await (new Promise((resolve) => {
-            const server = createServer().listen(port)
-            server.on("listening", () => {
-                server.close()
-                resolve(false)
-            })
-            server.on("error", () => {
-                server.close()
-                resolve(true)
-            })
-        }))
+    let i = 0
+    while (true) {
+        i++
+        const occupied = await new Promise(
+            (resolve) => {
+                const server = createServer().listen(port)
+                server.on("listening", () => {
+                    server.close()
+                    resolve(false)
+                })
+                server.on("error", () => { 
+                    server.close()
+                    resolve(true)
+                })
+            }
+        )
         if (!occupied) {
             return port
         } else {
+            logger.warn(`端口${port}已被占用。`)
+            if (port == 65535 || i > 10) {
+                break
+            }
             port++
+            logger.info(`尝试使用端口${port}。`)
         }
     }
-    logger.error("无可用端口")
+    logger.error(`在端口${config.server.port}至端口${port}范围内，无可用端口。`)
     process.exit(1)
 })()
 createServer(toNodeListener(app)).listen(port, config.server.host)

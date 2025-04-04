@@ -14,24 +14,20 @@ const codeSchema = new Schema({
         async generate(key: string, length: number, expires: number) {
             const code = Array.from({ length }, () => char[Math.floor(Math.random() * char.length)]).join("")
             const expiresTime = new Date(Date.now() + expires*1000)
-            const document = await this.create({
+            return await this.create({
                 id: randomUUID(),
                 key,
                 code,
                 expires: expiresTime
             })
-            return {
-                id: document.id,
-                key: document.key,
-                code: document.code,
-                expires: document.expires
-            }
         },
         async verify(id: string, key: string, code: string) {
-            const document = await this.findOne({ id, key, code, expires: { $gt: new Date() } })
+            const document = await this.findOne({ id })
+            if (document === null) return false
+            document?.key === key && document?.code === code && document?.expires > new Date()
             return document !== null
         }
     }
 })
 
-export const Code = model("code", codeSchema)
+export const Code = model("verification-code", codeSchema)

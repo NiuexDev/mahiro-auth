@@ -12,7 +12,7 @@ try {
 await build({
     entryPoints: ["src/main.ts"],
     bundle: true,
-    packages : "external",
+    // packages : "external",
     platform: "node",
     target: "esnext",
     format: "esm",

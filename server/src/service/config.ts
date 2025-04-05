@@ -213,23 +213,8 @@ function ConfigErrorWithReason(path: string, value: any, reason: string) {
 }
 
 export async function loadConfig(): Promise<void> {
-    if (process.env.COMPILE_TYPE !== "executable") {
-        try {
-            await access("data", constants.F_OK)
-        } catch (e) {
-            try {
-                await mkdir("data")
-            } catch (e) {
-                logger.error("创建数据目录失败或无法读写数据目录。")
-                throw e
-            }
-        }
-        try {
-            process.chdir("data")
-        } catch (e: any) {
-            logger.error("无法读写数据目录。")
-            throw e
-        }
+    if (process.env.develop === "develop") {
+        process.chdir("run")
     }
     try {
         await access(configPath, constants.F_OK | constants.R_OK | constants.W_OK)

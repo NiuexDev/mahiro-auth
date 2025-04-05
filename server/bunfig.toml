@@ -1,0 +1,2 @@
+[define]
+"process.env.develop" = "'develop'"

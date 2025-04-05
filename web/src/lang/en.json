@@ -1,0 +1,65 @@
+{
+    "auth": {
+        "login": {
+            "title": "Login",
+
+            "account": "Account",
+            "username": "Username",
+            "email": "Email",
+            "usernameOrEmail": "{0} or {1}",
+
+            "password": "Password",
+            "forgotPassword": "Forgot Password",
+
+            "code": "Code",
+            "getCode": "Get Code",
+
+            "submit": "Login",
+
+            "usePasswordLogin": "Use Password Login",
+            "useCodeLogin": "Use Code Login",
+
+            "register": "Register",
+
+            "validator": {
+                "Account-Should-Not-Be-Empty": "Account should not be empty",
+                "Incorrect-Email-Format": "Incorrect email format",
+                "Password-Should-Not-Be-Empty": "Password should not be empty",
+                "Code-Should-Not-Be-Empty": "Code should not be empty",
+                "Incorrect-Code-Format": "Incorrect code format"
+            }
+        },
+        
+        "register": {
+            "title": "Register",
+
+            "email": "Email",
+            "password": "Password",
+            "code": "Code",
+            "getCode": "Get Code",
+
+            "submit": "Register",
+
+            "login": "Login",
+
+            "inputPrompt": {
+                "Email-Verification-Code": "邮件验证码",
+                "O-To-O-Digits-And-Contain-Number-Letter": "{0}~{1}位 应包含数字字母"
+            },
+
+            "validator": {
+                "Email-Should-Not-Be-Empty": "邮箱不应为空",
+                "Incorrect-Email-Format": "邮箱格式不正确",
+
+                "Code-Should-Not-Be-Empty": "验证码不应为空",
+                "Incorrect-Code-Format": "验证码格式不正确",
+
+                "Password-Should-Not-Be-Empty": "密码不应为空",
+                "Password-Need-Number": "密码应该包含数字",
+                "Password-Need-Letter": "密码应该包含字母",
+                "Password-Should-Longer": "密码应大于{0}位",
+                "Password-Should-Shorter": "密码应小于{0}位"
+            }
+        }
+    }
+}

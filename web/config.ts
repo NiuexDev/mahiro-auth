@@ -9,6 +9,8 @@ export const createConfig = () => {
         apiBaseUrl: isViteEnv ? "http://localhost:10721" : "/api",
         title: "北屿验证",
         description: "string",
+
+        allowUseUsernameLogin: false
     }
 }
 

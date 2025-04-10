@@ -33,8 +33,8 @@ await build({
 log("ESM build success")
 
 const platforms = [
-    // "bun-linux-x64",
-    // "bun-linux-arm64",
+    "bun-linux-x64",
+    "bun-linux-arm64",
     "bun-windows-x64",
     // "bun-windows-arm64",
     "bun-darwin-x64",

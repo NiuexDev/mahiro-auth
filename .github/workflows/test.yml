@@ -2,32 +2,59 @@
 # For more information see: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
 
 name: Test
+
 on:
-  push: 
+  push:
     branches: [main]
 
 jobs:
   build-server:
+    name: Build Server # 给 job 一个名字
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-      - run: cd server
-      - run: bun i
-      - run: bun run build
-      - uses: actions/upload-artifact@v4
+      - name: Checkout code # 添加 name 描述步骤
+        uses: actions/checkout@v4
+
+      - name: Setup Bun # 添加 name 描述步骤
+        uses: oven-sh/setup-bun@v2
+        # 如果 Bun 需要特定版本可以添加:
+        # with:
+        #   bun-version: latest
+
+      # 将 server 相关的命令放在一个设置了 working-directory 的步骤中
+      - name: Install dependencies and build server # 添加 name 描述步骤
+        working-directory: ./server # 指定工作目录为 ./server
+        run: | # 使用多行 run # 使用 bun install 而不是 bun i，更明确
+          bun install 
+          bun run build
+
+      - name: Upload server artifact # 添加 name 描述步骤
+        uses: actions/upload-artifact@v4
         with:
-          name: server
-          path: dist/
+          name: server-build # 给 artifact 一个更明确的名字
+          path: server/dist/ # 指定相对于根目录的正确路径
+
   build-web:
+    name: Build Web # 给 job 一个名字
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-      - run: cd web
-      - run: npm i
-      - run: npm run build
-      - uses: actions/upload-artifact@v4
+      - name: Checkout code # 添加 name 描述步骤
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js # 添加 name 描述步骤
+        uses: actions/setup-node@v4
         with:
-          name: web
-          path: dist/
+          node-version: '20' # 指定 Node.js 版本，建议明确指定
+
+      # 将 web 相关的命令放在一个设置了 working-directory 的步骤中
+      - name: Install dependencies and build web # 添加 name 描述步骤
+        working-directory: ./web # 指定工作目录为 ./web
+        run: | # 使用多行 run
+          npm install # 使用 npm install 而不是 npm i，更明确
+          npm run build
+
+      - name: Upload web artifact # 添加 name 描述步骤
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build # 给 artifact 一个更明确的名字
+          path: web/dist/ # 指定相对于根目录的正确路径

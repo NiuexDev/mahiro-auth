@@ -9,13 +9,27 @@ const idGenerator = () => {
 }
 
 
-const userSchema = new Schema({
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    id: { type: String, required: true, unique: true, default: idGenerator },
+const playerSchema = new Schema({
+    name: { type: String, required: true, unique: true, default: idGenerator },
     uuid: { type: UUID, required: true, unique: true, default: () => randomUUID() },
     skin: String,
     cape: String,
+})
+
+const userInfoSchema = new Schema({
+    name: { type: String, required: true, unique: true, default: idGenerator },
+    uuid: { type: UUID, required: true, unique: true, default: () => randomUUID() },
+    skin: String,
+    cape: String,
+})
+
+
+const userSchema = new Schema({
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+
+    players: playerSchema,
+    
     registerTime: { type: Date, default: Date.now },
     lastLoginTime: Date, 
     lastLoginIP: String

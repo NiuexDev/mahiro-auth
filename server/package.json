@@ -7,7 +7,6 @@
     "build": "bun build.ts"
   },
   "dependencies": {
-    "deepcopy": "^2.1.0",
     "h3": "^1.13.0",
     "mongodb": "^6.12.0",
     "mongoose": "^8.9.5",
@@ -18,7 +17,7 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "@types/node": "^22.9.0",
+    "@types/node": "^22.14.0",
     "@types/nodemailer": "^6.4.17",
     "esbuild": "^0.24.0"
   },

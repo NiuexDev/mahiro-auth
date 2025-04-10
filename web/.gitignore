@@ -58,5 +58,3 @@ typings/
 .env
 
 dist/
-
-.env.development.local

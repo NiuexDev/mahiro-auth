@@ -3,7 +3,7 @@ import { isEamil, isSecurePassword } from "@/util/regexp"
 import { log } from "console"
 import { defineEventHandler, readBody, readRawBody, readValidatedBody, sanitizeStatusCode, send, sendWebResponse, setResponseStatus } from "h3"
 import { User } from "@/model/user"
-import { Code } from "@/model/code"
+import { Code } from "@/model/verification-code"
 
 interface schema {
     email: string

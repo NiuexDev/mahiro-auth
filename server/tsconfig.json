@@ -20,11 +20,15 @@
     "isolatedModules": true,
     "noEmitOnError": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "type@/*": ["../type/*"],
+      "~/*": ["../*"]
     },
   },
   "include": [
     "src/**/*",
+    "../util/**/*",
+    "../type/**/*",
     "type.d.ts"
   ],
   "exclude": [

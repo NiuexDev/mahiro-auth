@@ -1,4 +1,4 @@
-import { Code } from "@/model/code"
+import { Code } from "@/model/verification-code"
 import { Config, useConfig } from "@/service/config"
 import { sendRegister } from "@/service/email"
 import { isEamil } from "@/util/regexp"

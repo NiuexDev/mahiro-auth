@@ -7,14 +7,27 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  build-server:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
+      - run: cd server
       - run: bun i
       - run: bun run build
       - uses: actions/upload-artifact@v4
         with:
-          name: build
+          name: server
+          path: dist/
+  build-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - run: cd web
+      - run: npm i
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web
           path: dist/

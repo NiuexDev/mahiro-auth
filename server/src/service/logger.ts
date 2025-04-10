@@ -1,10 +1,9 @@
 import { createLogger, format, transports } from "winston"
 import DailyRotateFile from "winston-daily-rotate-file"
-import { useConfig, type Config } from "@/service/config"
 const { combine, timestamp, label, printf, colorize } = format
 
-export const getLogger = (name: string = "main") => {
-    return createLogger({
+export const getLogger = (name: string) => {
+    const logger = createLogger({
         level: "info",
         format: combine(
             label({ label: name }),
@@ -29,4 +28,5 @@ export const getLogger = (name: string = "main") => {
             })
         ]
     })
+    return logger
 }

@@ -1,15 +1,17 @@
-import { build, BuildOptions, SameShape } from "esbuild"
-import packageJson from "./package.json" assert { type: "json" }
-import { writeFile, mkdir, access, constants } from "fs/promises"
-import { $ } from "bun"
-import { log } from "console"
+import { build } from "esbuild"
+import { name, version } from "./package.json" assert { type: "json" }
+import { mkdir, access, constants } from "node:fs/promises"
+import { log } from "node:console"
+import { execSync } from "node:child_process"
 
 try {
     await access("dist", constants.F_OK)
 } catch (e) {
     await mkdir("dist")
 }
-  
+
+const commitHash = execSync('git rev-parse --short HEAD', { encoding: 'utf-8' }).trim()
+
 // ESM 构建配置
 log("ESM build start")
 await build({
@@ -23,13 +25,16 @@ await build({
       ".html": "text"
     },
     format: "esm",
-    outfile: "dist/app.mjs",
+    outfile: "dist/app.js",
+    define: {
+        "process.env.commitHash": JSON.stringify(commitHash),
+    }
 })
 log("ESM build success")
 
 const platforms = [
-    "bun-linux-x64",
-    "bun-linux-arm64",
+    // "bun-linux-x64",
+    // "bun-linux-arm64",
     "bun-windows-x64",
     // "bun-windows-arm64",
     "bun-darwin-x64",
@@ -38,9 +43,10 @@ const platforms = [
     "bun-linux-arm64-musl"
 ]
 
+process.chdir("dist")
 
 for (const platform of platforms) {
     log(`${platform} build start`)
-    await $`bun build src/main.ts --compile --target=${platform} --sourcemap --outfile "dist/${packageJson.name}_v${packageJson.version}_${platform}"`
+    execSync(`bun build app.js --compile --target=${platform} --sourcemap --outfile "${name}_v${version}_${platform}"`)
     log(`${platform} build success`)
 }

@@ -12,7 +12,11 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      "type@": fileURLToPath(new URL('../type', import.meta.url))
     }
+  },
+  build: {
+    target: 'esnext',
   }
 })

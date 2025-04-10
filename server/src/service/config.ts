@@ -1,41 +1,20 @@
 import { readFile, writeFile, mkdir, access, constants } from "node:fs/promises"
 import YAML from "yaml"
-import { createLogger, format, transports } from "winston"
-import deepcopy from "deepcopy"
 import crypto from "crypto"
-import { mergeObject } from "@/util/object"
-import { log } from "node:console"
-import { isNullishCoalesce, server } from "typescript"
-const { combine, timestamp, label, printf, colorize } = format
+import { getLogger } from "@/service/logger"
+import * as schema from "~/util/schema"
+import { BooleanValidator, StringValidator, ValueValidator } from "~/util/schema"
+import { Logger } from "winston"
 
-const logger = createLogger({
-    level: "info",
-    format: combine(
-        label({ label: "config" }),
-        timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-        printf(({ level, message, timestamp, label }) => {
-            return `${timestamp} [${level}] [${label}]: ${message}`
-        }),
-    ),
-    transports: [
-        new transports.Console({
-            consoleWarnLevels: ["warn"],
-            stderrLevels: ["error"],
-            format: combine(
-                colorize({ all: true }),
-            )
-        })
-    ]
-})
+let logger: Logger
 
 export interface Config {
     server: {
         host: string
         port: number
         corsOrigins: string[]
-        apiBaseUrl: string
+        yggdrasilApiUrl: string
         log: {
-            dir: string
             logRequest: boolean
         }
     }
@@ -72,155 +51,167 @@ export interface Config {
     }
 }
 
-const defaultConfig: Config = {
-    server: {
-        host: "127.0.0.1",
-        port: 10721,
-        corsOrigins: [],
-        apiBaseUrl: "/yggdrasil",
-        log: {
-            dir: "log",
-            logRequest: false
-        },
-        
-    },
-    database: {
-        host: "127.0.0.1",
-        port: 27017,
-        user: "",
-        password: "",
-        database: "mahiro-auth"
-    },
-    email: {
-        host: "example.email.com",
-        port: 465,
-        username: "",
-        password: "",
-        secure: true,
-        fromAddress: "",
-        fromName: "",
-
-        template: {
-            enable: false,
-            default: "",
-            register: "",
-            login: "",
-            resetpasswd: ""
-        },
-    },
-    secret: {
-        jwt: crypto.randomBytes(32).toString("hex"),
-        yggdrasil: crypto.generateKeyPairSync("rsa", {modulusLength: 4096,publicKeyEncoding: {type: "spki",format: "pem"},privateKeyEncoding: {type: "pkcs8",format: "pem"}})
-    }
-}
-
 let config: Config
 const configPath = "config.yml"
 
-async function fixConfig(config: any) {
-    if (config === null) {
-        logger.info("配置文件不完整，正在从默认配置文件补全。")
-        try {
-            await writeFile(configPath, YAML.stringify(defaultConfig))
-            logger.info("补全完成，请检查配置文件。")
-            process.exit(0)
-        } catch (e: any) {
-            logger.error("补全配置文件失败。")
-            logger.error(`${e.name}: ${e.message}`)
+class HostValidator extends ValueValidator {
+    create() {
+        return "127.0.0.1"
+    }
+    verify(value: any): void | string {
+
+        if (typeof value === "string") {
+            const ip = value.split(".")
+            const isIp = ip.every(octet => {
+                const octetNumber = new Number(octet).valueOf()
+                if (Number.isNaN(octetNumber)) return false
+                if (octetNumber < 0 || octetNumber > 255) return false
+                return true
+            })
+            if (isIp) return
+        }
+        return "须为合法的IP地址"
+    }
+}
+
+class PortValidator extends ValueValidator {
+    private value: number;
+    constructor(value: number) {
+        super()
+        this.value = value
+    }
+    create() {
+        return this.value
+    }
+    verify(value: any): void | string {
+        if (
+            typeof value === "number" &&
+            value%1 === 0 &&
+            value >= 0 &&
+            value <= 65535
+        ) {
+            return
+        }
+        return "须为合法的端口"
+    }
+}
+
+const configSchema = {
+    server: {
+        host: new HostValidator(),
+        port: new PortValidator(10721),
+        corsOrigins: new class extends ValueValidator {
+            create() {
+                return []
+            }
+            verify(value: any): void | string {
+                if (Array.isArray(value)) {
+                    if (value.every(item => typeof item === "string")) return
+                } else if (typeof value === "string" && value === "*") {
+                    return
+                }
+                return "不是合法的CORS来源，须为正确的主机名数组或\"*\""
+            }
+        },
+        yggdrasilApiUrl: new class extends ValueValidator {
+            create() {
+                return "/yggdrasil"
+            }
+            verify(value: any): void | string {
+                if (typeof value === "string") {
+                    if (value.startsWith("/")) return
+                }
+                return "不是合法的Url，须为\"/\"开头的字符串"
+            }
+        },
+        log: {
+            logRequest: new BooleanValidator(false, "须为布尔值"),
+        },
+    },
+    database: {
+        host: new StringValidator("127.0.0.1", "不是合法的数据库主机，须为字符串"),
+        port: new PortValidator(27017),
+        user: new StringValidator("root", "不是合法的数据库用户名，须为字符串"),
+        password: new StringValidator("root", "不是合法的数据库密码，须为字符串"),
+        database: new StringValidator("mahiro-auth", "不是合法的数据库名，须为字符串"),
+    },
+    email: {
+        host: new StringValidator("example.email.com", "不是合法的邮件主机，须为字符串"),
+        port: new PortValidator(465),
+        username: new StringValidator("username", "不是合法的邮件用户名，须为字符串"),
+        password: new StringValidator("password", "不是合法的邮件密码，须为字符串"),
+        secure: new BooleanValidator(true, "须为布尔值"),
+        fromAddress: new StringValidator("username@example.email.com", "不是合法的邮件地址，须为字符串"),
+        fromName: new StringValidator("username", "不是合法的邮件昵称，须为字符串"),
+
+        template: {
+            enable: new BooleanValidator(false, "须为布尔值"),
+            default: new StringValidator("", "应为一个路径"),
+            register: new StringValidator("", "应为一个路径"),
+            login: new StringValidator("", "应为一个路径"),
+            resetpasswd: new StringValidator("", "应为一个路径"),
+        },
+    },
+    secret: {
+        jwt: new StringValidator(
+            crypto.randomBytes(32).toString("hex"),
+            "不是合法的JWT密钥，须为较长的字符串"
+        ),
+        yggdrasil: new class extends ValueValidator {
+            create() {
+                return crypto.generateKeyPairSync(
+                    "rsa",
+                    {
+                        modulusLength: 4096,
+                        publicKeyEncoding: {
+                            type: "spki",
+                            format: "pem"
+                        },
+                        privateKeyEncoding: {
+                            type: "pkcs8",
+                            format: "pem"
+                        }
+                    }
+                )
+            }
+            verify(value: any): void | string {
+                if (
+                    typeof value !== "object" ||
+                    !value.hasOwnProperty('publicKey') ||
+                    !value.hasOwnProperty('privateKey'
+                )
+                ) {
+                    return "不是合法的密钥对，须为包含\"publicKey\"和\"privateKey\"的对象"
+                }
+                const pubKey = value.publicKey
+                const privKey = value.privateKey
+                if (
+                    typeof pubKey !== 'string' ||
+                    typeof privKey !== 'string' ||
+                    !pubKey.startsWith('-----BEGIN PUBLIC KEY-----') ||
+                    !privKey.startsWith('-----BEGIN PRIVATE KEY-----') ||
+                    !pubKey.endsWith('-----END PUBLIC KEY-----\n') ||
+                    !privKey.endsWith('-----END PRIVATE KEY-----\n')
+                ) {
+                    return "\"publicKey\"和\"privateKey\"须为合法的公钥和私钥"
+                }
+            }
         }
     }
-    const {object: mergedConfig, modified} = mergeObject(config, defaultConfig)
-    if (modified) {
-        logger.info("配置文件不完整，正在从默认配置文件补全。")
-        try {
-            await writeFile(configPath, YAML.stringify(mergedConfig))
-            logger.info("补全完成，请检查配置文件。")
-            process.exit(0)
-        } catch (e: any) {
-            logger.error("补全配置文件失败。")
-            logger.error(`${e.name}: ${e.message}`)
-        }
-    }
 }
 
-function verifyConfig(config: Config) {
-    /**
-     * server
-     */
-    if (typeof config.server.host !== "string"/* 待改为判断是否是合法host */) throw ConfigErrorWithReason("server.host", config.server.host, "不是合法的主机。")
-    if (!isValidPort(config.server.port)) throw ConfigErrorWithReason("server.port", config.server.port, "不是合法的端口。")
-    if (typeof config.server.corsOrigins !== 'object' || !Array.isArray(config.server.corsOrigins) || config.server.corsOrigins.every((item: any) => typeof item !== "string")) ConfigErrorWithReason("server.corsOrigins", config.server.corsOrigins, "缺失或不为string[]。")
-    if (typeof config.server.apiBaseUrl !== "string") throw ConfigErrorByMissingOrInvalid("server.apiBaseUrl", config.server.apiBaseUrl)
-    if (typeof config.server.log.dir !== "string") throw ConfigErrorByMissingOrInvalid("server.logDir", config.server.log.dir)
-    if (typeof config.server.log.logRequest !== "boolean") throw ConfigErrorByMissingOrInvalid("server.logDir", config.server.log.logRequest)
 
-    /**
-     * database
-     */
-    if (typeof config.database.host !== "string"/* 待改为判断是否是合法host */) throw ConfigErrorWithReason("database.mysql.host", config.database.host, "不是合法的主机。")
-    if (!isValidPort(config.database.port)) throw ConfigErrorWithReason("database.mysql.port", config.database.port, "不是合法的端口。")
-    if (typeof config.database.user !== "string") throw ConfigErrorByMissingOrInvalid("database.mysql.user", config.database.user)
-    if (typeof config.database.password !== "string") throw ConfigErrorByMissingOrInvalid("database.mysql.user", config.database.password)
-    if (typeof config.database.database !== "string") throw ConfigErrorByMissingOrInvalid("database.mysql.database", config.database.database)
-
-    /**
-     * email
-     */
-    if (typeof config.email.host !== "string"/* 待改为判断是否是合法host */) throw ConfigErrorWithReason("email.host", config.email.host, "不是合法的主机。")
-    if (!isValidPort(config.email.port)) throw ConfigErrorWithReason("email.port", config.email.port, "不是合法的端口。")
-    if (typeof config.email.username !== "string") throw ConfigErrorByMissingOrInvalid("email.username", config.email.username)
-    if (typeof config.email.password !== "string") throw ConfigErrorByMissingOrInvalid("email.password", config.email.password)
-    if (typeof config.email.secure !== "boolean") throw ConfigErrorByMissingOrInvalid("email.encryption", config.email.secure)
-    if (typeof config.email.fromAddress !== "string") throw ConfigErrorByMissingOrInvalid("email.fromAddress", config.email.fromAddress)
-    if (typeof config.email.fromName !== "string") throw ConfigErrorByMissingOrInvalid("email.fromName", config.email.fromName)
-
-    if (typeof config.email.template.enable !== "boolean") throw ConfigErrorByMissingOrInvalid("emailTemplate.enable", config.email.template.enable)
-    if (typeof config.email.template.default !== "string") throw ConfigErrorByMissingOrInvalid("emailTemplate.default", config.email.template.default)
-    if (typeof config.email.template.register !== "string") throw ConfigErrorByMissingOrInvalid("emailTemplate.register", config.email.template.register)
-    if (typeof config.email.template.login !== "string") throw ConfigErrorByMissingOrInvalid("emailTemplate.login", config.email.template.login)
-    if (typeof config.email.template.resetpasswd !== "string") throw ConfigErrorByMissingOrInvalid("emailTemplate.resetpasswd", config.email.template.resetpasswd)
-
-    /**
-     * secret
-     */
-    if (typeof config.secret.jwt !== "string") throw ConfigErrorByMissingOrInvalid("secret.jwt", config.secret.jwt)
-    if (typeof config.secret.yggdrasil.privateKey !== "string") throw ConfigErrorByMissingOrInvalid("secret.yggdrasil.privateKey", config.secret.yggdrasil.privateKey)
-    if (typeof config.secret.yggdrasil.publicKey !== "string") throw ConfigErrorByMissingOrInvalid("secret.yggdrasil.privateKey", config.secret.yggdrasil.publicKey)
-}
-
-function isValidPort(value: any) {
-    return (
-        typeof value === "number" &&
-        value%1 === 0 &&
-        value >= 0 &&
-        value <= 65535
-    )
-}
-
-class ConfigError extends Error {
-    constructor(message: string) {
-        super(message)
-        this.name = "ConfigError"
-    }
-}
-
-function ConfigErrorByMissingOrInvalid(path: string, value: any) {
-    return ConfigErrorWithReason(path, value, "格式错误。")
-}
-
-function ConfigErrorWithReason(path: string, value: any, reason: string) {
-    return new ConfigError(`配置项([${path}]: ${JSON.stringify(value)})${reason}`)
-}
-
-export async function loadConfig(): Promise<void> {
-    if (process.env.develop === "develop") {
-        process.chdir("run")
-    }
+export async function initConfig(): Promise<void> {
+    logger = getLogger("config")
     try {
         await access(configPath, constants.F_OK | constants.R_OK | constants.W_OK)
+        const configFile = await readFile(configPath, "utf-8")
+        const resolvedConfig = YAML.parse(configFile)
+        if (resolvedConfig === undefined || resolvedConfig === null) throw new Error()
     } catch (e: any) {
         logger.info("配置文件不存在，正在创建默认配置文件。")
         try {
+            const defaultConfig = schema.create<Config>(configSchema)
             await writeFile(configPath, YAML.stringify(defaultConfig))
             logger.info("创建完成，请检查配置文件。")
             process.exit(0)
@@ -231,27 +222,35 @@ export async function loadConfig(): Promise<void> {
     }
     logger.info("加载配置文件中。")
     const configFile = await readFile(configPath, "utf-8")
-    try {
-        const resolvedConfig = YAML.parse(configFile)
-        await fixConfig(resolvedConfig)
-        verifyConfig(resolvedConfig)
-        config = resolvedConfig
-        logger.info("配置文件已加载。") 
-    } catch (e: any) {
-        if (e.name === "YAMLParseError" || e.name === "ConfigError") {
-            logger.error(`${e.name}: ${e.message}`)
-            process.exit(1)
-        }
-        throw e
+    const resolvedConfig = YAML.parse(configFile)
+    const afterConfig = JSON.stringify(resolvedConfig)
+    const resultList = schema.fix(resolvedConfig, configSchema)
+    const beforeConfig = JSON.stringify(resolvedConfig)
+    let exit = 0
+    if (resultList !== true && resultList.length !== 0) {
+        exit = 2
+        resultList.map(result => 
+            `配置项：\`${result.path}\`: ${result.value} ${result.reason}`
+        ).forEach(result => logger.error(result))
     }
+    if (afterConfig !== beforeConfig) {
+        if (exit === 0) exit = 1
+        logger.info("配置文件不完整，已补全，请检查配置文件")
+        try {
+            await writeFile(configPath, YAML.stringify(resolvedConfig))
+        } catch (e: any) {
+            logger.error("写入配置文件失败")
+            throw e
+        }
+    }
+    if (exit === 1) process.exit(0)
+    if (exit === 2) process.exit(1)
+    config = resolvedConfig
+    logger.info("配置文件已加载。") 
     return
 }
 
 export async function useConfig(): Promise<Config> {
-    if (config === undefined) await loadConfig()
+    if (config === undefined) await initConfig()
     return config
-}
-
-export async function useConfigCopy(): Promise<Config> {
-    return deepcopy(await useConfig())
 }

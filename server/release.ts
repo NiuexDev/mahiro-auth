@@ -65,7 +65,7 @@ const Mark = {
 const startIndex = changeLog.indexOf(Mark.start)
 const endIndex = changeLog.indexOf(Mark.end)
 
-const content = changeLog.substring(contentStartIndex, contentEndIndex).trim()
+const content = changeLog.substring(startIndex, endIndex).trim()
 
 const response = await octokit.rest.repos.createRelease({
     owner: meta.owner,

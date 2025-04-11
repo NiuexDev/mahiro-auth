@@ -209,18 +209,18 @@ export async function initConfig(): Promise<void> {
         const resolvedConfig = YAML.parse(configFile)
         if (resolvedConfig === undefined || resolvedConfig === null) throw new Error()
     } catch (e: any) {
-        logger.info("配置文件不存在，正在创建默认配置文件。")
+        logger.info("配置文件不存在，正在创建默认配置文件")
         try {
             const defaultConfig = schema.create<Config>(configSchema)
             await writeFile(configPath, YAML.stringify(defaultConfig))
-            logger.info("创建完成，请检查配置文件。")
+            logger.info("创建完成，请检查配置文件")
             process.exit(0)
         } catch (e: any) {
-            logger.error("写入配置文件失败。")
+            logger.error("写入配置文件失败")
             throw e
         }
     }
-    logger.info("加载配置文件中。")
+    logger.info("加载配置文件中")
     const configFile = await readFile(configPath, "utf-8")
     const resolvedConfig = YAML.parse(configFile)
     const afterConfig = JSON.stringify(resolvedConfig)
@@ -246,7 +246,7 @@ export async function initConfig(): Promise<void> {
     if (exit === 1) process.exit(0)
     if (exit === 2) process.exit(1)
     config = resolvedConfig
-    logger.info("配置文件已加载。") 
+    logger.info("配置文件已加载") 
     return
 }
 

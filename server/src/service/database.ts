@@ -22,10 +22,10 @@ export async function initDatabase() {
             dbName: database.database
         })
     } catch (e: any) {
-        logger.error(`数据库连接失败。${e.message}`)
+        logger.error(`数据库连接失败${e.message}`)
         throw e
     }
-        logger.info("数据库已连接。")
+        logger.info("数据库已连接")
     // const a = await User.register("114@ceale.top", "00000")
 }
 
@@ -67,7 +67,7 @@ export async function initDatabase() {
 // export async function insertMany(table: string, key: string[], value: any[][]): Promise<Result> {
 //     value.forEach((value, rowIndex) => {
 //         if (value.length !== key.length) 
-//             throw new DatabaseError(`插入数据与列不对应。第${rowIndex}个数据：${key.map((key, valueIndex)=>`${key}: ${JSON.stringify(value[valueIndex])||"<此处缺失>"}`).join(", ")}`)
+//             throw new DatabaseError(`插入数据与列不对应第${rowIndex}个数据：${key.map((key, valueIndex)=>`${key}: ${JSON.stringify(value[valueIndex])||"<此处缺失>"}`).join(", ")}`)
 //     })
 //     const columns = key.join(",")
 //     const data = value.flat()

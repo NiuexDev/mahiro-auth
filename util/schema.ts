@@ -1,4 +1,4 @@
-import { isInstance } from "./instance"
+import "~/util/class-instance"
 
 export abstract class ValueValidator {
     abstract create(): any
@@ -111,7 +111,7 @@ export const verify = (obj: any, schema: Schema) => {
                     reason: "不存在"
                 })
             }
-            else if (isInstance(schema[key], ValueValidator)) {
+            else if (ValueValidator.isInstance(schema[key])) {
                 const reason = (schema[key] as ValueValidator).verify(obj[key])
                 if (reason) {
                     resultList.push({
@@ -146,7 +146,7 @@ export const create = <T>(schema: Schema): T  => {
     const obj = {}
     const iterator = (schema: Schema, obj: any) => {
         for (const key in schema) {
-            if (isInstance(schema[key], ValueValidator)) {
+            if (ValueValidator.isInstance(schema[key])) {
                 obj[key] = (schema[key] as ValueValidator).create()
             } else if (typeof schema[key] === "object") {
                 if (Array.isArray(schema[key])) {
@@ -170,7 +170,7 @@ export const fix = (obj: any, schema: Schema) => {
         for (const key in schema) {
             path.push(key)
             if (obj[key] === undefined || obj[key] === null) {
-                if (isInstance(schema[key], ValueValidator)) {
+                if (ValueValidator.isInstance(schema[key])) {
                     obj[key] = (schema[key] as ValueValidator).create()
                 } else if (typeof schema[key] === "object") {
                     if (Array.isArray(schema[key])) {
@@ -181,7 +181,7 @@ export const fix = (obj: any, schema: Schema) => {
                     iterator(schema[key], obj[key])
                 }
             }
-            else if (isInstance(schema[key], ValueValidator)) {
+            else if (ValueValidator.isInstance(schema[key])) {
                 const reason = (schema[key] as ValueValidator).verify(obj[key])
                 if (reason) {
                     resultList.push({
@@ -218,7 +218,7 @@ export const put = (obj: any, schema: Schema) => {
         for (const key in schema) {
             path.push(key)
             if (obj[key] === undefined || obj[key] === null) {
-                if (isInstance(schema[key], ValueValidator)) {
+                if (ValueValidator.isInstance(schema[key])) {
                     obj[key] = (schema[key] as ValueValidator).create()
                 } else if (typeof schema[key] === "object") {
                     if (Array.isArray(schema[key])) {
@@ -229,7 +229,7 @@ export const put = (obj: any, schema: Schema) => {
                     iterator(schema[key], obj[key])
                 }
             }
-            else if (isInstance(schema[key], ValueValidator)) {
+            else if (ValueValidator.isInstance(schema[key])) {
                 const reason = (schema[key] as ValueValidator).verify(obj[key])
                 if (reason) {
                     obj[key] = (schema[key] as ValueValidator).create()

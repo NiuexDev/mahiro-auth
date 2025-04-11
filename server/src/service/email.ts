@@ -1,18 +1,23 @@
 import { createTransport } from "nodemailer"
-import { useConfig } from "@/service/config"
+import { Config, useConfig } from "@/service/config"
 import { readFile } from "fs/promises"
 import defaultTemplate from "@/assets/email_templa.html"
 
-const config = await useConfig()
-const transporter = createTransport({
-    host: config.email.host,
-    port: config.email.port,
-    secure: config.email.secure,
-    auth: {
-        user: config.email.username,
-        pass: config.email.password,
-    },
-})
+let transporter: any
+let config!: Config
+
+const initEmail = async () => {
+    config = await useConfig()
+    transporter = createTransport({
+        host: config.email.host,
+        port: config.email.port,
+        secure: config.email.secure,
+        auth: {
+            user: config.email.username,
+            pass: config.email.password,
+        },
+    })
+}
 
 async function safeReadFile(path: string) {
     try {

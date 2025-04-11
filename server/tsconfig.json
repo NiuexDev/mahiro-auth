@@ -21,7 +21,6 @@
     "noEmitOnError": true,
     "paths": {
       "@/*": ["./src/*"],
-      "type@/*": ["../type/*"],
       "~/*": ["../*"]
     },
   },
@@ -29,7 +28,7 @@
     "src/**/*",
     "../util/**/*",
     "../type/**/*",
-    "type.d.ts"
+    "../type.d.ts"
   ],
   "exclude": [
     "node_modules"

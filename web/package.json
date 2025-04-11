@@ -10,7 +10,7 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --build --force",
     "build:config": "vite build --mode production --ssr config.ts --outDir dist",
-    "release": "bun release.js"
+    "release": "bun release.ts"
   },
   "dependencies": {
     "pinia": "^2.1.7",

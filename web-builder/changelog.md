@@ -6,8 +6,15 @@
 > Commit 信息格式遵循[约定式提交（Conventional Commits）](http://conventionalcommits.org)标准。
 > 本变更日志遵循 [Keep a Changelog](http://keepachangelog.com/) 格式编写。
 
-## 1.0.0
+## 1.0.1
 <!-- Unreleased -->
+### 新增
+- 新增了更完善的日志提示
+### 修复
+- 修复了验证配置文件不通过时依然会进行打包的问题
+<!--/ Unreleased -->
+
+## 1.0.0
 ### 新增
 - 增加了`init` `clone` `initConfig` `build` `verifyConfig` `pack` `help` 命令
 - 增加了`config.yml`的覆盖警告
@@ -17,7 +24,6 @@
 - 修复创建`config.yml`时正确无法移除已存在的`config.yml`的问题
 ### 依赖变更
 - 新增了`ora ^8.2.0`
-<!--/ Unreleased -->
 
 ## 0.2.0
 初步编写中。完成了`clone`，`initConfig`的函数体

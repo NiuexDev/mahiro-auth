@@ -29,6 +29,7 @@ const clone = async () => {
 
     
     const spinner1 = ora({ text: '正在获取最新版本...', color: "yellow" })
+    spinner1.start()
     let release = undefined
     let page = 1
     do {
@@ -44,6 +45,7 @@ const clone = async () => {
     spinner1.stop()
 
     const spinner2 = ora({ text: '正在下载...', color: "green" })
+    spinner2.start()
     try {
         access("code.zip", constants.F_OK)
         const oldCodeTargz = await stat("code.zip")
@@ -90,6 +92,7 @@ const clone = async () => {
 }
 
 const initConfig = async (overwrite: boolean = false) => {
+    log("正在初始化配置文件...")
     const configBuilder = await import(process.cwd()+"/code/web/configBuilder.ts")
     const config = configBuilder.createConfig()
     const configText = stringifyYaml(config)
@@ -103,7 +106,7 @@ const initConfig = async (overwrite: boolean = false) => {
             if (overwrite) {
                 await unlink("config.yml")
             } else {
-                warn("config.yml 已经存在，如需要覆盖请使用 --overwrite 参数")
+                warn("config.yml 已经存在，如需要覆盖请使用\`--overwrite\`参数")
                 process.exit(1)
             }
         }
@@ -111,21 +114,28 @@ const initConfig = async (overwrite: boolean = false) => {
         if (e.code !== 'ENOENT') throw e
     }
     await writeFile("config.yml", configText)
+    log("初始化完成")
 }
 
 const verifyConfig = async () => {
+    log("正在验证配置文件...")
     const configBuilder = await import(process.cwd()+"/code/web/configBuilder.ts")
 
     const data = await readFile("config.yml", "utf-8")
     const result = configBuilder.verifyConfig(parseYaml(data))
-    if (result === true) return true
+    if (result === true) {
+        log("配置文件验证通过")
+        return
+    }
     result.forEach((result: any) => 
         error( `配置项：\`${result.path}\` ${result.reason}，当前值：${JSON.stringify(result.value)}`)
     )
-    return false
+    error("配置文件验证失败")
+    process.exit(1)
 }
 
 const pack = async () => {
+    log("正在打包...")
     const configYaml = await readFile("config.yml", "utf-8")
     const config = JSON.stringify(parseYaml(configYaml))
     const configTsData = "export const config = " + config
@@ -133,11 +143,13 @@ const pack = async () => {
     const bunPath = "bun"
 
     const spinner1 = ora({  text: '正在安装依赖...', color: "green" })
+    spinner1.start()
     execSync(`${bunPath} install`, { cwd: "code/web" })
     spinner1.succeed("依赖安装完成")
     spinner1.stop()
 
     const spinner2 = ora({ text: '正在构建...', color: "cyan" })
+    spinner1.start()
     execSync(`${bunPath} run build`, { cwd: "code/web" })
     spinner2.succeed("构建完成")
     spinner2.stop()

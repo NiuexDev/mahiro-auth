@@ -23,11 +23,12 @@ const octokit = new Octokit({
 let preTagName = undefined
 let page = 1
 do {
-    const releaseList = await octokit.rest.repos.listReleases({
+    const { data: releaseList } = await octokit.rest.repos.listReleases({
         owner: meta.owner,
         repo: meta.repo,
         page
     }) as {tag_name: string}[]
+    
     
     preTagName = releaseList.find(({tag_name}) => tag_name.includes("server"))?.tag_name
     page++
@@ -70,10 +71,11 @@ const content = changeLog.substring(contentStartIndex, contentEndIndex).trim()
 const response = await octokit.rest.repos.createRelease({
     owner: meta.owner,
     repo: meta.repo,
-    tag_name: tagName,          // 这个 tag 会被创建（如果不存在）并关联到 target_commitish
+    tag_name: tagName,
     name: `Server v${version}`,
     body: content,
-    target_commitish: "main", // 指定 tag 指向哪个 commit/branch
-    draft: false,               // false = 直接发布, true = 创建为草稿
-    prerelease: false,           // false = 正式版, true = 预发布版
+    target_commitish: "main",
+    draft: false,
+    prerelease: false,
 })
+

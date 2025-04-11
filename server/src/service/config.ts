@@ -230,8 +230,8 @@ export async function initConfig(): Promise<void> {
     if (resultList !== true && resultList.length !== 0) {
         exit = 2
         resultList.map(result => 
-            `配置项：\`${result.path}\`: ${result.value} ${result.reason}`
-        ).forEach(result => logger.error(result))
+           logger.error(`配置项：\`${result.path}\` ${result.reason}，当前值：${JSON.stringify(result.value)}`)
+        )
     }
     if (afterConfig !== beforeConfig) {
         if (exit === 0) exit = 1

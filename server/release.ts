@@ -2,7 +2,7 @@
 import { version } from "@/../package.json"
 import { execSync } from "child_process"
 import { log } from "console"
-import { readFile } from "fs/promises"
+import { readFile, readdir, stat } from "fs/promises"
 import { Octokit } from "octokit"
 
 const meta = {
@@ -77,3 +77,27 @@ const response = await octokit.rest.repos.createRelease({
     draft: false,
     prerelease: false,
 })
+
+const release_id = releaseResponse.data.id
+
+const distList = await readdir("./dist")
+
+const mimeType = 'application/octet-stream'
+
+for await (const fileName of distList) {
+    // console.log(file)
+    const fileData = await readFile(`./dist/${fileName}`)
+    const fileInfo = await stat(`./dist/${fileName}`)
+
+    await octokit.rest.repos.uploadReleaseAsset({
+        owner: meta.owner,
+        repo: meta.repo,
+        release_id: release_id,
+        name: fileName,
+        headers: {
+            'content-type': mimeType,
+            'content-length': fileInfo.size,
+        },
+        data: fileData,
+    })
+}

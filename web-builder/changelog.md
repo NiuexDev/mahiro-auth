@@ -6,13 +6,16 @@
 > Commit 信息格式遵循[约定式提交（Conventional Commits）](http://conventionalcommits.org)标准。
 > 本变更日志遵循 [Keep a Changelog](http://keepachangelog.com/) 格式编写。
 
-## 1.0.1
+## 1.0.2
 <!-- Unreleased -->
+### 变更
+- 微调了启动时版本号的显示
+<!--/ Unreleased -->
+## 1.0.1
 ### 新增
 - 新增了更完善的日志提示
 ### 修复
 - 修复了验证配置文件不通过时依然会进行打包的问题
-<!--/ Unreleased -->
 
 ## 1.0.0
 ### 新增

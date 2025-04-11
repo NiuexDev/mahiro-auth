@@ -32,7 +32,6 @@ do {
     
     preTagName = releaseList.find(({tag_name}) => tag_name.includes("server"))?.tag_name
     page++
-    // tagName
 } while (preTagName === undefined)
 
 let preVersion = preTagName

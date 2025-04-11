@@ -1,4 +1,4 @@
-import packageJson from "./package.json" assert { type: "json" }
+import packageJson from "./package.json" with { type: "json" }
 const version = packageJson.version
 import { readFile } from "fs/promises"
 import { Octokit } from "octokit"
@@ -27,8 +27,7 @@ do {
         page
     })
     
-    
-    preTagName = releaseList.find(({tag_name}) => tag_name.includes("web"))?.tag_name
+    preTagName = releaseList.find(({tag_name}) => tag_name.includes("web-v"))?.tag_name
     page++
 } while (preTagName === undefined)
 

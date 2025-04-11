@@ -30,7 +30,7 @@ do {
     }) as {tag_name: string}[]
     
     
-    preTagName = releaseList.find(({tag_name}) => tag_name.includes("web-builder"))?.tag_name
+    preTagName = releaseList.find(({tag_name}) => tag_name.includes("web-builder-v"))?.tag_name
     page++
 } while (preTagName === undefined)
 

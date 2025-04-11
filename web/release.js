@@ -1,5 +1,5 @@
-import { version } from "@/../package.json"
-import { readFile, readdir, stat } from "fs/promises"
+import { version } from "./package.json"
+import { readFile } from "fs/promises"
 import { Octokit } from "octokit"
 
 const meta = {

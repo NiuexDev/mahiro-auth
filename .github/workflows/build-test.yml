@@ -25,7 +25,7 @@ jobs:
       - name: Upload server artifact
         uses: actions/upload-artifact@v4
         with:
-          name: server-build
+          name: server
           path: server/dist/
 
   build-web:
@@ -49,5 +49,27 @@ jobs:
       - name: Upload web artifact
         uses: actions/upload-artifact@v4
         with:
-          name: web-build
+          name: web
           path: web/dist/
+
+  build-web-builder:
+    name: Build Web Builder
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies and build web
+        working-directory: ./web-builder
+        run: |
+          bun install
+          bun run build
+
+      - name: Upload web artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-builder
+          path: web-builder/dist/

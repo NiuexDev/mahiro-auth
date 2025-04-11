@@ -1,7 +1,4 @@
-// @ts-nocheck
 import { version } from "@/../package.json"
-import { execSync } from "child_process"
-import { log } from "console"
 import { readFile, readdir, stat } from "fs/promises"
 import { Octokit } from "octokit"
 
@@ -27,15 +24,15 @@ do {
         owner: meta.owner,
         repo: meta.repo,
         page
-    }) as {tag_name: string}[]
+    })
     
     
-    preTagName = releaseList.find(({tag_name}) => tag_name.includes("server"))?.tag_name
+    preTagName = releaseList.find(({tag_name}) => tag_name.includes("web"))?.tag_name
     page++
 } while (preTagName === undefined)
 
 let preVersion = preTagName
-    .match(/server-v(\d+\.\d+\.\d+)/)![1]
+    .match(/web-v(\d+\.\d+\.\d+)/)![1]
     .split(".")
     .map(n => {
         return Number(n)
@@ -54,7 +51,7 @@ if (!isUpdate) {
     process.exit(0)
 }
 
-const tagName = "server-v" + version
+const tagName = "web-v" + version
 
 const changeLog = await readFile("./changelog.md", "utf-8")
 const Mark = {
@@ -71,32 +68,9 @@ const response = await octokit.rest.repos.createRelease({
     owner: meta.owner,
     repo: meta.repo,
     tag_name: tagName,
-    name: `Server v${version}`,
+    name: `Web v${version}`,
     body: content,
     target_commitish: "main",
     draft: false,
     prerelease: false,
 })
-
-const release_id = response.data.id
-
-const distList = await readdir("./dist")
-
-const mimeType = 'application/octet-stream'
-
-for await (const fileName of distList) {
-    const fileData = await readFile(`./dist/${fileName}`)
-    const fileInfo = await stat(`./dist/${fileName}`)
-
-    await octokit.rest.repos.uploadReleaseAsset({
-        owner: meta.owner,
-        repo: meta.repo,
-        release_id: release_id,
-        name: fileName,
-        headers: {
-            'content-type': mimeType,
-            'content-length': fileInfo.size,
-        },
-        data: fileData,
-    })
-}

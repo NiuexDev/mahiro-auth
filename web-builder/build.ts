@@ -1,4 +1,6 @@
 import { build } from "esbuild"
+import { execSync } from "node:child_process"
+import { access, constants, mkdir } from "node:fs/promises"
 
 try {
     await access("dist", constants.F_OK)
@@ -17,5 +19,8 @@ await build({
     target: "esnext",
     keepNames: true,
     format: "esm",
-    outfile: "dist/app.js",
+    outfile: "dist/web-builder.js",
+    define: {
+        "process.env.commitHash": JSON.stringify(commitHash),
+    }
 })

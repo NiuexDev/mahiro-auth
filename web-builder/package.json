@@ -1,6 +1,6 @@
 {
-  "name": "web-builder",
-  "version": "0.0.0",
+  "name": "mahiro-auth-web-builder",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "build": "bun build.ts",

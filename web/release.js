@@ -32,7 +32,7 @@ do {
 } while (preTagName === undefined)
 
 let preVersion = preTagName
-    .match(/web-v(\d+\.\d+\.\d+)/)![1]
+    .match(/web-v(\d+\.\d+\.\d+)/)[1]
     .split(".")
     .map(n => {
         return Number(n)

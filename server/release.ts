@@ -62,8 +62,8 @@ const Mark = {
     end: "<!--/ Unreleased -->"
 }
 
-const startIndex = changelogContent.indexOf(Mark.start)
-const endIndex = changelogContent.indexOf(Mark.end)
+const startIndex = changeLog.indexOf(Mark.start)
+const endIndex = changeLog.indexOf(Mark.end)
 
 const content = changeLog.substring(contentStartIndex, contentEndIndex).trim()
 

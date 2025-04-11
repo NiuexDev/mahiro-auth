@@ -6,7 +6,7 @@ on:
 
 jobs:
   server:
-    name: Build: Server
+    name: Build Server
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -26,7 +26,7 @@ jobs:
           bun run release
 
   web:
-    name: Build: Web
+    name: Build Web
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -45,7 +45,7 @@ jobs:
           npm run release
 
   web-builder:
-    name: Build: Web Builder
+    name: Build Web Builder
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

@@ -26,8 +26,6 @@ const meta = {
 }
 
 const clone = async () => {
-
-    
     const spinner1 = ora({ text: '正在获取最新版本...', color: "yellow" })
     spinner1.start()
     let release = undefined
@@ -45,7 +43,7 @@ const clone = async () => {
     spinner1.stop()
 
     const spinner2 = ora({ text: '正在下载...', color: "green" })
-    spinner2.start()
+    // spinner2.start()
     try {
         access("code.zip", constants.F_OK)
         const oldCodeTargz = await stat("code.zip")
@@ -87,6 +85,19 @@ const clone = async () => {
     await unlink("code.zip")
     const configData = await (await fetch(release.assets[0].browser_download_url, { method: "GET" })).arrayBuffer()
     await writeFile("code/web/configBuilder.ts", Buffer.from(configData), "utf-8")
+
+    const refResponse = await octokit.rest.git.getRef({
+        owner: meta.owner,
+        repo: meta.repo,
+        ref: `tags/${release.tag_name}`,
+    })
+    const tagObjectSha = refResponse.data.object.sha
+    await writeFile(
+        "code/web/vite.config.ts",
+        (await readFile("code/web/vite.config.ts", "utf-8")).replace("\"___COMMIT_HASH___\"", tagObjectSha.trim().slice(0, 7)),
+        "utf-8"
+    )
+    
     spinner2.succeed("下载完成")
     spinner2.stop()
 }

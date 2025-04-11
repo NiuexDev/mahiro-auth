@@ -78,7 +78,7 @@ const response = await octokit.rest.repos.createRelease({
     prerelease: false,
 })
 
-const release_id = releaseResponse.data.id
+const release_id = response.data.id
 
 const distList = await readdir("./dist")
 

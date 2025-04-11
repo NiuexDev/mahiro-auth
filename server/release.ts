@@ -77,4 +77,3 @@ const response = await octokit.rest.repos.createRelease({
     draft: false,
     prerelease: false,
 })
-

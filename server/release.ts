@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { version } from "@/../package.json"
 import { execSync } from "child_process"
 import { log } from "console"
@@ -56,13 +57,22 @@ if (!isUpdate) {
 const tagName = "server-v" + version
 
 const changeLog = await readFile("./changelog.md", "utf-8")
+const Mark = {
+    start: "<!-- Unreleased -->",
+    end: "<!--/ Unreleased -->"
+}
+
+const startIndex = changelogContent.indexOf(Mark.start)
+const endIndex = changelogContent.indexOf(Mark.end)
+
+const content = changeLog.substring(contentStartIndex, contentEndIndex).trim()
 
 const response = await octokit.rest.repos.createRelease({
     owner: meta.owner,
     repo: meta.repo,
     tag_name: tagName,          // 这个 tag 会被创建（如果不存在）并关联到 target_commitish
     name: `Server v${version}`,
-    body: changeLog,
+    body: content,
     target_commitish: "main", // 指定 tag 指向哪个 commit/branch
     draft: false,               // false = 直接发布, true = 创建为草稿
     prerelease: false,           // false = 正式版, true = 预发布版

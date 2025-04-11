@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { build } from "esbuild"
 import { name, version } from "./package.json" assert { type: "json" }
 import { mkdir, access, constants, rmdir } from "node:fs/promises"

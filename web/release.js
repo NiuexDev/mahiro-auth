@@ -1,4 +1,5 @@
-import { version } from "./package.json"
+import packageJson from "./package.json" assert { type: "json" }
+const version = packageJson.version
 import { readFile } from "fs/promises"
 import { Octokit } from "octokit"
 

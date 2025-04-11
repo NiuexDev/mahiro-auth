@@ -75,3 +75,22 @@ const response = await octokit.rest.repos.createRelease({
     draft: false,
     prerelease: false,
 })
+
+const release_id = response.data.id
+
+const mimeType = 'application/octet-stream'
+
+const fileData = await readFile("./dist/config.js")
+const fileInfo = await stat("./dist/config.js")
+
+await octokit.rest.repos.uploadReleaseAsset({
+    owner: meta.owner,
+    repo: meta.repo,
+    release_id: release_id,
+    name: "config.js",
+    headers: {
+        'content-type': mimeType,
+        'content-length': fileInfo.size,
+    },
+    data: fileData,
+})

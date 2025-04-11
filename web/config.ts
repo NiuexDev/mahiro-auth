@@ -1,4 +1,4 @@
-import { StringValidator } from "~/util/schema"
+import { BooleanValidator, create, StringValidator, verify } from "~/util/schema"
 
 const isViteEnv = !!(
     typeof import.meta !== 'undefined' && 
@@ -6,18 +6,26 @@ const isViteEnv = !!(
     (import.meta.env.DEV || import.meta.env.PROD)
 )
 
+type Config = {
+    apiBaseUrl: string,
+    title: string,
+    description: string,
+    allowUseUsernameLogin: boolean
+}
+
 const configSchema = {
     apiBaseUrl: new StringValidator(isViteEnv ? "http://localhost:10721" : "/api"),
+    title: new StringValidator("まひろ验证"),
+    description: new StringValidator("Moe Mahiro!"),
+    allowUseUsernameLogin: new BooleanValidator(false)
 }
 
 export const createConfig = () => {
-    return {
-        apiBaseUrl: isViteEnv ? "http://localhost:10721" : "/api",
-        title: "北屿验证",
-        description: "string",
+    return create<Config>(configSchema)
+}
 
-        allowUseUsernameLogin: false
-    }
+export const verifyConfig = (config: any) => {
+    return verify(config, configSchema)
 }
 
 export const config = createConfig()

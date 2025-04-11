@@ -79,7 +79,7 @@ export const sendEmail = async (title: string, content: string, to: string) => {
 }
 
 const setting = {
-    sitename: "真寻验证",
+    sitename: "まひろ验证",
     copyright: "版权所有"
 }
 

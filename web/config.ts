@@ -1,8 +1,14 @@
+import { StringValidator } from "~/util/schema"
+
 const isViteEnv = !!(
     typeof import.meta !== 'undefined' && 
     import.meta.env && 
     (import.meta.env.DEV || import.meta.env.PROD)
 )
+
+const configSchema = {
+    apiBaseUrl: new StringValidator(isViteEnv ? "http://localhost:10721" : "/api"),
+}
 
 export const createConfig = () => {
     return {

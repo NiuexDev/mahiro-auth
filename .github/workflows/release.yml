@@ -46,9 +46,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         working-directory: ./web
         run: |
-          npm install
-          npm run type-check
-          npm run release
+          bun install
+          bun run type-check
+          bun run build:config
+          bun run release
 
   web-builder:
     name: Build Web Builder

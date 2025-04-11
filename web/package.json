@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --build --force",
-    "release": "node release.js"
+    "build:config": "vite build --mode production --ssr config.ts --outDir dist",
+    "release": "bun release.js"
   },
   "dependencies": {
     "pinia": "^2.1.7",

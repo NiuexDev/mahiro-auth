@@ -1,2 +1,4 @@
 [define]
 "process.env.develop" = "'develop'"
+[loader]
+".html" = "text"

@@ -2,12 +2,51 @@ import { createTransport } from "nodemailer"
 import { Config, useConfig } from "@/service/config"
 import { readFile } from "fs/promises"
 import defaultTemplate from "@/assets/email_templa.html"
+import { Logger } from "winston"
+import { getLogger } from "@/service/logger"
+import { load as loadHtml } from "cheerio"
 
 let transporter: any
 let config!: Config
+let emailTemplate: { default: string; register: string; login: string; resetpasswd: string }
+let logger: Logger
 
-const initEmail = async () => {
+const safeReadFile = async (path: string) => {
+    try {
+        return (await readFile(path, "utf-8"))
+    } catch (error) {
+        return null
+    }
+}
+
+const loadEmailTemplate = async() => {
+    if (config.email.template.enable) {
+        const path = config.email.template
+        const a = await Promise.all([
+            await safeReadFile(path.default),
+            await safeReadFile(path.register),
+            await safeReadFile(path.login),
+            await safeReadFile(path.resetpasswd)
+        ])
+        return {
+            default: a[0] ?? defaultTemplate,
+            register: a[1] ?? a[0] ?? defaultTemplate,
+            login: a[2] ?? a[0] ?? defaultTemplate,
+            resetpasswd: a[3] ?? a[0] ?? defaultTemplate
+        }
+    } else {
+        return {
+            default: defaultTemplate,
+            register: defaultTemplate,
+            login: defaultTemplate,
+            resetpasswd: defaultTemplate
+        }
+    }
+}
+
+export const initEmail = async () => {
     config = await useConfig()
+    logger = await getLogger("email")
     transporter = createTransport({
         host: config.email.host,
         port: config.email.port,
@@ -17,42 +56,21 @@ const initEmail = async () => {
             pass: config.email.password,
         },
     })
+    emailTemplate = await loadEmailTemplate()
+    
 }
 
-async function safeReadFile(path: string) {
-    try {
-        return (await readFile(path)).toString("utf-8")
-    } catch (error) {
-        return null
+const fillTemplate = (template: string, placeholders: { [key: string]: string }) => {
+    return template.replaceAll(
+        /\{\{([^}]+)\}\}/g,
+        (raw, key) => {
+            return placeholders[(key as string).trim()] ?? raw
     }
+    )
 }
 
-const emailTemplate = await (async() => {
-    if (config.email.template.enable) {
-        const customDefault = await safeReadFile(config.email.template.default) || defaultTemplate
-        const [customRegister, customLogin, customResetpasswd] = await Promise.all([
-            await safeReadFile(config.email.template.register) || customDefault,
-            await safeReadFile(config.email.template.login) || customDefault,
-            await safeReadFile(config.email.template.resetpasswd) || customDefault
-        ])
-        return {
-            customDefault,
-            customRegister,
-            customLogin,
-            customResetpasswd
-        }
-    } else {
-        return {
-            customDefault: defaultTemplate,
-            customRegister: defaultTemplate,
-            customLogin: defaultTemplate,
-            customResetpasswd: defaultTemplate
-        }
-    }
-})()
-
-export async function send(title: any, content: any, to: any) {
-    const a = await transporter.sendMail({
+export const sendEmail = async (title: string, content: string, to: string) => {
+    await transporter.sendMail({
         from: `"${config.email.fromName}" <${config.email.fromAddress}>`,
         to: to,
         subject: title,
@@ -60,13 +78,23 @@ export async function send(title: any, content: any, to: any) {
     })
 }
 
-export async function sendRegister(code: string, to: string) {
-    await send(
-        "注册验证",
-        emailTemplate.customRegister
-            .replaceAll("{{sitename}}", "真寻验证")
-            .replaceAll("{{code}}", code)
-            .replaceAll("{{copyright}}", "版权所有"),
-        to
+const setting = {
+    sitename: "真寻验证",
+    copyright: "版权所有"
+}
+
+type TemplateType = "default" | "register" | "login" | "resetpasswd"
+export const sendTemplate = async (type: TemplateType, code: string, to: string) => {
+    const html = loadHtml(
+        fillTemplate(
+            emailTemplate[type], {
+                sitename: setting.sitename,
+                code,
+                copyright: setting.copyright
+            }
+        )
     )
+    const title = html("title").text()
+    const content = html("div").first().html()!
+    await sendEmail(title, content, to)
 }

@@ -1,26 +1,27 @@
 import { name, version } from "@/../package.json"
 import { initConfig } from "@/service/config"
+import { initEmail, sendTemplate } from "@/service/email"
 import { getLogger } from "@/service/logger"
 import { startServer } from "@/service/server"
-import * as console from "node:console"
+import { send } from "h3"
 import { access, constants, mkdir } from "node:fs/promises"
 import { logo } from "~/logo"
+import { tryCatch } from "~/util/try-catch"
+import "~/util/class-instance"
 
-const versionStr = `v${version} (${process.env.commitHash?.slice(0, 7)})`
+const versionStr = `v${version} (${process.env.commitHash})`
 console.info()
 console.info(logo)
 console.info()
 console.info(name + String().padEnd(logo.split("\n").at(-1)!.length-name.length-versionStr.length, " ") + versionStr)
 console.info()
 
-try {
-    await access("data", constants.F_OK)
-} catch (e) {
-    try {
-        await mkdir("data")
-    } catch (e) {
+const { error } = await tryCatch(access("data", constants.F_OK))
+if (error) {
+    const { error } = await tryCatch(mkdir("data"))
+    if (error) {
         console.error("创建数据目录失败")
-        throw e
+        throw error
     }
 }
 try {
@@ -34,5 +35,6 @@ const logger = getLogger("main")
 logger.info("正在启动服务")
 await initConfig()
 
+await initEmail()
 await startServer()
 logger.info("服务已启动")

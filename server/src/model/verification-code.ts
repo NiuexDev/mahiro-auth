@@ -1,10 +1,10 @@
 import { randomUUID } from "crypto"
 import { UUID } from "mongodb"
-import { model, Schema } from "mongoose"
+import { Model, model, Schema } from "mongoose"
 
 const char = Array.from("23456789ABCDEFGHJKLMNPQRSTUVWXYZ")
 
-const codeSchema = new Schema({
+export const vcodeSchema = new Schema({
     id: { type: UUID, required: true, unique: true, index: true },
     key: { type: String, required: true },
     code: { type: String, required: true },
@@ -30,4 +30,4 @@ const codeSchema = new Schema({
     }
 })
 
-export const Code = model("verification-code", codeSchema)
+export const vcodeModel = model("vcode", vcodeSchema)

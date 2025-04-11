@@ -1,6 +1,6 @@
 import { build } from "esbuild"
 import { name, version } from "./package.json" assert { type: "json" }
-import { mkdir, access, constants } from "node:fs/promises"
+import { mkdir, access, constants, rmdir } from "node:fs/promises"
 import { log } from "node:console"
 import { execSync } from "node:child_process"
 

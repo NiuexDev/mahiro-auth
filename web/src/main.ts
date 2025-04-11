@@ -1,11 +1,21 @@
 import "@/assets/css/main.css"
 
+import { name, version } from "@/../package.json"
 import { createApp } from "vue"
 import App from "@/App.vue"
 import router from "@/router"
 import i18n from "@/lang/init"
 import { createPinia } from "pinia"
 import { useMetaData } from "@/services/useMetaData"
+import { logo } from "~/logo"
+
+const versionStr = `v${version} (${import.meta.env.commitHash})`
+console.info(`
+${logo}
+
+${name + String().padEnd(logo.split("\n").at(-1)!.length-name.length-versionStr.length, " ") + versionStr}
+
+`)
 
 const pinia = createPinia()
 

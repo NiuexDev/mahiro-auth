@@ -7,10 +7,12 @@
     "config.ts",
     "../util/**/*",
     "../type/**/*",
-    "../type.d.ts"
+    "../type.d.ts",
+    "../logo.ts"
   ],
   "exclude": ["src/**/__tests__/*"],
   "compilerOptions": {
+    "lib": ["ESNext"],
     "composite": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
 

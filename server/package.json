@@ -1,13 +1,15 @@
 {
   "name": "mahiro-auth-server",
-  "version": "0.0.27",
+  "version": "0.1.0",
   "type": "module",
   "private": true,
   "scripts": {
     "dev": "bun --watch src/main.ts",
+    "test": "tsc",
     "build": "bun build.ts"
   },
   "dependencies": {
+    "cheerio": "^1.0.0",
     "h3": "^1.13.0",
     "mongodb": "^6.12.0",
     "mongoose": "^8.9.5",

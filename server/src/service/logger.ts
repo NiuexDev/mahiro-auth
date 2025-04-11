@@ -18,7 +18,8 @@ export const getLogger = (name: string) => {
                 stderrLevels: ["error"],
                 format: combine(
                     colorize({ all: true }),
-                )
+                ),
+                level: process.env.develop ? "debug" : "info"
             }),
             new DailyRotateFile({
                 datePattern: "YYYY-MM-DD",

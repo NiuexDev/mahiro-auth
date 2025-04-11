@@ -1,9 +1,11 @@
 // import { useRouter } from "@/router"
-import { joinUrl } from "@/util/url"
 import { createApp, sendWebResponse, defineEventHandler, getRequestIP, setResponseHeader, getHeader, toNodeListener } from "h3"
 import { createServer } from "http"
 import { useConfig } from "@/service/config"
 import { getLogger } from "@/service/logger"
+import { useRouter } from "@/service/router"
+import "@/router/index"
+
 
 export const startServer = async () => {
 
@@ -39,7 +41,7 @@ export const startServer = async () => {
         }))
     }
 
-    // app.use(await useRouter())
+    app.use(await useRouter())
 
     const port = await ( async () => {
         let port = config.server.port

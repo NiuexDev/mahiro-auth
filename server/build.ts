@@ -48,6 +48,6 @@ process.chdir("dist")
 
 for (const platform of platforms) {
     log(`${platform} build start`)
-    execSync(`bun build app.js --compile --target=${platform} --sourcemap --outfile "${name}_v${version}_${platform}"`)
+    execSync(`bun build ${name}_v${version}.js --compile --target=${platform} --sourcemap --outfile "${name}_v${version}_${platform}"`)
     log(`${platform} build success`)
 }

@@ -26,7 +26,7 @@ await build({
       ".html": "text"
     },
     format: "esm",
-    outfile: "dist/app.js",
+    outfile: `dist/${name}_v${version}.js`,
     define: {
         "process.env.commitHash": JSON.stringify(commitHash),
     }

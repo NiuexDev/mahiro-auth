@@ -101,7 +101,7 @@ export const verify = (obj: any, schema: Schema) => {
     const resultList: {path: string, value: any, reason: string}[] = []
 
     const path: string[] = []
-    const iterator = (schema: Schema, obj: any) => {
+    const iterator = (schema: any, obj: any) => {
         for (const key in schema) {
             path.push(key)
             if (obj[key] === undefined || obj[key] === null) {
@@ -122,6 +122,7 @@ export const verify = (obj: any, schema: Schema) => {
                 }
             }
             else if (typeof schema[key] === "object" && typeof obj[key] === "object") {
+            
                 iterator(schema[key], obj[key])
             } else {
                 resultList.push({
@@ -144,7 +145,7 @@ export const verify = (obj: any, schema: Schema) => {
 
 export const create = <T>(schema: Schema): T  => {
     const obj = {}
-    const iterator = (schema: Schema, obj: any) => {
+    const iterator = (schema: any, obj: any) => {
         for (const key in schema) {
             if (ValueValidator.isInstance(schema[key])) {
                 obj[key] = (schema[key] as ValueValidator).create()
@@ -166,7 +167,7 @@ export const fix = (obj: any, schema: Schema) => {
     if (typeof obj !== "object") throw new Error("须传入一个对象")
     const resultList: {path: string, value: any, reason: string}[] = []
     const path: string[] = []
-    const iterator = (schema: Schema, obj: any) => {
+    const iterator = (schema: any, obj: any) => {
         for (const key in schema) {
             path.push(key)
             if (obj[key] === undefined || obj[key] === null) {
@@ -214,7 +215,7 @@ export const put = (obj: any, schema: Schema) => {
     if (typeof obj !== "object") throw new Error("须传入一个对象")
 
     const path: string[] = []
-    const iterator = (schema: Schema, obj: any) => {
+    const iterator = (schema: any, obj: any) => {
         for (const key in schema) {
             path.push(key)
             if (obj[key] === undefined || obj[key] === null) {

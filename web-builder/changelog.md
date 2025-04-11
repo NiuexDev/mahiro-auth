@@ -6,9 +6,16 @@
 > Commit 信息格式遵循[约定式提交（Conventional Commits）](http://conventionalcommits.org)标准。
 > 本变更日志遵循 [Keep a Changelog](http://keepachangelog.com/) 格式编写。
 
-
-
+## 0.2.1
 <!-- Unreleased -->
+### 新增
+- 增加了`config.yml`的覆盖警告
+### 变更
+- `configBuilder.ts`改为从release的assets中获取
+### 修复
+- 修复创建`config.yml`时正确无法移除已存在的`config.yml`的问题
+<!--/ Unreleased -->
+
 ## 0.2.0
 初步编写中。完成了`clone`，`initConfig`的函数体。
 ### 新增
@@ -17,4 +24,3 @@
 ### 依赖变更
 - 新增了`adm-zip ^0.5.16`
 - 新增了`yaml ^2.7.1`
-<!--/ Unreleased -->

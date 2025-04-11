@@ -1,4 +1,4 @@
-import { log } from "console"
+import { error, log, warn } from "console"
 import { name, version } from "./package.json"
 import { Octokit } from "octokit"
 import { writeFile } from "fs/promises"
@@ -11,6 +11,7 @@ import { access } from "fs/promises"
 import { readdir } from "fs/promises"
 import { rename } from "fs/promises"
 import { parse, stringify } from "yaml"
+import { execSync } from "child_process"
 
 log(`${name} v${version}(${process.env.commitHash})`)
 
@@ -78,29 +79,30 @@ const clone = async () => {
     if (b === undefined) throw new Error("release not found")
     await rename(b, "code")
     await unlink("code.zip")
-    await rename("code/web/config.ts", "code/web/configBuilder.ts")
+
+    if (release.assets[0].url) throw new Error("configBuilder cont download")
+
+    const configData = await (await fetch(release.assets[0].url, { method: "GET" })).arrayBuffer()
+    await writeFile("code/web/configBuilder.ts", Buffer.from(configData), "utf-8")
 }
 
-const initConfig = async () => {
-    try {
-        await access("code/web/configBuilder.ts", constants.F_OK)
-        if (!(await stat("code/web/configBuilder.ts")).isFile()) {
-            throw new Error("configBuilder.ts not found")
-        }
-    } catch (e) {
-        if (e.code !== 'ENOENT') throw e
-    }
+const initConfig = async (overwrite: boolean = false) => {
     const configBuilder = await import(process.cwd()+"/code/web/configBuilder.ts")
     const config = configBuilder.createConfig()
     const configText = stringify(config)
     try {
         await access("config.yml", constants.F_OK)
         const a = await stat("config.yml")
-        if (a.isFile()) {
-            await unlink("code")
-        }
         if (a.isDirectory()) {
-            await rmdir("code", { recursive: true })
+            await rmdir("config.yml", { recursive: true })
+        }
+        if (a.isFile()) {
+            if (overwrite) {
+                await unlink("config.yml")
+            } else {
+                warn("config.yml 已经存在，如需要覆盖请使用 --overwrite 参数")
+                process.exit(1)
+            }
         }
     } catch (e) {
         if (e.code !== 'ENOENT') throw e

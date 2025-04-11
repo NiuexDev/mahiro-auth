@@ -1,10 +1,12 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "noEmit": true,
     "lib": ["ESNext"],
     "target": "ESNext",
     "module": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
+    "types": ["bun-types"],
     "declaration": true,
     "removeComments": true,
     "noImplicitAny": true,

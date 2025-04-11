@@ -1,9 +1,7 @@
-import { getLogger } from "@/service/logger"
 import { isEamil, isSecurePassword } from "@/util/regexp"
 import { log } from "console"
 import { defineEventHandler, readBody, readRawBody, readValidatedBody, sanitizeStatusCode, send, sendWebResponse, setResponseStatus } from "h3"
 import { User } from "@/model/user"
-import { Code } from "@/model/verification-code"
 
 interface schema {
     email: string
@@ -41,12 +39,12 @@ export default defineEventHandler(async (event) => {
             reason: "password"
         }
     }
-    if (!await Code.verify(body.codeid, body.email, body.code)) {
-        return {
-            state: "fail",
-            reason: "code"
-        }
-    }
+    // if (!await Code.verify(body.codeid, body.email, body.code)) {
+    //     return {
+    //         state: "fail",
+    //         reason: "code"
+    //     }
+    // }
     if (await User.exists({ email: body.email })) {
         return {
             state: "fail",

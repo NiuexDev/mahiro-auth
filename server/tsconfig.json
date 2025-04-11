@@ -29,7 +29,9 @@
     "src/**/*",
     "../util/**/*",
     "../type/**/*",
-    "../type.d.ts"
+    "../type.d.ts",
+    "build.ts",
+    "release.ts"
   ],
   "exclude": [
     "node_modules"

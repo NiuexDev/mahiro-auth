@@ -30,12 +30,12 @@ do {
     }) as {tag_name: string}[]
     
     
-    preTagName = releaseList.find(({tag_name}) => tag_name.includes("web-build"))?.tag_name
+    preTagName = releaseList.find(({tag_name}) => tag_name.includes("web-builder"))?.tag_name
     page++
 } while (preTagName === undefined)
 
 let preVersion = preTagName
-    .match(/web-build-v(\d+\.\d+\.\d+)/)![1]
+    .match(/web-builder-v(\d+\.\d+\.\d+)/)![1]
     .split(".")
     .map(n => {
         return Number(n)
@@ -54,7 +54,7 @@ if (!isUpdate) {
     process.exit(0)
 }
 
-const tagName = "web-build-v" + version
+const tagName = "web-builder-v" + version
 
 const changeLog = await readFile("./changelog.md", "utf-8")
 const Mark = {
@@ -71,7 +71,7 @@ const response = await octokit.rest.repos.createRelease({
     owner: meta.owner,
     repo: meta.repo,
     tag_name: tagName,
-    name: `Web Build v${version}`,
+    name: `Web Builder v${version}`,
     body: content,
     target_commitish: "main",
     draft: false,
@@ -82,14 +82,14 @@ const release_id = response.data.id
 
 const mimeType = 'application/octet-stream'
 
-const fileData = await readFile(`./dist/web-build.js`)
-const fileInfo = await stat(`./dist/web-build.js`)
+const fileData = await readFile(`./dist/web-builder.js`)
+const fileInfo = await stat(`./dist/web-builder.js`)
 
 await octokit.rest.repos.uploadReleaseAsset({
     owner: meta.owner,
     repo: meta.repo,
     release_id: release_id,
-    name: fileName,
+    name: "web-builder.js",
     headers: {
         'content-type': mimeType,
         'content-length': fileInfo.size,

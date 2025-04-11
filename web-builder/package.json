@@ -1,0 +1,16 @@
+{
+  "name": "web-builder",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "bun build.ts",
+    "release": "bun run build && bun release.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "esbuild": "^0.25.2"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

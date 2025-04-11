@@ -1,0 +1,60 @@
+name: Build Release
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  server:
+    name: Build: Server
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies and build server
+        working-directory: ./server
+        run: |
+          bun install 
+          bun run test
+          bun run build
+          bun run release
+
+  web:
+    name: Build: Web
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies and build web
+        working-directory: ./web
+        run: |
+          npm install
+          npm run type-check
+          npm run release
+
+  web-builder:
+    name: Build: Web Builder
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies and build web
+        working-directory: ./web-builder
+        run: |
+          npm install
+          npm run build
+          npm run release

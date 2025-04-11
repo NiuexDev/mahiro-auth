@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "bun --watch src/main.ts",
     "test": "tsc",
-    "build": "bun build.ts"
+    "build": "bun build.ts",
+    "release": "bun release.ts"
   },
   "dependencies": {
     "cheerio": "^1.0.0",

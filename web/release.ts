@@ -1,7 +1,7 @@
 // @ts-nocheck
 import packageJson from "./package.json" with { type: "json" }
 const version = packageJson.version
-import { readFile } from "fs/promises"
+import { readFile, stat } from "fs/promises"
 import { Octokit } from "octokit"
 
 const meta = {

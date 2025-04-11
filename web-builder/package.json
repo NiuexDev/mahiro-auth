@@ -1,8 +1,9 @@
 {
   "name": "mahiro-auth-web-builder",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
+    "dev": "bun run.ts",
     "build": "bun build.ts",
     "release": "bun run build && bun release.ts"
   },
@@ -13,5 +14,10 @@
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "@types/adm-zip": "^0.5.7",
+    "adm-zip": "^0.5.16",
+    "yaml": "^2.7.1"
   }
 }

@@ -1,5 +1,6 @@
 import { build } from "esbuild"
 import { execSync } from "node:child_process"
+import { log } from "node:console"
 import { access, constants, mkdir } from "node:fs/promises"
 
 try {
@@ -22,5 +23,6 @@ await build({
     outfile: "dist/web-builder.js",
     define: {
         "process.env.commitHash": JSON.stringify(commitHash),
+        "process.env.develop": JSON.stringify(null)
     }
 })

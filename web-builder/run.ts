@@ -178,7 +178,7 @@ const build = async () => {
     await verifyConfig()
     await pack()
 }
-log(`\n${name} v${version} (${process.env.commitHash})\n`)
+log(`\n${name} v${version}(${process.env.commitHash})\n`)
 
 const helpInfo = 
 `所有命令：

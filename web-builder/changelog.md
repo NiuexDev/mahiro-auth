@@ -15,6 +15,8 @@
 - `configBuilder.ts`改为从release的assets中获取
 ### 修复
 - 修复创建`config.yml`时正确无法移除已存在的`config.yml`的问题
+### 依赖变更
+- 新增了`ora ^8.2.0`
 <!--/ Unreleased -->
 
 ## 0.2.0

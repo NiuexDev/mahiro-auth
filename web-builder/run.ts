@@ -205,7 +205,7 @@ if (args.length === 0) {
             log(helpInfo)
             break
         default:
-            error("未知的命令")
+            error("未知的命令：" + args[0])
             log(helpInfo)
             break
     }

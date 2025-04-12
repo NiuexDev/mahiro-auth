@@ -26,7 +26,7 @@ await build({
     format: "esm",
     outfile: `dist/${name}_v${version}.js`,
     define: {
-        "import.meta.env.commitHash": process.env.COMMIT_HASH ? `"${process.env.COMMIT_HASH}"` : `undefined`,
+        "import.meta.env.commitHash": process.env.COMMIT_HASH ? JSON.stringify(process.env.COMMIT_HASH.slice(0, 7)) : JSON.stringify(null),
     }
 })
 log("ESM build success")

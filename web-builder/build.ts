@@ -9,8 +9,6 @@ try {
     await mkdir("dist")
 }
 
-const commitHash = execSync('git rev-parse --short HEAD', { encoding: 'utf-8' }).trim()
-
 // ESM 构建配置
 await build({
     entryPoints: ["run.ts"],
@@ -22,7 +20,7 @@ await build({
     format: "esm",
     outfile: "dist/web-builder.js",
     define: {
-        "process.env.commitHash": JSON.stringify(commitHash),
-        "process.env.develop": JSON.stringify(null)
+        "import.meta.env.commitHash": process.env.COMMIT_HASH ? JSON.stringify(process.env.COMMIT_HASH.slice(0, 7)) : JSON.stringify(null),
+        "import.meta.env.develop": JSON.stringify(null)
     }
 })

@@ -9,7 +9,7 @@ import handler from "serve-handler"
 import { parse as parseYaml, stringify as stringifyYaml } from "yaml"
 import { name, version } from "./package.json"
 
-if (process.env.develop) {
+if (import.meta.env.develop) {
     process.chdir("run")
 }
 
@@ -211,7 +211,7 @@ const preview = async (port: number = 20721) => {
     })
 }
 
-log(`\n${name} v${version}(${process.env.commitHash})\n`)
+log(`\n${name} v${version}(${import.meta.env.commitHash})\n`)
 
 const helpInfo = 
 `所有命令：

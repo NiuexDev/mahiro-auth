@@ -9,7 +9,7 @@ import { logo } from "~/logo"
 import { tryCatch } from "~/util/try-catch"
 import "~/util/class-instance"
 
-const versionStr = `v${version} (${process.env.commitHash})`
+const versionStr = `v${version} (${import.meta.env.commitHash})`
 console.info()
 console.info(logo)
 console.info()

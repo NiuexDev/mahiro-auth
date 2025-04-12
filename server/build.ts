@@ -11,8 +11,6 @@ try {
     await mkdir("dist")
 }
 
-const commitHash = execSync('git rev-parse --short HEAD', { encoding: 'utf-8' }).trim()
-
 // ESM 构建配置
 log("ESM build start")
 await build({
@@ -28,7 +26,7 @@ await build({
     format: "esm",
     outfile: `dist/${name}_v${version}.js`,
     define: {
-        "process.env.commitHash": JSON.stringify(commitHash),
+        "import.meta.env.commitHash": process.env.COMMIT_HASH ? `"${process.env.COMMIT_HASH}"` : `undefined`,
     }
 })
 log("ESM build success")

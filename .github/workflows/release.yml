@@ -23,8 +23,6 @@ jobs:
         uses: oven-sh/setup-bun@v2
 
       - name: Install dependencies and build server
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         working-directory: ./server
         run: |
           bun install 

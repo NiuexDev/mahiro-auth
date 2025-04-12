@@ -11,6 +11,8 @@ try {
     await mkdir("dist")
 }
 
+const bundlefileName = `${name}-v${version}-bun-bundle.js`
+
 // ESM 构建配置
 log("ESM build start")
 await build({
@@ -24,7 +26,7 @@ await build({
       ".html": "text"
     },
     format: "esm",
-    outfile: `dist/${name}_v${version}.js`,
+    outfile: `dist/${bundlefileName}`,
     define: {
         "import.meta.env.commitHash": process.env.COMMIT_HASH ? JSON.stringify(process.env.COMMIT_HASH.slice(0, 7)) : JSON.stringify(null),
     }
@@ -46,6 +48,7 @@ process.chdir("dist")
 
 for (const platform of platforms) {
     log(`${platform} build start`)
-    execSync(`bun build ${name}_v${version}.js --compile --target=${platform} --sourcemap --outfile "${name}_v${version}_${platform}"`)
+    const outfile = `${name}-v${version}-${platform.slice(4)}`
+    execSync(`bun build ${bundlefileName} --compile --target=${platform} --sourcemap --outfile "${outfile}"`)
     log(`${platform} build success`)
 }

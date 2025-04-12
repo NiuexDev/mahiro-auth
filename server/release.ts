@@ -45,8 +45,6 @@ const currentVersion = version.split(".").map(n => {
     return Number(n)
 })
 
-const a = (b, c) => b.some((v, i) => v > c[i])
-
 const isUpdate = currentVersion.some((v, i) => v > preVersion[i])
 if (!isUpdate) {
     console.log("版本无变化")

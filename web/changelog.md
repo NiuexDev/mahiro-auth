@@ -6,10 +6,16 @@
 > Commit 信息格式遵循[约定式提交（Conventional Commits）](http://conventionalcommits.org)标准。
 > 本变更日志遵循 [Keep a Changelog](http://keepachangelog.com/) 格式编写。
 
-## 0.3.1
+## 0.3.2
 <!-- Unreleased -->
 ### 变更
 - 优化了打包时写入`commitHash`的方式：将`commitHash`写入config.ts中，生产环境中由`web builder`写入
+<!--/ Unreleased -->
+
+## 0.3.1
+<!-- Unreleased -->
+### 变更
+- 将获取commitHash从web移除，移至web builder
 <!--/ Unreleased -->
 
 ## 0.3.0

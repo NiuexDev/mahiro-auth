@@ -20,6 +20,6 @@ export default defineConfig({
     target: 'esnext',
   },
   define: {
-    "import.meta.env.commitHash": "___COMMIT_HASH___",
+    "import.meta.env.commitHash": process.env.COMMIT_HASH ? `"${process.env.COMMIT_HASH}"`: `"__COMMIT_HASH__"`,
   },
 })

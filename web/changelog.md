@@ -9,7 +9,7 @@
 ## 0.3.1
 <!-- Unreleased -->
 ### 变更
-- 将获取commitHash从web移除，移至web builder
+- 优化了打包时写入`commitHash`的方式：将`commitHash`写入config.ts中，生产环境中由`web builder`写入
 <!--/ Unreleased -->
 
 ## 0.3.0

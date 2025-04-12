@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --build --force",
-    "build:config": "vite build --mode production --ssr config.ts --outDir dist",
+    "build:config": "vite build --mode production --ssr config.ts --outDir dist --emptyOutDir false",
     "release": "bun release.ts"
   },
   "dependencies": {

@@ -28,4 +28,6 @@ export const verifyConfig = (config: any) => {
     return verify(config, configSchema)
 }
 
+export const commitHash = import.meta.env.commitHash
+
 export const config = createConfig()

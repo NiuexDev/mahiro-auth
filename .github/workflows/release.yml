@@ -4,12 +4,17 @@ on:
   push:
     branches: [main]
 
+env:
+  COMMIT_HASH: ${{ github.sha }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+permissions:
+  contents: write 
+
 jobs:
   server:
     name: Build Server
     runs-on: ubuntu-latest
-    permissions:
-      contents: write 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -30,8 +35,6 @@ jobs:
   web:
     name: Build Web
     runs-on: ubuntu-latest
-    permissions:
-      contents: write 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -40,8 +43,6 @@ jobs:
         uses: oven-sh/setup-bun@v2
 
       - name: Install dependencies and build web
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         working-directory: ./web
         run: |
           bun install
@@ -52,8 +53,6 @@ jobs:
   web-builder:
     name: Build Web Builder
     runs-on: ubuntu-latest
-    permissions:
-      contents: write 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -62,8 +61,6 @@ jobs:
         uses: oven-sh/setup-bun@v2
 
       - name: Install dependencies and build web
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         working-directory: ./web-builder
         run: |
           bun install 

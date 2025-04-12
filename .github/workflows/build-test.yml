@@ -4,6 +4,9 @@ on:
   push:
     branches: [dev]
 
+env:
+  COMMIT_HASH: ${{ github.sha }}
+  
 jobs:
   build-server:
     name: Build Server

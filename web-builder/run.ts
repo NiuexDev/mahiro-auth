@@ -1,19 +1,13 @@
-import { error, log, warn } from "console"
-import { name, version } from "./package.json"
-import { Octokit } from "octokit"
-import { writeFile } from "fs/promises"
-import { stat } from "fs/promises"
-import { rmdir } from "fs/promises"
-import { unlink } from "fs/promises"
 import AdmZip from 'adm-zip'
-import { constants } from "fs/promises"
-import { access } from "fs/promises"
-import { readdir } from "fs/promises"
-import { rename } from "fs/promises"
-import { parse as parseYaml, stringify as stringifyYaml } from "yaml"
-import { exec, execFileSync, execSync } from "child_process"
-import { readFile } from "fs/promises"
+import { execSync } from "child_process"
+import { error, log, warn } from "console"
+import { access, constants, readdir, readFile, rename, rmdir, stat, unlink, writeFile } from "fs/promises"
+import { createServer } from "http"
+import { Octokit } from "octokit"
 import ora from 'ora'
+import handler from "serve-handler"
+import { parse as parseYaml, stringify as stringifyYaml } from "yaml"
+import { name, version } from "./package.json"
 
 if (process.env.develop) {
     process.chdir("run")
@@ -85,17 +79,13 @@ const clone = async () => {
     const configData = await (await fetch(release.assets[0].browser_download_url, { method: "GET" })).arrayBuffer()
     await writeFile("code/web/configBuilder.ts", Buffer.from(configData), "utf-8")
 
-    // const refResponse = await octokit.rest.git.getRef({
-    //     owner: meta.owner,
-    //     repo: meta.repo,
-    //     ref: `tags/${release.tag_name}`,
-    // })
-    // const tagObjectSha = refResponse.data.object.sha
-    // await writeFile(
-    //     "code/web/vite.config.ts",
-    //     (await readFile("code/web/vite.config.ts", "utf-8")).replace("___COMMIT_HASH___", tagObjectSha.trim().slice(0, 7)),
-    //     "utf-8"
-    // )
+    const configBuilder = await import(process.cwd()+"/code/web/configBuilder.ts")
+    const commitHash = configBuilder.commitHash
+    await writeFile(
+        "code/web/vite.config.ts",
+        (await readFile("code/web/vite.config.ts", "utf-8")).replace("__COMMIT_HASH__", commitHash),
+        "utf-8"
+    )
     
     spinner2.succeed("下载完成")
     spinner2.stop()
@@ -188,17 +178,51 @@ const build = async () => {
     await verifyConfig()
     await pack()
 }
+
+const preview = async (port: number = 20721) => {
+    try {
+        await access("dist", constants.F_OK)
+        const distDir = await stat("dist")
+        if (distDir.isFile()) {
+            error("dist 不是目录")
+            process.exit(1)
+        }
+    } catch (e) {
+        if (e.code !== 'ENOENT') throw e
+        error("目录 dist 不存在")
+        process.exit(1)
+    }
+    log("正在启动本地服务器...")
+    const server = createServer(async (request, response) => {
+        await handler(
+            request,
+            response,
+            {
+                public: "dist",
+                cleanUrls: true,
+                rewrites: [
+                    { source: '**', destination: '/index.html' }
+                ]
+            }
+        )
+    })
+    server.listen(port, () => {
+        console.log(`服务器已启动于 http://localhost:${port}`)
+    })
+}
+
 log(`\n${name} v${version}(${process.env.commitHash})\n`)
 
 const helpInfo = 
 `所有命令：
-- init                     初始化
-- clone                    下载源码
-- initConfig [--overwrite] 初始化配置文件，传入\`--overwrite\`参数时会覆盖已存在的配置文件
-- build                    构建
-- verifyConfig             验证配置文件
-- pack                     打包
-- help                     显示帮助信息`
+~  init                     初始化
+~  clone                    下载源码
+~  initConfig [--overwrite] 初始化配置文件，传入\`--overwrite\`参数时会覆盖已存在的配置文件
+~  build                    构建
+~  verifyConfig             验证配置文件
+~  pack                     打包
+~  preview [--port=number]  预览，传入\`--port=number\`参数时会将会在number端口启动服务器，默认端口为20721
+~  help                     显示帮助信息`
 
 const args = process.argv.slice(2)
 if (args.length === 0) {
@@ -222,6 +246,14 @@ if (args.length === 0) {
            break
         case "pack":
             await pack()
+            break
+        case "preview":
+            const arg = args.slice(1).find(arg => /^--port=/.test(arg))
+            if (arg) {
+                await preview(Number(arg.slice(7)))
+            } else {
+                await preview()
+            }
             break
         case "help":
             log(helpInfo)

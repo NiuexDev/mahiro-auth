@@ -6,13 +6,19 @@
 > Commit 信息格式遵循[约定式提交（Conventional Commits）](http://conventionalcommits.org)标准。
 > 本变更日志遵循 [Keep a Changelog](http://keepachangelog.com/) 格式编写。
 
-## 1.0.2
+## 1.0.3
 <!-- Unreleased -->
+### 修复
+- 修复了下载源码和构建时加载动画显示不正常的问题
+### 变更
+- 更改了构建web时commitHash的获取方式
+<!--/ Unreleased -->
+
+## 1.0.2
 ### 新增
 - 新增了构建web时的commitHash替换
 ### 变更
 - 微调了启动时版本号的显示
-<!--/ Unreleased -->
 
 ## 1.0.1
 ### 新增

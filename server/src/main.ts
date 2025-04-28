@@ -16,10 +16,7 @@ console.info()
 console.info(name + String().padEnd(logo.split("\n").at(-1)!.length-name.length-versionStr.length, " ") + versionStr)
 console.info()
 
-if (process.argv.length > 2) {
-    commandRunner(process.argv)
-    process.exit(0)
-}
+commandRunner()
 
 const { error } = await tryCatch(access("data", constants.F_OK))
 if (error) {

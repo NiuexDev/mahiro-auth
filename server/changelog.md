@@ -8,7 +8,9 @@
 
 <!-- Unreleased -->
 ## [Unreleased]
-### 优化
+### 新增
+- 新增了作为命令行的使用方式
+  - 新增了`version`子命令，用以查看版本及当前构建的提交完整hash
 
 <!--/ Unreleased -->
 

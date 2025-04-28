@@ -21,6 +21,7 @@ await build({
     outfile: "dist/web-builder.js",
     define: {
         "import.meta.env.commitHash": process.env.COMMIT_HASH ? JSON.stringify(process.env.COMMIT_HASH.slice(0, 7)) : JSON.stringify(null),
+        "import.meta.env.longCommitHash": process.env.COMMIT_HASH ? JSON.stringify(process.env.COMMIT_HASH) : JSON.stringify(null),
         "import.meta.env.develop": JSON.stringify(null)
     }
 })

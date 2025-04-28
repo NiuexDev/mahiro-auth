@@ -29,11 +29,12 @@ await build({
     outfile: `dist/${bundlefileName}`,
     define: {
         "import.meta.env.commitHash": process.env.COMMIT_HASH ? JSON.stringify(process.env.COMMIT_HASH.slice(0, 7)) : JSON.stringify(null),
+        "import.meta.env.longCommitHash": process.env.COMMIT_HASH ? JSON.stringify(process.env.COMMIT_HASH) : JSON.stringify(null),
     }
 })
 log("ESM build success")
 
-const platforms = [
+const platforms = process.argv[2] ? [ process.argv[2] ] : [
     "bun-linux-x64",
     "bun-linux-arm64",
     "bun-windows-x64",

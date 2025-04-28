@@ -3,11 +3,11 @@ import { initConfig } from "@/service/config"
 import { initEmail, sendTemplate } from "@/service/email"
 import { getLogger } from "@/service/logger"
 import { startServer } from "@/service/server"
-import { send } from "h3"
 import { access, constants, mkdir } from "node:fs/promises"
 import { logo } from "~/logo"
 import { tryCatch } from "~/util/try-catch"
 import "~/util/class-instance"
+import { commandRunner } from "@/service/cmd"
 
 const versionStr = `v${version} (${import.meta.env.commitHash})`
 console.info()
@@ -15,6 +15,11 @@ console.info(logo)
 console.info()
 console.info(name + String().padEnd(logo.split("\n").at(-1)!.length-name.length-versionStr.length, " ") + versionStr)
 console.info()
+
+if (process.argv.length > 2) {
+    commandRunner(process.argv)
+    process.exit(0)
+}
 
 const { error } = await tryCatch(access("data", constants.F_OK))
 if (error) {

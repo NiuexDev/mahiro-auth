@@ -6,12 +6,16 @@
 > Commit 信息格式遵循[约定式提交（Conventional Commits）](http://conventionalcommits.org)标准。
 > 本变更日志遵循 [Keep a Changelog](http://keepachangelog.com/) 格式编写。
 
-## 0.0.42
 <!-- Unreleased -->
+## [Unreleased]
+### 优化
+
+<!--/ Unreleased -->
+
+## 0.0.42
 ### 优化
 - 优化了配置文件验证结果的输出格式
 - 优化了编译时附加`commitHash`的方式
-<!--/ Unreleased -->
 
 ## 0.0.41
 当前`server`、`config`、`logger`模块已基本完成

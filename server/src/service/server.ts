@@ -5,12 +5,15 @@ import { useConfig } from "@/service/config"
 import { getLogger } from "@/service/logger"
 import { useRouter } from "@/service/router"
 import "@/router/index"
+import { type Logger } from "winston"
 
+
+let logger: Logger
 
 export const startServer = async () => {
 
     const config = await useConfig()
-    const logger = getLogger("server")
+    logger = getLogger("server")
 
     const app = createApp({
         onError(error, event) {
@@ -43,39 +46,41 @@ export const startServer = async () => {
 
     app.use(await useRouter())
 
-    const port = await ( async () => {
-        let port = config.server.port
-        let i = 0
-        while (true) {
-            i++
-            const occupied = await new Promise(
-                (resolve) => {
-                    const server = createServer().listen(port)
-                    server.on("listening", () => {
-                        server.close()
-                        resolve(false)
-                    })
-                    server.on("error", () => { 
-                        server.close()
-                        resolve(true)
-                    })
-                }
-            )
-            if (!occupied) {
-                return port
-            } else {
-                logger.warn(`端口${port}已被占用`)
-                if (port == 65535 || i > 10) {
-                    break
-                }
-                port++
-                logger.info(`尝试使用端口${port}`)
-            }
-        }
-        logger.error(`在端口${config.server.port}至端口${port}范围内，无可用端口`)
-        process.exit(1)
-    })()
+    const port = await checkPort(config.server.port)
     createServer(toNodeListener(app)).listen(port, config.server.host)
 
     logger.info(`服务已运行于：http://${config.server.host}:${port}，YggdrasilAPI位于：${config.server.yggdrasilApiUrl}`)
+}
+
+const checkPort = async (port: number) => {
+    let initialPort = port
+    let i = 0
+    while (true) {
+        i++
+        const occupied = await new Promise(
+            (resolve) => {
+                const server = createServer().listen(port)
+                server.on("listening", () => {
+                    server.close()
+                    resolve(false)
+                })
+                server.on("error", () => { 
+                    server.close()
+                    resolve(true)
+                })
+            }
+        )
+        if (!occupied) {
+            return port
+        } else {
+            logger.warn(`端口${port}已被占用`)
+            if (port == 65535 || i > 10) {
+                break
+            }
+            port++
+            logger.info(`尝试使用端口${port}`)
+        }
+    }
+    logger.error(`在端口${initialPort}至端口${port}范围内，无可用端口`)
+    process.exit(1)
 }

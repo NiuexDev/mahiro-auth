@@ -1,63 +1,78 @@
-// import { isEamil, isSecurePassword } from "@/util/regexp"
 import { log } from "console"
-import { defineEventHandler, readBody, readRawBody, readValidatedBody, sanitizeStatusCode, send, sendWebResponse, setResponseStatus } from "h3"
-import { User } from "@/model/user"
+import { defineEventHandler, eventHandler, readBody, sendWebResponse, setResponseStatus } from "h3"
+import { encryptedPasswd, User, userModel } from "@/model/user"
 import { setRouter } from "@/service/router"
 import { register } from "~/type/api/register"
+import { StringValidator, verify as verifySchema } from "~/util/schema"
+import { isEamil } from "~/type/validator/email"
+import { isVcode } from "~/type/validator/vcode"
+import { isStrongPasswd } from "~/type/validator/strong-passwd"
+import { verify } from "@/model/verification-code"
 
-interface schema {
-    email: string
-    password: string
-    encrypted: string
-    code: string
-    codeid: string
-}
+const uuidRegExp = new RegExp(/^[0-9a-fA-F]{32}$/)
 
-export default defineEventHandler(async (event) => {
-    const body: schema = await readBody(event)
-    log(body)
-    if (
-        body.email === undefined ||
-        typeof body.email !== "string" ||
-        body.password === undefined ||
-        typeof body.password !== "string"
-        || body.code === undefined ||
-        typeof body.code !== "string"
-        || body.codeid === undefined ||
-        typeof body.codeid !== "string"
-    ) {
-        sendWebResponse(event, new Response(null, {status: 400}))
-        return null
+setRouter("post", register.endpoint, eventHandler(async (event): Promise<register.Response> => {
+    const body: register.Request = await readBody(event)
+    const verifyResult = verifySchema(body, {
+        email: new StringValidator(),
+        password: new StringValidator(),
+        vcode: new StringValidator(),
+        vcodeid: new StringValidator()
+    })
+    if (verifyResult !== true) {
+        setResponseStatus(event, 400)
+        return {
+            state: "error",
+            reason: verifyResult
+        }
     }
     if (!isEamil(body.email)) {
         return {
-            state: "fail",
-            reason: "eamil"
+            state: "error",
+            reason: "不是合法的邮箱"
         }
     }
-    if (!isSecurePassword(body.password)) {
+    if (!isStrongPasswd(body.password)) {
+        return {
+            state: "error",
+            reason: "密码不安全"
+        }
+    }
+    if (!isVcode(body.vcode)) {
+        return {
+            state: "error",
+            reason: "不是合法的验证码"
+        }
+    }
+    if (uuidRegExp.test(body.vcodeid) === false) {
+        return {
+            state: "error",
+            reason: "不是合法的验证码id"
+        }
+    }
+
+    if (await userModel.exists({ email: body.email }) !== null) {
         return {
             state: "fail",
-            reason: "password"
+            type: "userExist"
         }
     }
-    // if (!await Code.verify(body.codeid, body.email, body.code)) {
-    //     return {
-    //         state: "fail",
-    //         reason: "code"
-    //     }
-    // }
-    if (await User.exists({ email: body.email })) {
+
+    if (!await verify(body.vcodeid, body.email, body.vcode)) {
         return {
             state: "fail",
-            reason: "registered"
+            type: "vcodeError"
         }
     }
-    const userId = await User.register(body.email, body.password)
+
+    userModel.create({
+        email: body.email,
+        password: await encryptedPasswd(body.password)
+    } as User)
+
     return {
         state: "success",
-        id: userId,
+        data: {
+        }
     }
-})
-
-// setRouter(register)
+}))

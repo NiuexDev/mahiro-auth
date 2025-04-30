@@ -10,23 +10,24 @@ export const vcodeSchema = new Schema({
     expires: { type: Date, required: true, expires: 0 }
 }, {
     statics: {
-        async generate(key: string/*, length: number, expires: number*/) {
-            const code = Array.from({ length: vcodeLength }, () => char[Math.floor(Math.random() * char.length)]).join("")
-            const expiresTime = new Date(Date.now() + 5*60*1000)
-            return (await this.create({
-                id: randomUUID(),
-                key,
-                code,
-                expires: expiresTime
-            })).toObject()
-        },
-        async verify(id: string, key: string, code: string) {
-            const document = await this.findOne({ id })
-            if (document === null) return false
-            document?.key === key && document?.code === code && document?.expires > new Date()
-            return document !== null
-        }
+
     }
 })
 
-export const vcodeModel = model("vcode", vcodeSchema)
+export const vcodeModel = model("vcode", vcodeSchema, "vcode")
+
+export const generate = async (key: string, length: number, expires: number) => {
+    const code = Array.from({ length: length }, () => char[Math.floor(Math.random() * char.length)]).join("")
+    return (await vcodeModel.create({
+        id: randomUUID(),
+        key,
+        code,
+        expires: Date.now() + expires * 1000
+    })).toObject()
+}
+
+export const verify = async (id: string, key: string, code: string) => {
+    const document = await vcodeModel.findOne({ id: Buffer.from(id, "hex") })
+    if (document === null) return false
+    return document?.key === key && document?.code === code && document?.expires.getTime() > Date.now()
+}

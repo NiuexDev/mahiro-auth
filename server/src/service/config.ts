@@ -191,7 +191,7 @@ const configSchema = {
 }
 
 
-export async function initConfig(): Promise<void> {
+export const initConfig = async (): Promise<void> => {
     logger = getLogger("config")
     try {
         await access(configPath, constants.F_OK | constants.R_OK | constants.W_OK)
@@ -240,7 +240,7 @@ export async function initConfig(): Promise<void> {
     return
 }
 
-export async function useConfig(): Promise<Config> {
+export const useConfig = async (): Promise<Config> => {
     if (config === undefined) await initConfig()
     return config
 }

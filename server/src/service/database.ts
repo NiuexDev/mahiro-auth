@@ -3,7 +3,7 @@ import { useConfig } from "@/service/config"
 import { getLogger } from "@/service/logger"
 import { tryCatch } from "~/util/try-catch"
 
-export async function initDatabase() {
+export const initDatabase = async () => {
     let { database } = await useConfig()
     let logger = getLogger("database")
     const { data: mongoose, error } = await tryCatch(

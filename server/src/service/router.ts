@@ -13,7 +13,7 @@ export const setRouter = (method: RouterMethod | RouterMethod[], url: string, ha
     router.use(url, handler, method)
 }
 
-export async function useRouter() {
+export const useRouter = async () => {
     config = await useConfig()
     return router
 }

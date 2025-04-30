@@ -12,7 +12,7 @@ export interface Config {
     server: {
         host: string
         port: number
-        corsOrigins: string[]
+        cors: boolean | string[]
         yggdrasilApiUrl: string
         log: {
             logRequest: boolean
@@ -100,17 +100,16 @@ const configSchema = {
     server: {
         host: new HostValidator(),
         port: new PortValidator(10721),
-        corsOrigins: new class extends ValueValidator {
+        cors: new class extends ValueValidator {
             create() {
-                return []
+                return false
             }
             verify(value: any): void | string {
+                if (value === false || value === true) return
                 if (Array.isArray(value)) {
                     if (value.every(item => typeof item === "string")) return
-                } else if (typeof value === "string" && value === "*") {
-                    return
                 }
-                return "不是合法的CORS来源，须为正确的主机名数组或\"*\""
+                return "不是合法的CORS来源，须为正确的来源数组或true/false"
             }
         },
         yggdrasilApiUrl: new class extends ValueValidator {

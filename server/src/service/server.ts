@@ -1,5 +1,5 @@
 // import { useRouter } from "@/router"
-import { createApp, sendWebResponse, defineEventHandler, getRequestIP, setResponseHeader, getHeader, toNodeListener } from "h3"
+import { createApp, sendWebResponse, defineEventHandler, getRequestIP, setResponseHeader, getHeader, toNodeListener, setResponseHeaders, getRequestHeader } from "h3"
 import { createServer } from "http"
 import { useConfig } from "@/service/config"
 import { getLogger } from "@/service/logger"
@@ -21,26 +21,52 @@ export const startServer = async () => {
             if (error.statusCode === 404) {
                 sendWebResponse(event, new Response(null, {status: 404}))
             }
+            if (error.statusCode === 500) {
+                sendWebResponse(event, new Response(null, {status: 500}))
+                logger.error(error)
+            }
         }
     })
 
     // 记录请求
     if (config.server.log.logRequest) {
         app.use(defineEventHandler((event)=>{
-            // output> [RequestIP] or [远程地址] | [事件类型] => [事件路径] ???
-            logger.info(`${getRequestIP(event) ?? event.node.req.socket.remoteAddress} | ${event.method} => ${event.path}`)
+            // output> [RequestIP] or [远程地址] | [事件类型] => [事件路径] ??? // 事件 => http方法
+            logger.info(`${event.method} ${getRequestIP(event) ?? event.node.req.socket.remoteAddress} -> ${event.path}`)
         }))
     }
 
-    if (config.server.corsOrigins.includes("*")) {
+    if (config.server.cors === true) {
         app.use(defineEventHandler((event)=>{
-            setResponseHeader(event, "Access-Control-Allow-Origin", "*") // 允许在任何域中调用本站api，避免因防跨站导致无法访问
+            if (event.method === "OPTIONS") {
+                sendWebResponse(event, new Response(null, {status: 204, headers: {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS, TRACE, CONNECT",
+                    "Access-Control-Allow-Headers": "Content-Type",
+                    "Access-Control-Max-Age": "3153600000"
+                }}))
+            } else {
+                setResponseHeaders(event, {
+                    "Access-Control-Allow-Origin": "*"
+                })
+            }
         }))
-    } else if (config.server.corsOrigins.length > 0) {
+    } else if (Array.isArray(config.server.cors) && config.server.cors.length > 0) {
         app.use(defineEventHandler((event)=>{
-            const origin = getHeader(event, "Origin")
-            // 设置响应头中，允许的域的范围
-            if (config.server.corsOrigins.includes(origin)) setResponseHeader(event, "Access-Control-Allow-Origin", origin)
+            if (!(config.server.cors as string[]).includes(getHeader(event, "Origin"))) return
+            if (event.method === "OPTIONS") {
+                setResponseHeaders(event, {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS, TRACE, CONNECT",
+                    "Access-Control-Allow-Headers": "Content-Type",
+                    "Access-Control-Max-Age": "3153600000"
+                })
+                return null
+            } else {
+                setResponseHeaders(event, {
+                    "Access-Control-Allow-Origin": "*"
+                })
+            }
         }))
     }
 

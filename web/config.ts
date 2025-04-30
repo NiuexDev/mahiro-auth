@@ -10,7 +10,7 @@ type Config = {
     icon: string,
     title: string,
     description: string,
-    apiBaseUrl: string,
+    apiUrl: string,
     allowUseUsernameLogin: boolean
     
     assets: {
@@ -23,10 +23,9 @@ const configSchema = {
     icon: new StringValidator("assets/favicon.ico"),
     title: new StringValidator("真寻验证"),
     description: new StringValidator("Moe Mahiro!"),
-    apiBaseUrl: new StringValidator(isDevelopment ? "http://localhost:10721" : "/api"),
-    allowUseUsernameLogin: new BooleanValidator(false)
-
-    ,
+    apiUrl: new StringValidator(isDevelopment ? "http://localhost:10721" : "/api"),
+    allowUseUsernameLogin: new BooleanValidator(false),
+    
     assets: {
         logo: new StringValidator("assets/logo.png"),
         background: new  class extends ValueValidator {

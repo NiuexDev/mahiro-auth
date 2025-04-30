@@ -3,6 +3,11 @@
     padding: 0;
 }
 
+html {
+    min-width: 250px;
+    min-height: 350px;
+}
+
 body {
     background-color: #fff;
     scrollbar-width: thin;

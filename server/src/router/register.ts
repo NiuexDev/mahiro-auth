@@ -60,4 +60,4 @@ export default defineEventHandler(async (event) => {
     }
 })
 
-setRouter(register)
+// setRouter(register)

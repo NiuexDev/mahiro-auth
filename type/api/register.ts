@@ -1,24 +1,12 @@
-export type Request = {
-    
-}
+export namespace register {
+    export const endpoint = "/register"
 
-export type Response = {
-    accessToken: string,
-    clientToken: string,
-    selectedProfile: {
-        id: string,
-        name: string,
-        properties: {
-            name: string,
-            value: string
-        }[]
-    },
-    availableProfiles: {
-        id: string,
-        name: string,
-        properties: {
-            name: string,
-            value: string
-        }[]
-    }[],
-}
+    export type Request = {
+        email: string;
+        password: string;
+        vcode: string;
+        vcodeid: string;
+    }
+
+    export type Response = {}
+}    

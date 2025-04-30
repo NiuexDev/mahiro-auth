@@ -1,37 +1,26 @@
 import "@/assets/css/main.css"
 
 import { name, version } from "@/../package.json"
+import { config, shortCommitHash } from "@/../config"
 import { createApp } from "vue"
 import App from "@/App.vue"
 import router from "@/router"
-import i18n from "@/lang/init"
+import i18n from "@/lang"
 import { createPinia } from "pinia"
-import { useMetaData } from "@/services/useMetaData"
 import { logo } from "~/logo"
 
-const versionStr = `v${version} (${import.meta.env.commitHash})`
-console.info(`
-${logo}
+const versionStr = `v${version} (${shortCommitHash})`
+console.info(`\n${logo}\n\n${name + String().padEnd(logo.split("\n").at(-1)!.length-name.length-versionStr.length, " ") + versionStr}\n\n`)
 
-${name + String().padEnd(logo.split("\n").at(-1)!.length-name.length-versionStr.length, " ") + versionStr}
-
-`)
+document.title = config.title
+const description = document.createElement("meta")
+description.setAttribute("name", "description")
+description.setAttribute("content", config.description)
+document.head.appendChild(description)
 
 const pinia = createPinia()
-
 const app = createApp(App)
-
-const metaData = await useMetaData()
-app.provide("metaData", metaData)
-
-document.title = metaData.title
-const description = document.head.appendChild(document.createElement("meta"))
-description.setAttribute("name", "description")
-description.setAttribute("content", metaData.description)
-
-
 app.use(router)
 app.use(i18n)
 app.use(pinia)
-
 app.mount("body")

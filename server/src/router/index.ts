@@ -1,3 +1,3 @@
 import "./root"
 import "./getvcode"
-import "./regi"
+import "./register"

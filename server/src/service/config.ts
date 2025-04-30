@@ -112,17 +112,7 @@ const configSchema = {
                 return "不是合法的CORS来源，须为正确的来源数组或true/false"
             }
         },
-        yggdrasilApiUrl: new class extends ValueValidator {
-            create() {
-                return "/yggdrasil"
-            }
-            verify(value: any): void | string {
-                if (typeof value === "string") {
-                    if (value.startsWith("/")) return
-                }
-                return "不是合法的Url，须为\"/\"开头的字符串"
-            }
-        },
+        yggdrasilApiUrl: new StringValidator("/yggdrasil", "不是合法的URL，须为字符串"),
         log: {
             logRequest: new BooleanValidator(false, "须为布尔值"),
         },

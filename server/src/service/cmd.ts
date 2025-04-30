@@ -1,4 +1,5 @@
 import { version } from "@/../package.json"
+import { commitHash } from "@/assets/commitHash"
 
 export const commandRunner = () => {
     if (process.argv.length > 2) {
@@ -15,7 +16,7 @@ export const commandRunner = () => {
 }
 
 const showVersion = () => {
-    console.log(`版本：${version} 提交：${import.meta.env.longCommitHash}`)
+    console.log(`版本：${version}\n提交：${commitHash}`)
 }
 
 const cmdNotFind = (argv: string[]) => {

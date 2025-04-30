@@ -9,8 +9,9 @@ import { tryCatch } from "~/util/try-catch"
 import "~/util/class-instance"
 import { commandRunner } from "@/service/cmd"
 import { initDatabase } from "@/service/database"
+import { shortCommitHash } from "@/assets/commitHash"
 
-const versionStr = `v${version} (${import.meta.env.commitHash})`
+const versionStr = `v${version} (${shortCommitHash})`
 console.info()
 console.info(logo)
 console.info()

@@ -1,8 +1,6 @@
 import { vcodeModel } from "@/model/verification-code"
 import { getLogger } from "@/service/logger"
 import { setRouter } from "@/service/router"
-import { isEamil } from "@/util/regexp"
-import { log } from "console"
 import { defineEventHandler, eventHandler, readBody, setResponseStatus } from "h3"
 import { getVcode } from "~/type/api/getvcode"
 import { verify } from "~/util/schema"

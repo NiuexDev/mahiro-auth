@@ -8,6 +8,7 @@ import { logo } from "~/logo"
 import { tryCatch } from "~/util/try-catch"
 import "~/util/class-instance"
 import { commandRunner } from "@/service/cmd"
+import { initDatabase } from "@/service/database"
 
 const versionStr = `v${version} (${import.meta.env.commitHash})`
 console.info()
@@ -36,7 +37,7 @@ try {
 const logger = getLogger("main")
 logger.info("正在启动服务")
 await initConfig()
-
+await initDatabase()
 await initEmail()
 await startServer()
 logger.info("服务已启动")

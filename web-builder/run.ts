@@ -228,7 +228,7 @@ if (args.length === 0) {
             await clone()
             break
         case "initConfig":
-            await initConfig(args.includes("--overwrite"))
+            await initConfig(args.slice(1).includes("--overwrite"))
             break
         case "build":
             await build()

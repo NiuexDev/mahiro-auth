@@ -37,8 +37,8 @@
                 </n-form-item>
 
                 <n-form-item path="code" :label="$t('auth.login.code')" first>
-                    <n-flex :wrap="false" :size="12">
-                        <n-input v-model:value="formUseCode.code" placeholder="" :maxlength="codeValidator.length" />
+                    <n-flex :wrap="false" :size="12" style="width: 100%;">
+                        <!-- <n-input v-model:value="formUseCode.code" placeholder="" :maxlength="codeValidator.length" /> -->
                         <n-button>{{ $t('auth.login.getCode') }}</n-button>
                     </n-flex>
                 </n-form-item>
@@ -64,9 +64,7 @@ import { NForm, NFormItem, NInput, NButton, NFlex, type FormRules, NTabs, NTabPa
 import { inject, ref, type Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import verifyEMailRegExp from './EmailRegExp'
-import codeValidator from './CodeValidator'
-import type { MetaData } from "@/types/MetaData"
+import { config } from "@/../config"
 
 const router = useRouter()
 const toResetPasswordPage = () => {
@@ -80,7 +78,7 @@ type LoginMethod = 'usePassword' | 'useCode'
 const loginMethod: Ref<LoginMethod> = ref('usePassword')
 const changeLoginMethod = (method: LoginMethod): void => {
     loginMethod.value = method
-    if (!verifyEMailRegExp.test(formUsePassword.value.account)) return
+    // if (!verifyEMailRegExp.test(formUsePassword.value.account)) return
     if (method === 'usePassword') {
         formUsePassword.value.account = formUseCode.value.account
         return
@@ -91,33 +89,33 @@ const changeLoginMethod = (method: LoginMethod): void => {
     }
 }
 
-const allowUsername = inject<MetaData>("metaData")?.allowUseUsernameLogin
+const allowUsername = config.allowUseUsernameLogin
 
 const formUsePassword = ref({
     account: '',
     password: ''
 })
 
-const { t } = useI18n()
+const { t: i18n } = useI18n()
 const formUsePasswordRule: FormRules = {
     account: [
         {
             required: true,
-            message: t('auth.login.validator.Account-Should-Not-Be-Empty'),
+            message: i18n('auth.login.validator.Account-Should-Not-Be-Empty'),
             trigger: 'input'
         },
         !allowUsername ? {
             validator(_rule, value) {
-                if (verifyEMailRegExp.test(value)) return true
+                // if (verifyEMailRegExp.test(value)) return true
                 return false
             },
-            message: t('auth.login.validator.Incorrect-Email-Format'),
+            message: i18n('auth.login.validator.Incorrect-Email-Format'),
             trigger: 'input'
         } : {}
     ],
     password: {
         required: true,
-        message: t('auth.login.validator.Password-Should-Not-Be-Empty'),
+        message: i18n('auth.login.validator.Password-Should-Not-Be-Empty'),
         trigger: 'input'
     }
 }
@@ -131,30 +129,30 @@ const formUseCodeRule: FormRules = {
     account: [
         {
             required: true,
-            message: t('auth.login.validator.Account-Should-Not-Be-Empty'),
+            message: i18n('auth.login.validator.Account-Should-Not-Be-Empty'),
             trigger: 'input'
         },
         {
             validator(_rule, value) {
-                if (verifyEMailRegExp.test(value)) return true
+                // if (verifyEMailRegExp.test(value)) return true
                 return false
             },
-            message: t('auth.login.validator.Incorrect-Email-Format'),
+            message: i18n('auth.login.validator.Incorrect-Email-Format'),
             trigger: 'input'
         }
     ],
     code: [
         {
             required: true,
-            message: t('auth.login.validator.Code-Should-Not-Be-Empty'),
+            message: i18n('auth.login.validator.Code-Should-Not-Be-Empty'),
             trigger: 'input'
         },
         {
             validator(_rule, value: string) {
-                if (codeValidator.regexp.test(value) && value.length === codeValidator.length) return true
+                // if (codeValidator.regexp.test(value) && value.length === codeValidator.length) return true
                 return false
             },
-            message: t('auth.login.validator.Incorrect-Code-Format'),
+            message: i18n('auth.login.validator.Incorrect-Code-Format'),
             trigger: 'input'
         }
     ]

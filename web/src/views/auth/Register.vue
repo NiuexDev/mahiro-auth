@@ -1,20 +1,42 @@
 <template>
     <h1>{{ $t('auth.register.title') }}</h1>
-    <n-form size="medium" :model="form" :rules="rule" label-placement="top" :show-require-mark="false">
+    <n-form ref="formRef" size="medium" :model="form" :rules="rule" label-placement="top" :show-require-mark="false">
 
         <n-form-item path="email" :label="$t('auth.register.email')" first>
-            <n-input v-model:value="form.email" placeholder="" />
+            <n-input v-model:value="form.email" placeholder="请输入邮箱" />
         </n-form-item>
 
-        <n-form-item path="code" :label="$t('auth.register.code')" first>
-            <n-flex :wrap="false" :size="12">
-                <n-input v-model:value="form.code" :placeholder="$t('auth.register.inputPrompt.Email-Verification-Code')" :maxlength="codeValidator.length"/>
-                <n-button @click="getCode()">{{ $t('auth.register.getCode') }}</n-button>
+        <n-form-item path="vcode" :label="$t('auth.register.code')" first>
+            <n-flex :wrap="false" :size="12" style="width: 100%;">
+                <n-input v-model:value="form.vcode" placeholder="请输入验证码" :maxlength="vcodeLength"/>
+                <n-button @click="sendVcode()">发送验证码</n-button>
             </n-flex>
         </n-form-item>
 
         <n-form-item path="password" :label="$t('auth.register.password')" first>
-            <n-input class="password" v-model:value="form.password" :placeholder="$t('auth.register.inputPrompt.O-To-O-Digits-And-Contain-Number-Letter', passwordValidator.length)" type="password"  :input-props="{ autocomplete: 'new-password' }"/>
+            <NPopover trigger="focus" placement="bottom" class="password-strength" :show-arrow="false" header-class="header" width="trigger">
+                <template #trigger>
+                    <n-input class="password" v-model:value="form.password" placeholder="请输入密码" show-password-on="click" type="password" :input-props="{ autocomplete: 'new-password' }"/>
+                </template>
+                <template #header>
+                    <NIcon v-if="isStrongPasswd(form.password)" color="#4cbe17">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 12 12"><g fill="none"><path d="M9.765 3.205a.75.75 0 0 1 .03 1.06l-4.25 4.5a.75.75 0 0 1-1.075.015L2.22 6.53a.75.75 0 0 1 1.06-1.06l1.705 1.704l3.72-3.939a.75.75 0 0 1 1.06-.03z" fill="currentColor"></path></g></svg>
+                    </NIcon>
+                    <NIcon v-if="!isStrongPasswd(form.password)" color="#d1242f">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="-2 -2 14 14"><g fill="none"><path d="M6 2a4 4 0 1 0 0 8a4 4 0 0 0 0-8zM1 6a5 5 0 1 1 10 0A5 5 0 0 1 1 6z" fill="currentColor"></path></g></svg>
+                    </NIcon>
+                    <span>密码至少应有8个字符，且含有文字，或含有大写、小写字母、数字、特殊符号中三种</span>
+                </template>
+                <span v-for="tip in tiplist" class="tip">
+                    <NIcon v-if="tip[0](form.password)" color="#4cbe17">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 12 12"><g fill="none"><path d="M9.765 3.205a.75.75 0 0 1 .03 1.06l-4.25 4.5a.75.75 0 0 1-1.075.015L2.22 6.53a.75.75 0 0 1 1.06-1.06l1.705 1.704l3.72-3.939a.75.75 0 0 1 1.06-.03z" fill="currentColor"></path></g></svg>
+                    </NIcon>
+                    <NIcon v-if="!tip[0](form.password)" color="#d1242f">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="-2 -2 14 14"><g fill="none"><path d="M6 2a4 4 0 1 0 0 8a4 4 0 0 0 0-8zM1 6a5 5 0 1 1 10 0A5 5 0 0 1 1 6z" fill="currentColor"></path></g></svg>
+                    </NIcon>
+                    <span class="text">{{ tip[1] }}</span>
+                </span>
+            </NPopover>
         </n-form-item>
         
         <n-flex class="submit" :size="12">
@@ -26,144 +48,198 @@
 </template>
 
 <script lang="ts" setup>
-import { NForm, NFormItem, NInput, NButton, NFlex, type FormRules, useMessage } from 'naive-ui'
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { fetch } from "@/utils/fetch"
+import { NButton, NFlex, NForm, NFormItem, NIcon, NInput, NPopover, useMessage, type FormRules } from 'naive-ui'
+import { reactive, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
-import verifyEMailRegExp from './EmailRegExp'
-import codeValidator from './CodeValidator'
-import passwordValidator from './PasswordValidator'
-import useApiUrl from "@/utils/useApiUrl"
+import { useRouter } from 'vue-router'
+import { getVcode } from "~/type/api/getvcode"
+import { register } from "~/type/api/register"
+import { isEamil } from "~/type/validator/email"
+import { hasCharacter, hasLowerCase, hasNumber, hasSymbol, hasUpperCase, isStrongPasswd } from "~/type/validator/strong-passwd"
+import { isVcode, vcodeLength } from "~/type/validator/vcode"
+import { base64ToHex } from "~/util/base64ToHex"
+import { tryCatch } from "~/util/try-catch"
 
-const { t } = useI18n()
-
+const { t: i18n } = useI18n()
 const router = useRouter()
+const message = useMessage()
+
+
 const toLoginPage = () => {
     router.replace('/auth/login')
 }
 
-let codeid: null|string = null
+const form = reactive({
+    email: "",
+    password: "",
+    vcode: "",
+    vcodeid: null as null | string,
+})
 
-async function getCode() {
-    const res = await(await fetch(useApiUrl("/code"), {
-        method: "POST",
-        headers: {
-            // "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            email: form.value.email
-        })
-    })).json()
-    codeid = res.codeid
-    console.log(res)
-    if (res.state === "success") {
-        message.success("已发送验证码！")
-    }
+const formRef = useTemplateRef("formRef")
+
+const validateErrorMessage = (error: any[][] | undefined) => {
+    error?.forEach(error => {
+        message.warning(error[0].message)
+    })
 }
 
-const message = useMessage()
-
-async function submit() {
-    if (codeid === null) {
-        console.log("请获取验证码")
+async function sendVcode() {
+    await formRef.value?.validate(validateErrorMessage, (rule => rule?.key === "email"))
+    const { error, data: res } = await tryCatch(fetch<
+        getVcode.Request,
+        getVcode.Response
+    >(
+        getVcode.endpoint,
+        {
+            email: form.email
+        }
+    ))
+    if (error || res.state !== "success") {
+        message.error("获取验证码失败！")
         return
     }
-    const res = await(await fetch(useApiUrl("/register"), {
-        method: "POST",
-        headers: {
-            // "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            email: form.value.email,
-            password: form.value.password,
-            codeid,
-            code: form.value.code,
-        })
-    })).json()
-    console.log(res)
-    if (res.state === "success") {
-        message.success("注册成功！")
-    }
+    form.vcodeid = base64ToHex(res.data.vcodeid)
+    message.success("已发送验证码！")
 }
 
-const form = ref({
-    email: '',
-    code: '',
-    password: ''
-})
+async function submit() {
+    if (form.vcodeid === null) {
+        message.warning("请获取验证码")
+        return
+    }
+    await formRef.value?.validate(validateErrorMessage)
+    const { error, data: res } = await tryCatch(fetch<
+        register.Request,
+        register.Response
+    >(
+        register.endpoint,
+        {
+            email: form.email,
+            password: form.password,
+            vcode: form.vcode,
+            vcodeid: form.vcodeid,
+        }
+    ))
+    // const res = await(await fetch(useApiUrl("/register"), {
+    //     method: "POST",
+    //     headers: {
+    //         // "Content-Type": "application/json"
+    //     },
+    //     body: JSON.stringify({
+    //         email: form.email,
+    //         password: form.password,
+    //         codeid,
+    //         code: form.code,
+    //     })
+    // })).json()
+    // console.log(res)
+    // if (res.state === "success") {
+    //     message.success("注册成功！")
+    // }
+}
 
 const rule: FormRules = {
     email: [
         {
+            key: "email",
             required: true,
-            message: t('auth.register.validator.Email-Should-Not-Be-Empty'),
+            message: i18n('auth.register.validator.Email-Should-Not-Be-Empty'),
             trigger: 'input'
         },
         {
+            key: "email",
             validator(_rule, value) {
-                if ( verifyEMailRegExp.test(value) ) return true
-                return false
+                return isEamil(value)
             },
-            message: t('auth.register.validator.Incorrect-Email-Format'),
+            message: i18n('auth.register.validator.Incorrect-Email-Format'),
             trigger: 'input'
         }
     ],
-    code: [
+    vcode: [
         {
+            key: "vcode",
             required: true,
-            message: t('auth.register.validator.Code-Should-Not-Be-Empty'),
+            message: i18n('auth.register.validator.Code-Should-Not-Be-Empty'),
             trigger: 'input'
         },
         {
-            validator(_rule, value: string) {
-                if (codeValidator.regexp.test(value) && value.length === codeValidator.length) return true
-                return false
+            key: "vcode",
+            validator(_rule, value) {
+                return isVcode(value)
             },
-            message: t('auth.register.validator.Incorrect-Code-Format'),
+            message: i18n('auth.register.validator.Incorrect-Code-Format'),
             trigger: 'input'
         }
     ],
     password: [
         {
+            key: "password",
             required: true,
-            message: t('auth.register.validator.Password-Should-Not-Be-Empty'),
+            message: i18n('auth.register.validator.Password-Should-Not-Be-Empty'),
             trigger: 'input'
         },
         {
-            validator(_rule, value: string) {
-                if (passwordValidator.regexp.number.test(value)) return true
-                return false
+            key: "password",
+            validator(_rule, value) {
+                console.log(value)
+                return isStrongPasswd(value)
             },
-            message: t('auth.register.validator.Password-Need-Number'),
+            message: "密码安全性不足",
             trigger: 'input'
         },
         {
+            key: "password",
             validator(_rule, value: string) {
-                if (passwordValidator.regexp.letter.test(value)) return true
-                return false
+                return value.length <= 32
             },
-            message: t('auth.register.validator.Password-Need-Letter'),
-            trigger: 'input'
-        },
-        {
-            validator(_rule, value: string) {
-                if (value.length >= passwordValidator.length[0]) return true
-                return false
-            },
-            message: t('auth.register.validator.Password-Should-Longer', [passwordValidator.length[0]]),
-            trigger: 'input'
-        },
-        {
-            validator(_rule, value: string) {
-                if (value.length <= passwordValidator.length[1]) return true
-                return false
-            },
-            message: t('auth.register.validator.Password-Should-Shorter', [passwordValidator.length[1]]),
+            message: "密码应在32字符内",
             trigger: 'input'
         }
     ]
 }
-</script>  
 
-<style scoped>
+const tiplist = [
+    [hasUpperCase, "包含大写字母"],
+    [hasLowerCase, "包含小写字母"],
+    [hasNumber, "包含数字"],
+    [hasSymbol, "包含特殊字符"],
+    [hasCharacter, "包含文字"],
+] as [(value: string)=>boolean, string][]
+</script>
+
+<style>
+.password-strength {
+    font-size: 12px;
+}
+
+.header, .tip {
+    display: flex;
+    align-items: center;
+}
+
+.password-strength .n-icon {
+    animation: show  200ms ease-out;
+}
+
+.header .n-icon {
+    margin-right: 0.5em;
+}
+
+.tip .n-icon {
+    font-size: 0.8em;
+    margin-right: 0.3em;
+}
+
+@keyframes show {
+    0% {
+        transform: scale(0.5);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
 </style>

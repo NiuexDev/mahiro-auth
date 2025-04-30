@@ -1,1 +1,0 @@
-export default new RegExp(/^[^@]+@[^@]+\.[^@]{2,}$/)

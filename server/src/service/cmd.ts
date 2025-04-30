@@ -1,10 +1,12 @@
 import { version } from "@/../package.json"
 import { commitHash } from "@/assets/commitHash"
+import { get } from "http"
 
 export const commandRunner = () => {
-    if (process.argv.length > 2) {
+    const command = process.argv.slice(2).filter(arg => !arg.startsWith("-"))
+    if (command.length > 0) {
         const argv = process.argv
-        switch (argv[2]) {
+        switch (command[0]) {
             case "version":
                 showVersion()
                 break
@@ -13,6 +15,15 @@ export const commandRunner = () => {
         }
         process.exit(0)
     }
+}
+
+export const hasArgv = (name: string): boolean => {
+    return process.argv.slice(2).includes("-"+name) || process.argv.slice(1).some(arg => new RegExp(`^-${name}=`).test(arg))
+}
+
+export const getArgv = (name: string): string | null => {
+    const arg = process.argv.slice(2).find(arg => new RegExp(`^-${name}=`).test(arg))
+    return arg?.slice(name.length + 2) ?? null
 }
 
 const showVersion = () => {

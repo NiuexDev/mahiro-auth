@@ -5,6 +5,7 @@ import { getLogger } from "@/service/logger"
 import * as schema from "~/util/schema"
 import { BooleanValidator, StringValidator, ValueValidator } from "~/util/schema"
 import { Logger } from "winston"
+import { useDataPath } from "@/assets/dataPath"
 
 let logger: Logger
 
@@ -52,7 +53,7 @@ export interface Config {
 }
 
 let config: Config
-const configPath = "config.yml"
+const configPath = useDataPath("config.yml")
 
 class HostValidator extends ValueValidator {
     create() {

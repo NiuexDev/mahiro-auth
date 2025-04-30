@@ -5,6 +5,7 @@ import defaultTemplate from "@/assets/email_templa.html"
 import { Logger } from "winston"
 import { getLogger } from "@/service/logger"
 import { load as loadHtml } from "cheerio"
+import { useDataPath } from "@/assets/dataPath"
 
 let transporter: any
 let config!: Config
@@ -13,7 +14,7 @@ let logger: Logger
 
 const safeReadFile = async (path: string) => {
     try {
-        return (await readFile(path, "utf-8"))
+        return (await readFile(useDataPath(path), "utf-8"))
     } catch (error) {
         return null
     }

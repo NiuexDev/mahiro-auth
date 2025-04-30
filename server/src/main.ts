@@ -10,6 +10,7 @@ import "~/util/class-instance"
 import { commandRunner } from "@/service/cmd"
 import { initDatabase } from "@/service/database"
 import { shortCommitHash } from "@/assets/commitHash"
+import { dataPath } from "@/assets/dataPath"
 
 const versionStr = `v${version} (${shortCommitHash})`
 console.info()
@@ -20,19 +21,13 @@ console.info()
 
 commandRunner()
 
-const { error } = await tryCatch(access("data", constants.F_OK))
+const { error } = await tryCatch(access(dataPath, constants.F_OK))
 if (error) {
-    const { error } = await tryCatch(mkdir("data"))
+    const { error } = await tryCatch(mkdir(dataPath))
     if (error) {
         console.error("创建数据目录失败")
         throw error
     }
-}
-try {
-    process.chdir("data")
-} catch (e: any) {
-    console.error("无法读写数据目录")
-    throw e
 }
 
 const logger = getLogger("main")

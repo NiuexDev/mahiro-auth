@@ -78,15 +78,6 @@ const clone = async () => {
     await unlink("code.zip")
     const configData = await (await fetch(release.assets[0].browser_download_url, { method: "GET" })).arrayBuffer()
     await writeFile("code/web/configBuilder.ts", Buffer.from(configData), "utf-8")
-
-    const configBuilder = await import(process.cwd()+"/code/web/configBuilder.ts")
-    const commitHash = configBuilder.commitHash
-    await writeFile(
-        "code/web/vite.config.ts",
-        (await readFile("code/web/vite.config.ts", "utf-8")).replace("__COMMIT_HASH__", commitHash),
-        "utf-8"
-    )
-    
     spinner2.succeed("下载完成")
     spinner2.stop()
 }

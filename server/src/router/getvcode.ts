@@ -1,4 +1,4 @@
-import { User, userModel } from "@/model/user"
+import { userSchema, userModel } from "@/model/user"
 import { generate } from "@/model/verification-code"
 import { getLogger } from "@/service/logger"
 import { setRouter } from "@/service/router"

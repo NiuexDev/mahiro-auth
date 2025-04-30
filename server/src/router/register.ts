@@ -1,6 +1,6 @@
 import { log } from "console"
 import { defineEventHandler, eventHandler, readBody, sendWebResponse, setResponseStatus } from "h3"
-import { encryptedPasswd, User, userModel } from "@/model/user"
+import { encryptedPasswd, userSchema, userModel } from "@/model/user"
 import { setRouter } from "@/service/router"
 import { register } from "~/type/api/register"
 import { StringValidator, verify as verifySchema } from "~/util/schema"
@@ -68,7 +68,7 @@ setRouter("post", register.endpoint, eventHandler(async (event): Promise<registe
     userModel.create({
         email: body.email,
         password: await encryptedPasswd(body.password)
-    } as User)
+    })
 
     return {
         state: "success",

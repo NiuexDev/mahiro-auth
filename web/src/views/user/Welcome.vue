@@ -81,13 +81,14 @@ import { inject, ref } from "vue"
 import { NTabPane, NTabs, NFlex, NButton, NInput, NFormItem, NUpload, NUploadDragger, NIcon, NText, type FormItemRule } from "naive-ui"
 import { UploadRound } from "@vicons/material"
 import { useRouter } from "vue-router"
-// import SkinViewer from "@components/SkinViewer.vue"
+import SkinViewer from "@/components/SkinViewer.vue"
 
 import { useI18n } from "vue-i18n"
 const { t } = useI18n()
 
-import type { MetaData } from "@/types/MetaData"
-const metadata = inject<MetaData>("metaData")
+// import type { MetaData } from "@/types/MetaData"
+// declare interface MetaData {}
+const metadata: any = inject("metaData")
 
 const router = useRouter()
 

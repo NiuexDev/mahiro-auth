@@ -1,4 +1,4 @@
-import { BooleanValidator, create, StringValidator, verify } from "~/util/schema"
+import { ArrayValidator, BooleanValidator, create, StringValidator, ValueValidator, verify } from "~/util/schema"
 
 const isDevelopment = !!(
     typeof import.meta !== 'undefined' && 
@@ -7,17 +7,45 @@ const isDevelopment = !!(
 )
 
 type Config = {
-    apiBaseUrl: string,
+    icon: string,
     title: string,
     description: string,
+    apiBaseUrl: string,
     allowUseUsernameLogin: boolean
+    
+    assets: {
+        logo: string,
+        background: string[] | string,
+    }
 }
 
 const configSchema = {
-    apiBaseUrl: new StringValidator(isDevelopment ? "http://localhost:10721" : "/api"),
-    title: new StringValidator("まひろ验证"),
+    icon: new StringValidator("assets/favicon.ico"),
+    title: new StringValidator("真寻验证"),
     description: new StringValidator("Moe Mahiro!"),
+    apiBaseUrl: new StringValidator(isDevelopment ? "http://localhost:10721" : "/api"),
     allowUseUsernameLogin: new BooleanValidator(false)
+
+    ,
+    assets: {
+        logo: new StringValidator("assets/logo.png"),
+        background: new  class extends ValueValidator {
+            private value: any;
+            private error: string;
+            constructor(value: any[] = [], error: string = "须为文件路径数组") {
+                super()
+                this.value = value
+                this.error = error
+            }
+            create() {
+                return []
+            }
+            verify(value: any) {
+                if (Array.isArray(value) === false) return this.error
+                if (value.every(item => typeof item === "string") === false) return this.error
+            }
+        }
+    }
 }
 
 export const createConfig = () => {
@@ -28,6 +56,9 @@ export const verifyConfig = (config: any) => {
     return verify(config, configSchema)
 }
 
-export const commitHash = import.meta.env.commitHash
-
+// 
+// 应用会使用的配置
+// 
+export const commitHash = import.meta.env.commitHash ?? "development"
+export const shortCommitHash = import.meta.env.commitHash?.slice(0, 7) ?? "development"
 export const config = createConfig()

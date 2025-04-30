@@ -93,11 +93,18 @@ async function sendVcode() {
     >(
         getVcode.endpoint,
         {
+            type: "register",
             email: form.email
         }
     ))
-    if (error || res.state !== "success") {
+    if (error || res.state === "error") {
         message.error("获取验证码失败！")
+        return
+    }
+    if (res.state === "fail") {
+        if (res.type === "userExist") {
+            message.warning("该邮箱已经注册")
+        }
         return
     }
     form.vcodeid = base64ToHex(res.data.vcodeid)
@@ -122,22 +129,23 @@ async function submit() {
             vcodeid: form.vcodeid,
         }
     ))
-    // const res = await(await fetch(useApiUrl("/register"), {
-    //     method: "POST",
-    //     headers: {
-    //         // "Content-Type": "application/json"
-    //     },
-    //     body: JSON.stringify({
-    //         email: form.email,
-    //         password: form.password,
-    //         codeid,
-    //         code: form.code,
-    //     })
-    // })).json()
-    // console.log(res)
-    // if (res.state === "success") {
-    //     message.success("注册成功！")
-    // }
+    if (error || res.state === "error") {
+        message.error("出现意外的错误！")
+        return
+    }
+    if (res.state === "fail") {
+        switch (res.type) {
+            case "userExist":
+                message.warning("该邮箱已经注册")
+                break
+            case "vcodeError":
+                message.warning("验证码错误")
+                break
+        }
+    }
+    if (res.state === "success") {
+        message.success("注册成功！")
+    }
 }
 
 const rule: FormRules = {

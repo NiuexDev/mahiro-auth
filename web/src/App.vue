@@ -5,7 +5,7 @@ import { NConfigProvider, NMessageProvider, type GlobalThemeOverrides } from 'na
 const themeOverrides: GlobalThemeOverrides = {
     common: {
         borderRadius: '15px',
-        primaryColor: "rgba(101, 160, 24, 1)",
+        primaryColor: "rgb(147, 187, 96)",
         primaryColorHover: "rgba(137, 174, 55, 1)",
         primaryColorPressed: 'rgba(74, 121, 12, 1)',
         primaryColorSuppl: 'rgba(133, 174, 55, 1)',

@@ -2,6 +2,8 @@ import { isEamil, isSecurePassword } from "@/util/regexp"
 import { log } from "console"
 import { defineEventHandler, readBody, readRawBody, readValidatedBody, sanitizeStatusCode, send, sendWebResponse, setResponseStatus } from "h3"
 import { User } from "@/model/user"
+import { setRouter } from "@/service/router"
+import { register } from "~/type/api/register"
 
 interface schema {
     email: string
@@ -57,3 +59,5 @@ export default defineEventHandler(async (event) => {
         id: userId,
     }
 })
+
+setRouter(register)

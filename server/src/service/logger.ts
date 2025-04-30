@@ -1,5 +1,7 @@
+import { useDataPath } from "@/assets/dataPath"
 import { createLogger, format, transports } from "winston"
 import DailyRotateFile from "winston-daily-rotate-file"
+import { getArgv } from "@/service/cmd"
 const { combine, timestamp, label, printf, colorize } = format
 
 export const getLogger = (name: string) => {
@@ -25,7 +27,7 @@ export const getLogger = (name: string) => {
                 datePattern: "YYYY-MM-DD",
                 zippedArchive: true,
                 filename: "%DATE%.log",
-                dirname: "log"
+                dirname: useDataPath(getArgv("log-dir") ?? "log")
             })
         ]
     })

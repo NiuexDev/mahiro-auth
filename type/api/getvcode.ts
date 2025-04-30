@@ -1,21 +1,18 @@
-import { EmailValidator } from "~/type/validator/email"
-
 export namespace getVcode {
     export const endpoint = "/getvcode"
 
     export type Request = {
+        type: "register" | "login" | "resetpasswd"
         email: string
     }
-
-    export const Shema = {
-        email: new EmailValidator(),
-    }
-
     export type Response = {
         state: "success"
         data: {
             vcodeid: string
         }
+    } | {
+        state: "fail",
+        type: "userExist" | "userNotExist"
     } | {
         state: "error"
         reason: any

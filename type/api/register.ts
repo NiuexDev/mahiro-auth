@@ -8,5 +8,15 @@ export namespace register {
         vcodeid: string;
     }
 
-    export type Response = {}
+    export type Response = {
+        state: "success"
+        data: {
+        }
+    } | {
+        state: "fail",
+        type: "userExist" | "vcodeError"
+    } | {
+        state: "error"
+        reason: any
+    }
 }    

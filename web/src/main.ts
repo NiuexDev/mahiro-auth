@@ -7,7 +7,7 @@ import App from "@/App.vue"
 import router from "@/router"
 import i18n from "@/lang"
 import { createPinia } from "pinia"
-import { logo } from "~/logo"
+import { logo } from "~/assets/text-logo"
 
 const versionStr = `v${version} (${shortCommitHash})`
 console.info(`\n${logo}\n\n${name + String().padEnd(logo.split("\n").at(-1)!.length-name.length-versionStr.length, " ") + versionStr}\n\n`)

@@ -1,7 +1,7 @@
 import { ArrayValidator, BooleanValidator, create, StringValidator, ValueValidator, verify } from "~/util/schema"
 
 const isDevelopment = !!(
-    typeof import.meta !== 'undefined' && 
+    typeof import.meta !== "undefined" && 
     import.meta.env && 
     (import.meta.env.DEV || import.meta.env.PROD)
 )

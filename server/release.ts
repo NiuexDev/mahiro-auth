@@ -20,7 +20,7 @@ const octokit = new Octokit({
     auth: githubToken
 })
 
-let preTagName = undefined
+let preTagName = null
 let page = 1
 do {
     const { data: releaseList } = await octokit.rest.repos.listReleases({
@@ -32,7 +32,7 @@ do {
     
     preTagName = releaseList.find(({tag_name}) => tag_name.includes("server-v"))?.tag_name
     page++
-} while (preTagName === undefined)
+} while (preTagName === null)
 
 let preVersion = preTagName
     .match(/server-v(\d+\.\d+\.\d+)/)![1]

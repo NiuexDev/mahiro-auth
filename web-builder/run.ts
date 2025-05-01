@@ -22,7 +22,7 @@ const meta = {
 const clone = async () => {
     const spinner1 = ora({ text: '正在获取最新版本...', color: "yellow" })
     spinner1.start()
-    let release = undefined
+    let release = null
     let page = 1
     do {
         const { data: releaseList } = await octokit.rest.repos.listReleases({
@@ -32,7 +32,7 @@ const clone = async () => {
         })
         release = releaseList.find(({ tag_name }) => tag_name.includes("web-v"))
         page++
-    } while (release === undefined)
+    } while (release === null)
     spinner1.succeed(`当前最新版本：${release.tag_name.slice(5)}`)
     spinner1.stop()
 

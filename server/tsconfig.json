@@ -32,7 +32,7 @@
     "../util/**/*",
     "../type/**/*",
     "../type.d.ts",
-    "../logo.ts",
+    "../assets/**/*",
     "build.ts",
     "release.ts"
   ],

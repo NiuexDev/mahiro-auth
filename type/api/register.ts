@@ -1,3 +1,6 @@
+import { Enum } from "~/type/enum"
+import { APIType } from "~/type/api/common"
+
 export namespace register {
     export const endpoint = "/register"
 
@@ -8,15 +11,20 @@ export namespace register {
         vcodeid: string;
     }
 
+    export const FailType = {
+        userExist: 0,
+        vcodeError: 1,
+    } as const
+
     export type Response = {
-        state: "success"
+        state: typeof APIType.ResponseType.success
         data: {
         }
     } | {
-        state: "fail",
-        type: "userExist" | "vcodeError"
+        state: typeof APIType.ResponseType.fail,
+        type: Enum<typeof FailType>
     } | {
-        state: "error"
+        state: typeof APIType.ResponseType.error,
         reason: any
     }
 }    

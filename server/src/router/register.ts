@@ -8,6 +8,8 @@ import { isEamil } from "~/type/validator/email"
 import { isVcode } from "~/type/validator/vcode"
 import { isStrongPasswd } from "~/type/validator/strong-passwd"
 import { verify } from "@/model/verification-code"
+import { CJKCToUint8Array } from "~/util/encoding"
+import { APIType } from "~/type/api/common"
 
 const uuidRegExp = new RegExp(/^[0-9a-fA-F]{32}$/)
 
@@ -22,46 +24,46 @@ setRouter("post", register.endpoint, eventHandler(async (event): Promise<registe
     if (verifyResult !== true) {
         setResponseStatus(event, 400)
         return {
-            state: "error",
+            state: APIType.ResponseType.error,
             reason: verifyResult
         }
     }
     if (!isEamil(body.email)) {
         return {
-            state: "error",
+            state: APIType.ResponseType.error,
             reason: "不是合法的邮箱"
         }
     }
     if (!isStrongPasswd(body.password)) {
         return {
-            state: "error",
+            state: APIType.ResponseType.error,
             reason: "密码不安全"
         }
     }
     if (!isVcode(body.vcode)) {
         return {
-            state: "error",
+            state: APIType.ResponseType.error,
             reason: "不是合法的验证码"
         }
     }
-    if (uuidRegExp.test(body.vcodeid) === false) {
+    const vcodeid = Buffer.from(CJKCToUint8Array(body.vcodeid)).toString("hex")
+    if (uuidRegExp.test(vcodeid) === false) {
         return {
-            state: "error",
+            state: APIType.ResponseType.error,
             reason: "不是合法的验证码id"
         }
     }
 
-    if (await userModel.exists({ email: body.email }) !== null) {
+    if (!await verify(vcodeid, body.email, body.vcode)) {
         return {
-            state: "fail",
-            type: "userExist"
+            state: APIType.ResponseType.fail,
+            type: register.FailType.vcodeError
         }
     }
-
-    if (!await verify(body.vcodeid, body.email, body.vcode)) {
+    if (await userModel.exists({ email: body.email }) !== null) {
         return {
-            state: "fail",
-            type: "vcodeError"
+            state: APIType.ResponseType.fail,
+            type: register.FailType.userExist
         }
     }
 
@@ -71,7 +73,7 @@ setRouter("post", register.endpoint, eventHandler(async (event): Promise<registe
     })
 
     return {
-        state: "success",
+        state: APIType.ResponseType.success,
         data: {
         }
     }

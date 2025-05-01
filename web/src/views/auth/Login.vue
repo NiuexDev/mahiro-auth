@@ -38,7 +38,7 @@
 
                 <n-form-item path="code" :label="$t('auth.login.code')" first>
                     <n-flex :wrap="false" :size="12" style="width: 100%;">
-                        <!-- <n-input v-model:value="formUseCode.code" placeholder="" :maxlength="codeValidator.length" /> -->
+                        <n-input v-model:value="formUseCode.code" placeholder="" :maxlength="vcodeLength" />
                         <n-button>{{ $t('auth.login.getCode') }}</n-button>
                     </n-flex>
                 </n-form-item>
@@ -65,6 +65,7 @@ import { inject, ref, type Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { config } from "@/../config"
+import { vcodeLength } from "~/type/validator/vcode"
 
 const router = useRouter()
 const toResetPasswordPage = () => {
@@ -164,8 +165,12 @@ const formUseCodeRule: FormRules = {
     display: none !important;
 }
 
-:deep(.n-tab-pane) {
-    padding: 0 5px !important;
+:deep(.n-tabs-pane-wrapper) {
+    overflow: visible;
+}
+
+.n-tab-pane {
+    padding: 0 !important;
     box-sizing: border-box
 }
 </style>

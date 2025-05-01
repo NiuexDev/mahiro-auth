@@ -14,7 +14,7 @@
         </n-form-item>
 
         <n-form-item path="password" :label="$t('auth.register.password')" first>
-            <NPopover trigger="focus" placement="bottom" class="password-strength" :show-arrow="false" header-class="header" width="trigger">
+            <NPopover trigger="focus" placement="top" class="password-strength" :show-arrow="false" header-class="header" width="trigger">
                 <template #trigger>
                     <n-input class="password" v-model:value="form.password" placeholder="请输入密码" show-password-on="click" type="password" :input-props="{ autocomplete: 'new-password' }"/>
                 </template>
@@ -25,7 +25,7 @@
                     <NIcon v-if="!isStrongPasswd(form.password)" color="#d1242f">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="-2 -2 14 14"><g fill="none"><path d="M6 2a4 4 0 1 0 0 8a4 4 0 0 0 0-8zM1 6a5 5 0 1 1 10 0A5 5 0 0 1 1 6z" fill="currentColor"></path></g></svg>
                     </NIcon>
-                    <span>密码至少应有8个字符，且含有文字，或含有大写、小写字母、数字、特殊符号中三种</span>
+                    <span>密码至少应有8个字符，且含有文字，或含有大写、小写字母、数字、特殊字符中三种</span>
                 </template>
                 <span v-for="tip in tiplist" class="tip">
                     <NIcon v-if="tip[0](form.password)" color="#4cbe17">
@@ -53,12 +53,13 @@ import { NButton, NFlex, NForm, NFormItem, NIcon, NInput, NPopover, useMessage, 
 import { reactive, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+import { APIType } from "~/type/api/common"
 import { getVcode } from "~/type/api/getvcode"
 import { register } from "~/type/api/register"
 import { isEamil } from "~/type/validator/email"
 import { hasCharacter, hasLowerCase, hasNumber, hasSymbol, hasUpperCase, isStrongPasswd } from "~/type/validator/strong-passwd"
 import { isVcode, vcodeLength } from "~/type/validator/vcode"
-import { base64ToHex } from "~/util/base64ToHex"
+import { base64ToCJKC as base64ToCJKC } from "~/util/encoding"
 import { tryCatch } from "~/util/try-catch"
 
 const { t: i18n } = useI18n()
@@ -93,21 +94,21 @@ async function sendVcode() {
     >(
         getVcode.endpoint,
         {
-            type: "register",
+            type: getVcode.VcodeType.register,
             email: form.email
         }
     ))
-    if (error || res.state === "error") {
+    if (error || res.state === APIType.ResponseType.error) {
         message.error("获取验证码失败！")
         return
     }
-    if (res.state === "fail") {
-        if (res.type === "userExist") {
+    if (res.state === APIType.ResponseType.fail) {
+        if (res.type === getVcode.FailType.userExist) {
             message.warning("该邮箱已经注册")
         }
         return
     }
-    form.vcodeid = base64ToHex(res.data.vcodeid)
+    form.vcodeid = base64ToCJKC(res.data.vcodeid) + "啊啊啊"
     message.success("已发送验证码！")
 }
 
@@ -129,23 +130,21 @@ async function submit() {
             vcodeid: form.vcodeid,
         }
     ))
-    if (error || res.state === "error") {
+    if (error || res.state === APIType.ResponseType.error) {
         message.error("出现意外的错误！")
         return
     }
-    if (res.state === "fail") {
+    if (res.state === APIType.ResponseType.fail) {
         switch (res.type) {
-            case "userExist":
+            case register.FailType.userExist:
                 message.warning("该邮箱已经注册")
                 break
-            case "vcodeError":
+            case register.FailType.vcodeError:
                 message.warning("验证码错误")
                 break
         }
     }
-    if (res.state === "success") {
-        message.success("注册成功！")
-    }
+    message.success("注册成功！")
 }
 
 const rule: FormRules = {
@@ -159,10 +158,10 @@ const rule: FormRules = {
         {
             key: "email",
             validator(_rule, value) {
-                return isEamil(value)
+                return value === "" || isEamil(value)
             },
             message: i18n('auth.register.validator.Incorrect-Email-Format'),
-            trigger: 'input'
+            trigger: "blur"
         }
     ],
     vcode: [
@@ -175,10 +174,10 @@ const rule: FormRules = {
         {
             key: "vcode",
             validator(_rule, value) {
-                return isVcode(value)
+                return value === "" || isVcode(value)
             },
             message: i18n('auth.register.validator.Incorrect-Code-Format'),
-            trigger: 'input'
+            trigger: "blur"
         }
     ],
     password: [
@@ -191,11 +190,10 @@ const rule: FormRules = {
         {
             key: "password",
             validator(_rule, value) {
-                console.log(value)
-                return isStrongPasswd(value)
+                return value === "" || isStrongPasswd(value)
             },
             message: "密码安全性不足",
-            trigger: 'input'
+            trigger: "blur"
         },
         {
             key: "password",
@@ -203,23 +201,26 @@ const rule: FormRules = {
                 return value.length <= 32
             },
             message: "密码应在32字符内",
-            trigger: 'input'
+            trigger: ['input', "blur"]
         }
     ]
 }
 
 const tiplist = [
+    [hasCharacter, "包含文字"],
     [hasUpperCase, "包含大写字母"],
     [hasLowerCase, "包含小写字母"],
     [hasNumber, "包含数字"],
     [hasSymbol, "包含特殊字符"],
-    [hasCharacter, "包含文字"],
 ] as [(value: string)=>boolean, string][]
 </script>
 
 <style>
 .password-strength {
     font-size: 12px;
+    /* --n-box-shadow: 0 3px 6px -4px rgba(0, 0, 0, .12), 0 6px 16px 0 rgba(0, 0, 0, .08), 0 9px 28px 8px rgba(0, 0, 0, .05) */
+    --n-box-shadow: 0 -6px 16px 0 rgba(0, 0, 0, .08), 0 6px 28px 8px rgba(0, 0, 0, .05) !important;
+    --n-space: 12px !important;
 }
 
 .header, .tip {

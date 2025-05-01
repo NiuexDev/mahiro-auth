@@ -1,4 +1,4 @@
-import { Enum } from "~/type/enum"
+import type { Enum } from "~/type/enum"
 import { APIType } from "~/type/api/common"
 
 export namespace register {

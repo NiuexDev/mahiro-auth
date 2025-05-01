@@ -1,5 +1,5 @@
 import { APIType } from "~/type/api/common"
-import { Enum } from "~/type/enum"
+import type { Enum } from "~/type/enum"
 
 export namespace getVcode {
     export const endpoint = "/getvcode"

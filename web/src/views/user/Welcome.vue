@@ -155,7 +155,7 @@ const idRule: FormItemRule[] = [
     left: 0;
     width: 100%;
     height: 100%;
-    background: url(@assets/img/Girls_Band_Cry_KV2.webp);
+    background: url(@/assets/img/Girls_Band_Cry_KV2.webp);
     background-position: center;
     background-repeat: repeat-x;
     background-size: contain;

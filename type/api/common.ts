@@ -1,4 +1,4 @@
-import { Enum } from "~/type/enum"
+import type { Enum } from "~/type/enum"
 
 export namespace APIType {
     export const ResponseType = {

@@ -38,7 +38,7 @@ export const CJKCToUint8Array = (hanziStr: string) => {
     const bytes = new Uint8Array(16)
 
     charsArray.forEach((char, index) => {
-        bytes[index] = char.codePointAt(0) - HANZI_START_CODEPOINT
+        bytes[index] = char.codePointAt(0)! - HANZI_START_CODEPOINT
     })
     return bytes
 }

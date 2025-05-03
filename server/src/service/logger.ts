@@ -1,4 +1,4 @@
-import { useDataPath } from "@/assets/dataPath"
+import { useDataPath } from "./config"
 import { createLogger, format, transports } from "winston"
 import DailyRotateFile from "winston-daily-rotate-file"
 import { getArgv } from "@/service/cmd"

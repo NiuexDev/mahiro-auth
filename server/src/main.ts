@@ -10,7 +10,7 @@ import "~/util/class-instance"
 import { commandRunner } from "@/service/cmd"
 import { initDatabase } from "@/service/database"
 import { shortCommitHash } from "@/assets/commitHash"
-import { dataPath } from "@/assets/dataPath"
+import { dataPath } from "./service/config"
 
 const versionStr = `v${version} (${shortCommitHash})`
 console.info()

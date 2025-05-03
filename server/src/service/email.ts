@@ -5,7 +5,7 @@ import defaultTemplate from "@/assets/email_templa.html"
 import { Logger } from "winston"
 import { getLogger } from "@/service/logger"
 import { load as loadHtml } from "cheerio"
-import { useDataPath } from "@/assets/dataPath"
+import { useDataPath } from "./config"
 
 let transporter: any
 let config!: Config

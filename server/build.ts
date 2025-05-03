@@ -15,13 +15,14 @@ const bundlefileName = `${name}-v${version}-bun-bundle.js`
 
 // ESM 构建配置
 log("ESM build start")
-await build({
+const meatinfo = await build({
     entryPoints: ["src/main.ts"],
     bundle: true,
     packages: "bundle", // 自动处理依赖
     platform: "node",
     target: "esnext",
     keepNames: true,
+    minifySyntax: true,
     loader: {
       ".html": "text"
     },
@@ -30,6 +31,7 @@ await build({
     define: {
         "import.meta.env.commitHash": process.env.COMMIT_HASH ? JSON.stringify(process.env.COMMIT_HASH.slice(0, 7)) : JSON.stringify(null),
         "import.meta.env.longCommitHash": process.env.COMMIT_HASH ? JSON.stringify(process.env.COMMIT_HASH) : JSON.stringify(null),
+        "process.env.develop": "false"
     }
 })
 log("ESM build success")

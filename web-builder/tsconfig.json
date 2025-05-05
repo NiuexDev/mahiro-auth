@@ -21,9 +21,15 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmitOnError": true
+    "noEmitOnError": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "~/*": ["../*"]
+    }
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "../web/config.ts",
+    "../util/**/*"
   ]
 }

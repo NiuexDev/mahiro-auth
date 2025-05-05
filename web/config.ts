@@ -6,16 +6,16 @@ const isDevelopment = !!(
     (import.meta.env.DEV || import.meta.env.PROD)
 )
 
-type Config = {
+export type Config = {
     apiUrl: string,
     meta: {
-        icon: string,
+        icon: string, // 处理后导出为 iconUrl
         title: string,
         description: string,
     }
     assets: {
         logo: string,
-        background: string[] | string,
+        background: string[] | string, //  处理后导出为 backgroundUrl
     }
     // language: Record<"zh-cn" | "en", any>
 }
@@ -64,3 +64,5 @@ export const verifyConfig = (config: any) => {
 export const commitHash = import.meta.env.commitHash ?? "development"
 export const shortCommitHash = import.meta.env.commitHash?.slice(0, 7) ?? "development"
 export const config = createConfig()
+export const iconUrl = ""
+export const backgroundUrl = []

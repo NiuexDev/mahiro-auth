@@ -75,6 +75,7 @@ setRouter("post", register.endpoint, eventHandler(async (event): Promise<registe
     return {
         state: APIType.ResponseType.success,
         data: {
+            token: ""
         }
     }
 }))

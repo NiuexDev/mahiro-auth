@@ -7,7 +7,7 @@
 
                 <n-form-item path="account" :label="$t('auth.login.account')" first>
                     <n-input v-model:value="formUsePassword.account"
-                        :placeholder="allowUsername ? $t('auth.login.usernameOrEmail', [$t('auth.login.username'), $t('auth.login.email')]) : $t('auth.login.email')" />
+                        :placeholder="$t('auth.login.email')" />
                 </n-form-item>
 
                 <n-form-item path="password" :label="$t('auth.login.password')" first>
@@ -65,7 +65,8 @@ import { inject, ref, type Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { config } from "@/../config"
-import { vcodeLength } from "~/type/validator/vcode"
+import { isVcode, vcodeLength } from "~/type/validator/vcode"
+import { isEamil } from "~/type/validator/email"
 
 const router = useRouter()
 const toResetPasswordPage = () => {
@@ -90,8 +91,6 @@ const changeLoginMethod = (method: LoginMethod): void => {
     }
 }
 
-const allowUsername = config.allowUseUsernameLogin
-
 const formUsePassword = ref({
     account: '',
     password: ''
@@ -105,14 +104,13 @@ const formUsePasswordRule: FormRules = {
             message: i18n('auth.login.validator.Account-Should-Not-Be-Empty'),
             trigger: 'input'
         },
-        !allowUsername ? {
+        {
             validator(_rule, value) {
-                // if (verifyEMailRegExp.test(value)) return true
-                return false
+                return isEamil(value)
             },
             message: i18n('auth.login.validator.Incorrect-Email-Format'),
             trigger: 'input'
-        } : {}
+        }
     ],
     password: {
         required: true,
@@ -135,8 +133,7 @@ const formUseCodeRule: FormRules = {
         },
         {
             validator(_rule, value) {
-                // if (verifyEMailRegExp.test(value)) return true
-                return false
+                return isEamil(value)
             },
             message: i18n('auth.login.validator.Incorrect-Email-Format'),
             trigger: 'input'
@@ -150,8 +147,7 @@ const formUseCodeRule: FormRules = {
         },
         {
             validator(_rule, value: string) {
-                // if (codeValidator.regexp.test(value) && value.length === codeValidator.length) return true
-                return false
+                return isVcode(value)
             },
             message: i18n('auth.login.validator.Incorrect-Code-Format'),
             trigger: 'input'

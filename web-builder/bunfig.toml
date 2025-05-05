@@ -1,2 +1,2 @@
 [define]
-"process.env.develop" = "'develop'"
+"import.meta.env.develop" = "true"

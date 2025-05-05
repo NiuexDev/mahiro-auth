@@ -1,7 +1,7 @@
 import AdmZip from 'adm-zip'
 import { execSync } from "child_process"
 import { error, log, warn } from "console"
-import { access, constants, readdir, readFile, rename, rmdir, stat, unlink, writeFile } from "fs/promises"
+import { access, constants, readdir, readFile, rename, rm, rmdir, stat, unlink, writeFile } from "fs/promises"
 import { createServer } from "http"
 import { Octokit } from "octokit"
 import ora from 'ora'
@@ -17,7 +17,7 @@ const octokit = new Octokit()
 const meta = {
     owner: "NiuexDev",
     repo: "mahiro-auth",
-}
+} as const
 
 const clone = async () => {
     const spinner1 = ora({ text: '正在获取最新版本...', color: "yellow" })
@@ -33,6 +33,7 @@ const clone = async () => {
         release = releaseList.find(({ tag_name }) => tag_name.includes("web-v"))
         page++
     } while (release === null)
+    release = release!
     spinner1.succeed(`当前最新版本：${release.tag_name.slice(5)}`)
     spinner1.stop()
 
@@ -72,7 +73,7 @@ const clone = async () => {
     }
     const zip = new AdmZip("code.zip")
     zip.extractAllTo(".", true)
-    const b = (await readdir(".")).find(name => /^NiuexDev-mahiro-auth-/.test(name))
+    const b = (await readdir(".")).find(name => new RegExp(`^${meta.owner}-${meta.repo}-`).test(name))
     if (b === undefined) throw new Error("release not found")
     await rename(b, "code")
     await unlink("code.zip")
@@ -80,6 +81,59 @@ const clone = async () => {
     await writeFile("code/web/configBuilder.ts", Buffer.from(configData), "utf-8")
     spinner2.succeed("下载完成")
     spinner2.stop()
+}
+
+const cloneDevelopment = async () => {
+    const spinner1 = ora({ text: '正在下载dev分支代码...', color: "yellow" })
+    spinner1.start()
+    const response = await octokit.rest.repos.downloadZipballArchive({
+        owner: meta.owner,
+        repo: meta.repo,
+        ref: "dev"
+    })
+    if (!response.data === 200 || !response.data) throw new Error("dev code not found")
+    try {
+        access("code.zip", constants.F_OK)
+        rm("code.zip", { recursive: true, force: true })
+    } catch (e) {
+        if (e.code !== 'ENOENT') throw e
+    }
+    await writeFile("code.zip", Buffer.from(response.data), "binary")
+    
+    try {
+        access("code", constants.F_OK)
+        rm("code", { recursive: true, force: true })
+    } catch (e) {
+        if (e.code !== 'ENOENT') throw e
+    }
+    
+    const zip = new AdmZip("code.zip")
+    zip.extractAllTo(".", true)
+    const b = (await readdir(".")).find(name => new RegExp(`^${meta.owner}-${meta.repo}-`).test(name))
+    if (b === undefined) throw new Error("release not found")
+    await rename(b, "code")
+    await unlink("code.zip")
+
+    spinner1.succeed("下载完成")
+    spinner1.stop()
+
+    // const spinner2 = ora({ text: '正在下载configBuilder.ts...', color: "green" })
+    // spinner2.start()
+
+    // const configData = await (await fetch(release.assets[0].browser_download_url, { method: "GET" })).arrayBuffer()
+    // await writeFile("code/web/configBuilder.ts", Buffer.from(configData), "utf-8")
+
+    // const runsResponse = await octokit.actions.listWorkflowRuns({
+    //     owner: meta.owner,
+    //     repo: meta.repo,
+    //     workflow_id: workflowId, // 可以是文件名或 workflow ID
+    //     status: 'success',     // 只查找状态为成功的 run
+    //     // per_page: 5,        // 可选，获取最近的几个 run，默认可能是30
+    //     // branch: 'main'      // 可选，如果只想找特定分支的 run
+    //   });
+
+    // spinner2.succeed("下载完成")
+    // spinner2.stop()
 }
 
 const initConfig = async (overwrite: boolean = false) => {
@@ -225,7 +279,11 @@ if (args.length === 0) {
             await init()
             break
         case "clone":
-            await clone()
+            if (import.meta.env.develop) {
+                await cloneDevelopment()
+            } else {
+                await clone()
+            }
             break
         case "initConfig":
             await initConfig(args.slice(1).includes("--overwrite"))

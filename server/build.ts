@@ -31,7 +31,7 @@ const meatinfo = await build({
     define: {
         "import.meta.env.commitHash": process.env.COMMIT_HASH ? JSON.stringify(process.env.COMMIT_HASH.slice(0, 7)) : JSON.stringify(null),
         "import.meta.env.longCommitHash": process.env.COMMIT_HASH ? JSON.stringify(process.env.COMMIT_HASH) : JSON.stringify(null),
-        "process.env.develop": "false"
+        "process.env.develop": JSON.stringify(false)
     }
 })
 log("ESM build success")

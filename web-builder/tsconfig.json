@@ -23,7 +23,7 @@
     "isolatedModules": true,
     "noEmitOnError": true
   },
-  "files": [
-    "run.ts"
+  "include": [
+    "src/**/*"
   ]
 }

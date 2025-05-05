@@ -7,25 +7,28 @@ const isDevelopment = !!(
 )
 
 type Config = {
-    icon: string,
-    title: string,
-    description: string,
     apiUrl: string,
-    allowUseUsernameLogin: boolean
-    
+    meta: {
+        icon: string,
+        title: string,
+        description: string,
+    }
     assets: {
         logo: string,
         background: string[] | string,
     }
+    // language: Record<"zh-cn" | "en", any>
 }
 
+
+
 const configSchema = {
-    icon: new StringValidator("assets/favicon.ico"),
-    title: new StringValidator("真寻验证"),
-    description: new StringValidator("Moe Mahiro!"),
     apiUrl: new StringValidator(isDevelopment ? "http://localhost:10721" : "/api"),
-    allowUseUsernameLogin: new BooleanValidator(false),
-    
+    meta: {
+        icon: new StringValidator("assets/favicon.ico"),
+        title: new StringValidator("Mahiro  验证"),
+        description: new StringValidator("Moe Mahiro!"),
+    },
     assets: {
         logo: new StringValidator("assets/logo.png"),
         background: new  class extends ValueValidator {

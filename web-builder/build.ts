@@ -11,7 +11,7 @@ try {
 
 // ESM 构建配置
 await build({
-    entryPoints: ["run.ts"],
+    entryPoints: ["src/main.ts"],
     bundle: true,
     packages: "bundle", // 自动处理依赖
     platform: "node",
@@ -22,6 +22,6 @@ await build({
     define: {
         "import.meta.env.commitHash": process.env.COMMIT_HASH ? JSON.stringify(process.env.COMMIT_HASH.slice(0, 7)) : JSON.stringify(null),
         "import.meta.env.longCommitHash": process.env.COMMIT_HASH ? JSON.stringify(process.env.COMMIT_HASH) : JSON.stringify(null),
-        "import.meta.env.develop": JSON.stringify(null)
+        "import.meta.env.develop": JSON.stringify(false)
     }
 })

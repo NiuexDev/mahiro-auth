@@ -7,7 +7,8 @@ import { pack } from "./subcmd/pack"
 import { preview } from "./subcmd/preview"
 import { verifyConfig } from "./subcmd/verifyConfig"
 import { initConfig } from "./subcmd/initConfig"
-import { clone, cloneDevelopment } from "./subcmd/clone"
+import { clone } from "./subcmd/clone"
+import { cloneDevelopment } from "./subcmd/cloneDevelopment"
 
 if (import.meta.env.develop) {
     process.chdir("run")

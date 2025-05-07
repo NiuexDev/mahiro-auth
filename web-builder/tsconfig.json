@@ -30,6 +30,7 @@
   "include": [
     "src/**/*",
     "../web/config.ts",
-    "../util/**/*"
+    "../util/**/*",
+    "../type.d.ts"
   ]
 }

@@ -3,6 +3,7 @@
   "version": "1.0.3",
   "private": true,
   "scripts": {
+    "test": "tsc",
     "build": "bun build.ts",
     "release": "bun run build && bun release.ts"
   },

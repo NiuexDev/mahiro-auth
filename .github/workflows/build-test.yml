@@ -41,13 +41,15 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+
       - name: Install dependencies and build web
         working-directory: ./web
         run: |
           bun install
           bun run build
           bun run build:config
-          node -v
 
       - name: Upload web artifact
         uses: actions/upload-artifact@v4

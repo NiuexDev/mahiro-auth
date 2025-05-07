@@ -15,3 +15,7 @@ interface Function {
     isDirectInstance: (potentialInstance: any) => boolean
     isInstance: (potentialInstance: any) => boolean
 }
+
+interface ImportMeta {
+    readonly env: any
+}

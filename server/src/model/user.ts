@@ -59,13 +59,13 @@ const textEncoder = new TextEncoder()
  * @param id 用户的UUID
  * @returns token 字符串
  */
-export const generateToken = (id: string) => {
-    new jose.CompactEncrypt(textEncoder.encode(JSON.stringify({
-        id
-    })))
-    .setProtectedHeader({})
-    return randomBytes(32).toString("hex")
-}
+// export const generateToken = (id: string) => {
+//     new jose.CompactEncrypt(textEncoder.encode(JSON.stringify({
+//         id
+//     })))
+//     // .setProtectedHeader({})
+//     return randomBytes(32).toString("hex")
+// }
 
 // export const register = (
 //     email: string,

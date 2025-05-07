@@ -7,16 +7,16 @@
 > 本变更日志遵循 [Keep a Changelog](http://keepachangelog.com/) 格式编写。
 
 ## 1.1.0
+<!-- Unreleased -->
 ### 新增
 - 支持了在配置文件中指定资源文件
+<!--/ Unreleased -->
 
 ## 1.0.3
-<!-- Unreleased -->
 ### 修复
 - 修复了下载源码和构建时加载动画显示不正常的问题
 ### 变更
 - 更改了构建web时commitHash的获取方式
-<!--/ Unreleased -->
 
 ## 1.0.2
 ### 新增

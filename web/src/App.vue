@@ -2,7 +2,7 @@
 import { RouterView } from 'vue-router'
 import { NConfigProvider, NMessageProvider, type GlobalThemeOverrides } from 'naive-ui'
 import type { StyleValue } from "vue"
-import { backgroundUrl } from "@/../config"
+import { config } from "@/../config"
 
 const themeOverrides: GlobalThemeOverrides = {
     common: {
@@ -16,12 +16,8 @@ const themeOverrides: GlobalThemeOverrides = {
     }
 }
 
-const background =
-    backgroundUrl.length === 0 ?
-        "" :
-        backgroundUrl[Math.floor(Math.random() * backgroundUrl.length)]
 const style: StyleValue = {
-    backgroundImage: `url("${background}")`
+    backgroundImage: `url("${ config.assets.background === null ? "" : config.assets.background[Math.floor(Math.random() * config.assets.background.length)] }")`
 }
 </script>
 
@@ -31,7 +27,7 @@ const style: StyleValue = {
             <RouterView />
         </n-message-provider>
     </n-config-provider>
-    <div class="bg" :style="style"></div>
+    <div v-if="config.assets.background !== null" class="bg" :style="style"></div>
 </template>
 
 <style scoped>

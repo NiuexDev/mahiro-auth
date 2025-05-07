@@ -15,7 +15,7 @@ export type Config = {
     }
     assets: {
         logo: string,
-        background: string[] | string, //  处理后导出为 backgroundUrl
+        background: string[], //  处理后导出为 backgroundUrl
     }
     // language: Record<"zh-cn" | "en", any>
 }
@@ -25,12 +25,12 @@ export type Config = {
 const configSchema = {
     apiUrl: new StringValidator(isDevelopment ? "http://localhost:10721" : "/api"),
     meta: {
-        icon: new StringValidator("assets/favicon.ico"),
+        icon: new StringValidator("assets/icon.png"),
         title: new StringValidator("Mahiro  验证"),
         description: new StringValidator("Moe Mahiro!"),
     },
     assets: {
-        logo: new StringValidator("assets/logo.png"),
+        logo: new StringValidator("/assets/logo.png"),
         background: new  class extends ValueValidator {
             private value: any;
             private error: string;
@@ -40,7 +40,7 @@ const configSchema = {
                 this.error = error
             }
             create() {
-                return []
+                return ["assets/background.png"]
             }
             verify(value: any) {
                 if (Array.isArray(value) === false) return this.error
@@ -58,11 +58,15 @@ export const verifyConfig = (config: any) => {
     return verify(config, configSchema)
 }
 
-// 
-// 应用会使用的配置
-// 
+export const assetsConfigItem = [
+    "meta.icon",
+    "assets.logo",
+    "assets.background",
+]
+
+/**
+ * 应用会使用的配置
+ */
 export const commitHash = import.meta.env.commitHash ?? "development"
 export const shortCommitHash = import.meta.env.commitHash?.slice(0, 7) ?? "development"
 export const config = createConfig()
-export const iconUrl = ""
-export const backgroundUrl = []

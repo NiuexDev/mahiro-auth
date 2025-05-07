@@ -1,11 +1,5 @@
 import { ArrayValidator, BooleanValidator, create, StringValidator, ValueValidator, verify } from "~/util/schema"
 
-const isDevelopment = !!(
-    typeof import.meta !== "undefined" && 
-    import.meta.env && 
-    (import.meta.env.DEV || import.meta.env.PROD)
-)
-
 export type Config = {
     apiUrl: string,
     meta: {
@@ -20,17 +14,15 @@ export type Config = {
     // language: Record<"zh-cn" | "en", any>
 }
 
-
-
 const configSchema = {
-    apiUrl: new StringValidator(isDevelopment ? "http://localhost:10721" : "/api"),
+    apiUrl: new StringValidator(import.meta.env.MODE === "development" ? "http://localhost:10721" : "/api"),
     meta: {
         icon: new StringValidator("assets/icon.png"),
         title: new StringValidator("Mahiro  验证"),
         description: new StringValidator("Moe Mahiro!"),
     },
     assets: {
-        logo: new StringValidator("/assets/logo.png"),
+        logo: new StringValidator("assets/logo.png"),
         background: new  class extends ValueValidator {
             private value: any;
             private error: string;

@@ -1,7 +1,5 @@
 import { error, log } from "console"
-import { createServer } from "http"
 import { Octokit } from "octokit"
-import handler from "serve-handler"
 import { name, version } from "../package.json"
 import { pack } from "./subcmd/pack"
 import { preview } from "./subcmd/preview"

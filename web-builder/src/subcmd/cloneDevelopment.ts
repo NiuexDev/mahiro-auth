@@ -11,8 +11,9 @@ export const cloneDevelopment = async () => {
         owner: meta.owner,
         repo: meta.repo,
         ref: "dev"
-    }) as any
-    if (!(response.data === 200) || !response.data) throw new Error("dev code not found")
+    })
+    console.log(response)
+    // if (!(response.data === 200) || !response.data) throw new Error("dev code not found")
     try {
         access("code.zip", constants.F_OK)
         rm("code.zip", { recursive: true, force: true })

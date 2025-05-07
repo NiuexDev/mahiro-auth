@@ -1,5 +1,5 @@
 import { execSync } from "child_process"
-import { log, warn } from "console"
+import { error, log, warn } from "console"
 import { randomBytes } from "crypto"
 import { mkdir, readFile, writeFile, access, constants, stat, rmdir, unlink, rename, copyFile, readdir, rm } from "fs/promises"
 import ora from "ora"
@@ -21,11 +21,12 @@ export const pack = async (bunPathP?: string) => {
     spinner0.start()
     if ((await tryCatch(access(assetsPath, constants.F_OK))).error === null) {
         await rm(assetsPath, { recursive: true, force: true })
-        await mkdir(assetsPath, { recursive: true })
     }
-    // await moveAssets(config)
+    await mkdir(assetsPath, { recursive: true })
+    // return
     const webConfigFile = await transferConfig(config)
     await writeFile("code/web/config.ts", webConfigFile, "utf-8")
+    // return
     spinner0.succeed("复制完成")
     spinner0.stop()
 
@@ -58,58 +59,6 @@ export const pack = async (bunPathP?: string) => {
     await rename("code/web/dist", "dist")
 }
 
-// const moveAssets = async (config: Config) => {
-//     const configpath = [] as string[]
-
-//     const iteratoy = async (configitem: any) => {
-//         if (typeof configitem === "object") {
-//             for (const configkey in configitem) {
-//                 configpath.push(configkey)
-//                 iteratoy(configitem[configkey])
-//                 configpath.pop()
-//             }
-//         }
-//         if (configBuilder.assetsConfigItem.includes(configpath.join("."))) {
-//             if (Array.isArray(configitem)) {
-//                 const pathList = [] as string[]
-//                 for await (const path of configitem) {
-//                     if ((await tryCatch(access(path, constants.F_OK))).error === null) {
-//                         warn(`${configpath.join(".")} 配置中，路径 ${path} 不存在，已忽略`)
-//                         return
-//                     }
-//                     const stats = await stat(path)
-//                     if (stats.isDirectory()) {
-//                         const dir = await readdir(path)
-//                         for await (const file of dir) {
-//                             if ((await stat(file)).isFile()) pathList.push(join(path, file))
-//                         }
-//                     }
-//                     if (stats.isFile()) pathList.push(path)
-//                 }
-//                 for await (const path of pathList) {
-//                     await mkdir(join(" code/web/public/", Path.parse(path).dir), { recursive: true })
-//                     await copyFile(path, join(" code/web/public/", path))
-//                 }
-//             } else {
-//                 const path = configitem
-//                 if ((await tryCatch(access(path, constants.F_OK))).error === null) {
-//                     warn(`${configpath.join(".")} 配置中，路径 ${path} 不存在，已忽略`)
-//                     return
-//                 }
-//                 if ((await stat(path)).isFile() === false) {
-//                     warn(`${configpath.join(".")} 配置中，路径 ${path} 不是一个文件，已忽略`)
-//                     return
-//                 } else {
-//                     await mkdir(join(" code/web/public/", Path.parse(path).dir), { recursive: true })
-//                     await copyFile(path, join(" code/web/public/", path))
-//                 }
-//             }
-//         }
-//     }
-
-//     await iteratoy(config)
-// }
-
 const transferConfig = async (config: Config): Promise<string> => {
     const configStr = [] as string[]
     
@@ -118,15 +67,15 @@ const transferConfig = async (config: Config): Promise<string> => {
         for (const configkey in configitem) {
             configpath.push(configkey)
             if (typeof configitem[configkey] === "object") {
-                iteratoy(configitem[configkey])
+                await iteratoy(configitem[configkey])
             }
             if (configBuilder.assetsConfigItem.includes(configpath.join("."))) {
                 if (Array.isArray(configitem[configkey])) {
                     const pathList = [] as string[]
-                    for await (const path of configitem) {
+                    for await (const path of configitem[configkey]) {
                         if ((await tryCatch(access(path, constants.F_OK))).error !== null) {
                             warn(`${configpath.join(".")} 配置中，路径 ${path} 不存在，已忽略`)
-                            return
+                            continue
                         }
                         const stats = await stat(path)
                         if (stats.isDirectory()) {
@@ -135,40 +84,33 @@ const transferConfig = async (config: Config): Promise<string> => {
                                 file = join(path, file)
                                 if ((await tryCatch(access(file, constants.F_OK))).error !== null) continue
                                 if ((await stat(file)).isFile()) {
-                                    const name = getSymbol() + "." + Path.parse(file).ext
+                                    const name = getSymbol(file) + Path.parse(file).ext
                                     await copyFile(file, join(assetsPath, name))
                                     pathList.push(join("/assets/", name))
                                 }
                             }
                         }
                         if (stats.isFile()) {
-                            const name = getSymbol() + "." + Path.parse(path).ext
+                            const name = getSymbol(path) + Path.parse(path).ext
                             await copyFile(path, join(assetsPath, name))
                             pathList.push(join("/assets/", name))
                         }
                     }
-                    for await (const path of pathList) {
-                        await mkdir(join(" code/web/public/", Path.parse(path).dir), { recursive: true })
-                        await copyFile(path, join(" code/web/public/", path))
-                    }
                     if (pathList.length === 0) {
                         configitem[configkey] = null
-                        return
+                    } else {
+                        configitem[configkey] = pathList
                     }
-                    configitem[configkey] = pathList
                 } else {
                     const path = configitem[configkey]
                     if ((await tryCatch(access(path, constants.F_OK))).error !== null) {
                         configitem[configkey] = null
                         warn(`${configpath.join(".")} 配置中，路径 ${path} 不存在，已忽略`)
-                        return
-                    }
-                    if ((await stat(path)).isFile() === false) {
+                    } else if ((await stat(path)).isFile() === false) {
                         configitem[configkey] = null
                         warn(`${configpath.join(".")} 配置中，路径 ${path} 不是一个文件，已忽略`)
-                        return
                     } else {
-                        const name = getSymbol() + "." + Path.parse(path).ext
+                        const name = getSymbol(path) + Path.parse(path).ext
                         await copyFile(path, join(assetsPath, name))
                         configitem[configkey] = join("/assets/", name)
                     }
@@ -185,35 +127,18 @@ const transferConfig = async (config: Config): Promise<string> => {
     configStr.push("export const commitHash = " + JSON.stringify(configBuilder.commitHash))
     configStr.push("export const shortCommitHash = " + JSON.stringify(configBuilder.shortCommitHash))
 
-
     return configStr.join(";")
 }
 
-const unfoldPath = async (path: string[]) => {
-    const result = [] as string[]
-    for (const aPath of path) {
-        if (
-            aPath.endsWith("*") &&
-            (await tryCatch(access(aPath.slice(0, -1), constants.F_OK))).error === null &&
-            (await stat(aPath.slice(0, -1))).isDirectory()
-        ) {
-            const filelist = await readdir(aPath.slice(0, -1))
-            filelist.forEach(file => {
-                result.push(join(aPath.slice(0, -1), file))
-            })
-        } else {
-            result.push(aPath)
-        }
-    }
-    return result
-}
-
 const symbolMap = new Set<string>()
-const getSymbol = (): string => {
+const filenameMap = new Map<string, string>()
+const getSymbol = (filename: string): string => {
+    if (filenameMap.has(filename)) return filenameMap.get(filename)!
     let symbol
     do {
         symbol = randomBytes(4).toString("hex")
     } while (symbolMap.has(symbol))
     symbolMap.add(symbol)
+    filenameMap.set(filename, symbol)
     return symbol
 }

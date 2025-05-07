@@ -23,10 +23,8 @@ export const pack = async (bunPathP?: string) => {
         await rm(assetsPath, { recursive: true, force: true })
     }
     await mkdir(assetsPath, { recursive: true })
-    // return
     const webConfigFile = await transferConfig(config)
     await writeFile("code/web/config.ts", webConfigFile, "utf-8")
-    // return
     spinner0.succeed("复制完成")
     spinner0.stop()
 

@@ -6,6 +6,10 @@
 > Commit 信息格式遵循[约定式提交（Conventional Commits）](http://conventionalcommits.org)标准。
 > 本变更日志遵循 [Keep a Changelog](http://keepachangelog.com/) 格式编写。
 
+## 1.1.0
+### 新增
+- 支持了在配置文件中指定资源文件
+
 ## 1.0.3
 <!-- Unreleased -->
 ### 修复

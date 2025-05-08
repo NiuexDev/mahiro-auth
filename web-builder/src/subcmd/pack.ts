@@ -61,11 +61,11 @@ const transferConfig = async (config: Config): Promise<string> => {
     const configStr = [] as string[]
     
     const configpath = [] as string[]
-    const iteratoy = async (configitem: any) => {
+    const iterator = async (configitem: any) => {
         for (const configkey in configitem) {
             configpath.push(configkey)
             if (typeof configitem[configkey] === "object") {
-                await iteratoy(configitem[configkey])
+                await iterator(configitem[configkey])
             }
             if (configBuilder.assetsConfigItem.includes(configpath.join("."))) {
                 if (Array.isArray(configitem[configkey])) {
@@ -82,16 +82,12 @@ const transferConfig = async (config: Config): Promise<string> => {
                                 file = join(path, file)
                                 if ((await tryCatch(access(file, constants.F_OK))).error !== null) continue
                                 if ((await stat(file)).isFile()) {
-                                    const name = getSymbol(file) + Path.parse(file).ext
-                                    await copyFile(file, join(assetsPath, name))
-                                    pathList.push(join("/assets/", name))
+                                    pathList.push(await moveFile(file))
                                 }
                             }
                         }
                         if (stats.isFile()) {
-                            const name = getSymbol(path) + Path.parse(path).ext
-                            await copyFile(path, join(assetsPath, name))
-                            pathList.push(join("/assets/", name))
+                            pathList.push(await moveFile(path))
                         }
                     }
                     if (pathList.length === 0) {
@@ -108,16 +104,14 @@ const transferConfig = async (config: Config): Promise<string> => {
                         configitem[configkey] = null
                         warn(`${configpath.join(".")} 配置中，路径 ${path} 不是一个文件，已忽略`)
                     } else {
-                        const name = getSymbol(path) + Path.parse(path).ext
-                        await copyFile(path, join(assetsPath, name))
-                        configitem[configkey] = join("/assets/", name)
+                        configitem[configkey] = await moveFile(path)
                     }
                 }
             }
             configpath.pop()
         }
     }
-    await iteratoy(config)
+    await iterator(config)
 
     // 导出 config
     configStr.push("export const config = " + JSON.stringify(config))
@@ -128,15 +122,16 @@ const transferConfig = async (config: Config): Promise<string> => {
     return configStr.join(";")
 }
 
-const symbolMap = new Set<string>()
 const filenameMap = new Map<string, string>()
-const getSymbol = (filename: string): string => {
-    if (filenameMap.has(filename)) return filenameMap.get(filename)!
-    let symbol
-    do {
-        symbol = randomBytes(4).toString("hex")
-    } while (symbolMap.has(symbol))
-    symbolMap.add(symbol)
-    filenameMap.set(filename, symbol)
-    return symbol
+const moveFile = async (filename: string): Promise<string> => {
+    const fileSymbol = filenameMap.get(filename) 
+    if (fileSymbol !== undefined) return fileSymbol
+    
+    const fileData = await readFile(filename)
+    const symbol = new Bun.CryptoHasher("md5", ).update(fileData).digest("hex").slice(0, 8)
+    const name = `${Path.parse(filename).name}-${symbol}${Path.parse(filename).ext}`
+    await writeFile(join(assetsPath, name), fileData)
+    const outFilename = join("/assets/", name)
+    filenameMap.set(filename, outFilename)
+    return outFilename
 }

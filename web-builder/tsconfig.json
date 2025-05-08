@@ -6,7 +6,7 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "types": ["node"],
+    "types": ["node", "bun"],
     "declaration": true,
     "removeComments": true,
     "noImplicitAny": true,

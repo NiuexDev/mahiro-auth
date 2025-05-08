@@ -1,5 +1,6 @@
 import { octokit, meta } from "@/main"
 import AdmZip from "adm-zip"
+import { execSync } from "child_process"
 import { access, constants, rm, writeFile, readdir, rename, unlink } from "fs/promises"
 import ora from "ora"
 
@@ -37,4 +38,12 @@ export const cloneDevelopment = async () => {
 
     spinner1.succeed("下载完成")
     spinner1.stop()
+
+    const spinner2 = ora({ text: '正在构建dev分支configBuilder...', color: "yellow" })
+    spinner2.start()
+    execSync("bun install", { cwd: "code/web/" })
+    execSync("bun run build:config", { cwd: "code/web/" })
+    await rename("code/web/dist/config.js", "code/web/configBuilder.ts")
+    spinner2.succeed("构建完成")
+    spinner2.stop()
 }

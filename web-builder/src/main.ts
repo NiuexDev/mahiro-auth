@@ -51,7 +51,7 @@ if (args.length === 0) {
             await init()
             break
         case "clone":
-            if (import.meta.env.develop && args.slice(1).includes("--develop")) {
+            if (import.meta.env.develop && args.slice(1).includes("--development")) {
                 await cloneDevelopment()
                 break
             }

@@ -1,7 +1,6 @@
 import { execSync } from "child_process"
-import { error, log, warn } from "console"
-import { randomBytes } from "crypto"
-import { mkdir, readFile, writeFile, access, constants, stat, rmdir, unlink, rename, copyFile, readdir, rm } from "fs/promises"
+import { log, warn } from "console"
+import { access, constants, cp, mkdir, readdir, readFile, rename, rm, rmdir, stat, unlink, writeFile } from "fs/promises"
 import ora from "ora"
 import Path, { join } from "path"
 import { parse as parseYaml } from "yaml"
@@ -15,14 +14,21 @@ const assetsPath = "code/web/public/assets/"
 export const pack = async (bunPathP?: string) => {
     log("正在打包...")
     configBuilder = await import(join(process.cwd(), "code/web/configBuilder.ts"))
-    const config = parseYaml(await readFile("config.yml", "utf-8"))
+    const config = parseYaml(await readFile("config.yml", "utf-8")) as Config
 
     const spinner0 = ora({ text: '正在复制资源文件...', color: "green" })
     spinner0.start()
-    if ((await tryCatch(access(assetsPath, constants.F_OK))).error === null) {
-        await rm(assetsPath, { recursive: true, force: true })
+    try {
+        await access(config.assets.public, constants.F_OK)
+        await cp(config.assets.public, assetsPath, { recursive: true, force: true })
+    } catch (e) {
+        if (e.code !== 'ENOENT') throw e
+        warn("public 文件夹不存在，已忽略")
+        if ((await tryCatch(access(assetsPath, constants.F_OK))).error === null) {
+            await rm(assetsPath, { recursive: true, force: true })
+        }
+        await mkdir(assetsPath, { recursive: true })
     }
-    await mkdir(assetsPath, { recursive: true })
     const webConfigFile = await transferConfig(config)
     await writeFile("code/web/config.ts", webConfigFile, "utf-8")
     spinner0.succeed("复制完成")

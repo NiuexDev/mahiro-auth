@@ -6,8 +6,10 @@
 > Commit 信息格式遵循[约定式提交（Conventional Commits）](http://conventionalcommits.org)标准。
 > 本变更日志遵循 [Keep a Changelog](http://keepachangelog.com/) 格式编写。
 
-## 1.1.1
+## 1.2.0
 <!-- Unreleased -->
+### 新增
+- 支持了`public`配置项
 ### 优化
 - 优化了`pack`子命令复制资源的方法
 <!--/ Unreleased -->

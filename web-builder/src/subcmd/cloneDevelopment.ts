@@ -1,43 +1,32 @@
 import { octokit, meta } from "@/main"
 import AdmZip from "adm-zip"
 import { execSync } from "child_process"
+import { error } from "console"
 import { access, constants, rm, writeFile, readdir, rename, unlink } from "fs/promises"
 import ora from "ora"
+import { join } from "path"
 
 
 export const cloneDevelopment = async () => {
-    const spinner1 = ora({ text: '正在下载dev分支代码...', color: "yellow" })
-    spinner1.start()
-    const response = await octokit.rest.repos.downloadZipballArchive({
-        owner: meta.owner,
-        repo: meta.repo,
-        ref: "dev"
-    }) as { data: ArrayBuffer, status: number }
-    if (!(response.status === 200) || !response.data) throw new Error("dev code not found")
-    try {
-        access("code.zip", constants.F_OK)
-        rm("code.zip", { recursive: true, force: true })
-    } catch (e) {
-        if (e.code !== 'ENOENT') throw e
-    }
-    await writeFile("code.zip", Buffer.from(response.data), "binary")
-
     try {
         access("code", constants.F_OK)
         rm("code", { recursive: true, force: true })
     } catch (e) {
         if (e.code !== 'ENOENT') throw e
     }
+    try {
+        access("code.zip", constants.F_OK)
+    } catch (e) {
+        if (e.code !== 'ENOENT') throw e
+        error("code.zip not found")
+        process.exit(1)
+    }
 
     const zip = new AdmZip("code.zip")
-    zip.extractAllTo(".", true)
-    const b = (await readdir(".")).find(name => new RegExp(`^${meta.owner}-${meta.repo}-`).test(name))
-    if (b === undefined) throw new Error("release not found")
-    await rename(b, "code")
+    zip.extractAllTo("zip/", true)
+    await rename(join("zip/", (await readdir("zip/"))[0] ?? (() => {error("code dir not found"); process.exit(1)})()), "code/")
+    await rm("zip/", { recursive: true, force: true })
     await unlink("code.zip")
-
-    spinner1.succeed("下载完成")
-    spinner1.stop()
 
     const spinner2 = ora({ text: '正在构建dev分支configBuilder...', color: "yellow" })
     spinner2.start()

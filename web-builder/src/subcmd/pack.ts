@@ -9,7 +9,8 @@ import { Config } from "~/web/config"
 
 let configBuilder: typeof import("~/web/config")
 
-const assetsPath = "code/web/public/assets/"
+const publicPath = "code/web/public/"
+const assetsPath = join(publicPath, "assets/")
 
 export const pack = async (bunPathP?: string) => {
     log("正在打包...")
@@ -19,14 +20,28 @@ export const pack = async (bunPathP?: string) => {
     const spinner0 = ora({ text: '正在复制资源文件...', color: "green" })
     spinner0.start()
     try {
-        await access(config.assets.public, constants.F_OK)
-        await cp(config.assets.public, assetsPath, { recursive: true, force: true })
+        await access(publicPath, constants.F_OK)
+        await rm(publicPath, { recursive: true })
     } catch (e) {
         if (e.code !== 'ENOENT') throw e
-        warn("public 文件夹不存在，已忽略")
-        if ((await tryCatch(access(assetsPath, constants.F_OK))).error === null) {
-            await rm(assetsPath, { recursive: true, force: true })
+    }
+    try {
+        await access(config.assets.public, constants.F_OK)
+        if (!(await stat(config.assets.public)).isDirectory()) {
+            warn(config.assets.public + " 文件夹不存在，已忽略")
+            await mkdir(publicPath, { recursive: true })
+        } else {
+            await cp(config.assets.public, publicPath, { recursive: true, force: true })
         }
+    } catch (e) {
+        if (e.code !== 'ENOENT') throw e
+        warn(config.assets.public + " 文件夹不存在，已忽略")
+        await mkdir(publicPath, { recursive: true })
+    }
+    try {
+        await access(assetsPath, constants.F_OK)
+    } catch (e) {
+        if (e.code !== 'ENOENT') throw e
         await mkdir(assetsPath, { recursive: true })
     }
     const webConfigFile = await transferConfig(config)

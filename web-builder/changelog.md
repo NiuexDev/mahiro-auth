@@ -9,7 +9,7 @@
 ## 1.2.0
 <!-- Unreleased -->
 ### 新增
-- 支持了`public`配置项
+- 支持了`assets.public`配置项
 ### 优化
 - 优化了`pack`子命令复制资源的方法
 <!--/ Unreleased -->

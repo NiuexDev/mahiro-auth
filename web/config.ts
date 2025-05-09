@@ -1,5 +1,21 @@
 import { ArrayValidator, BooleanValidator, create, StringValidator, ValueValidator, verify } from "~/util/schema"
 
+class StringAbleNullValidator extends ValueValidator {
+    private value: any;
+    private error: string;
+    constructor(value: any = null, error: string = "须为 null 或字符串") {
+        super()
+        this.value = value
+        this.error = error
+    }
+    create() {
+        return this.value
+    }
+    verify(value: any) {
+        if (!(value === null || typeof value === "string")) return this.error
+    }
+}
+
 export type Config = {
     apiUrl: string,
     meta: {
@@ -8,20 +24,42 @@ export type Config = {
         description: string,
     }
     assets: {
+        public: string,
         logo: string,
         background: string[], //  处理后导出为 backgroundUrl
+    },
+    ui: {
+        home: {
+            html: string | null
+            title: string,
+            description: string,
+            color: string,
+            buttonColor: string,
+            blur: boolean,
+        },
+        footer: {
+            color: string,
+            copyright: string,
+            link: {
+                name: string,
+                url: string,
+            }[],
+        },
     }
     // language: Record<"zh-cn" | "en", any>
 }
 
+const isDev = import.meta.env.MODE === "development"
+
 const configSchema = {
-    apiUrl: new StringValidator(import.meta.env.MODE === "development" ? "http://localhost:10721" : "/api"),
+    apiUrl: new StringValidator(isDev ? "http://localhost:10721" : "/api"),
     meta: {
         icon: new StringValidator("assets/icon.png"),
         title: new StringValidator("Mahiro  验证"),
         description: new StringValidator("Moe Mahiro!"),
     },
     assets: {
+        public: new StringValidator("public/"),
         logo: new StringValidator("assets/logo.png"),
         background: new  class extends ValueValidator {
             private value: any;
@@ -37,6 +75,56 @@ const configSchema = {
             verify(value: any) {
                 if (Array.isArray(value) === false) return this.error
                 if (value.every(item => typeof item === "string") === false) return this.error
+            }
+        },
+    },
+    ui: {
+        home: {
+            html: new StringAbleNullValidator(null),
+            title: new StringValidator("Mahiro  验证"),
+            description: new StringValidator("Moe Mahiro!"),
+            blur: new class extends ValueValidator {
+                private error: string;
+                private value:  boolean | number;
+                constructor(value = true, error: string = "须为布尔值或数字") {
+                    super()
+                    this.value = value
+                    this.error = error
+                }
+                create() {
+                    return this.value
+                }
+                verify(value: any) {
+                    if (typeof value !== "boolean" && typeof value !== "number") return this.error
+                }
+            },
+            color: new StringValidator("#000"),
+            buttonColor: new StringValidator("#333639"),
+        },
+        footer: {
+            color: new StringValidator("#555"),
+            copyright: new StringValidator("© 2025 Niuex Dev / Mahiro Auth"),
+            link: new class extends ValueValidator {
+                private value: any;
+                private error: string;
+                constructor(value: any = [], error: string = "须为数组") {
+                    super()
+                    this.value = value
+                    this.error = error
+                }
+                create() {
+                    return [
+                        {
+                            name: "Github",
+                            url: "https://github.com/NiuexDev/mahiro-auth",
+                        },
+                    ]
+                }
+                verify(value: any) {
+                    if (Array.isArray(value) === false) return this.error
+                    if (value.every(item => typeof item === "object") === false) return this.error
+                    if (value.every(item => typeof item.name === "string" && typeof item.url === "string") === false) return this.error
+                }
             }
         }
     }

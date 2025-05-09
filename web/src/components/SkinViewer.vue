@@ -5,7 +5,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue"
 import * as skinview3d from "skinview3d"
-import SkinImg from "@/assets/img/Xiaohuang_Cl 2023.png"
+// import SkinImg from "@/assets/img/Xiaohuang_Cl 2023.png"
 onMounted(() => {
 	// skinViewer.animation.start()
 	let skinViewer = new skinview3d.SkinViewer({

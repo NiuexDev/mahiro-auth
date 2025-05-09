@@ -73,7 +73,7 @@ const toResetPasswordPage = () => {
     router.push('/auth/reset-password')
 }
 const toRegisterPage = () => {
-    router.replace('/auth/register')
+    router.replace('/auth/signup')
 }
 
 type LoginMethod = 'usePassword' | 'useCode'
@@ -161,7 +161,11 @@ const formUseCodeRule: FormRules = {
     display: none !important;
 }
 
-:deep(.n-tabs-pane-wrapper) {
+:deep(.n-tabs-pane-wrapper[style]) {
+    overflow: hidden;
+}
+
+:deep(.n-tabs-pane-wrapper[style=""]) {
     overflow: visible;
 }
 

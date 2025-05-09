@@ -16,29 +16,28 @@ const themeOverrides: GlobalThemeOverrides = {
     }
 }
 
-const style: StyleValue = {
-    backgroundImage: `url("${ config.assets.background === null ? "" : config.assets.background[Math.floor(Math.random() * config.assets.background.length)] }")`
+const style: StyleValue = config.assets.background === null ? {} : {
+    backgroundImage: `url("${ config.assets.background[Math.floor(Math.random() * config.assets.background.length)] }")`
 }
 </script>
 
 <template>
-    <n-config-provider class="container" :theme-overrides="themeOverrides" inline-theme-disabled>
+    <n-config-provider
+    class="container"
+    :theme-overrides="themeOverrides"
+    inline-theme-disabled
+    :style="style">
         <n-message-provider>
             <RouterView />
         </n-message-provider>
     </n-config-provider>
-    <div v-if="config.assets.background !== null" class="bg" :style="style"></div>
 </template>
 
 <style scoped>
-.bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+.container {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    /* background-image: url(@/assets/image/Girls_Band_Cry_KV2.webp) !important; */
 }
 </style>

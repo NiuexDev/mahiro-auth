@@ -4,7 +4,6 @@
             <RouterView></RouterView>
         </div>
     </div>
-    <div class="bg"></div>
 </template>
 
 <script lang="ts" setup>
@@ -17,23 +16,6 @@ import { RouterView } from 'vue-router'
     display: flex;
     justify-content: center;
     align-items: center;
-}
-
-.bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: url(@/assets/img/Girls_Band_Cry_KV2.webp);
-    background-position: center;
-    background-repeat: repeat-x;
-    background-size: contain;
-    /* background-image: url(@/assets/img/03.png);
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover; */
-    z-index: -1;
 }
 
 .box {

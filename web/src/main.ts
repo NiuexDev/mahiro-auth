@@ -1,4 +1,5 @@
 import "@/assets/css/main.css"
+import Icon from "@/assets/image/icon.png"
 
 import { name, version } from "@/../package.json"
 import { config, shortCommitHash } from "@/../config"
@@ -23,7 +24,7 @@ document.head.appendChild(description)
 const icon = document.createElement("link")
 icon.setAttribute("rel", "icon")
 icon.setAttribute("type", "image/x-icon")
-icon.setAttribute("href", config.meta.icon ?? "/icon.png")
+icon.setAttribute("href", config.meta.icon ?? Icon)
 document.head.appendChild(icon)
 
 const pinia = createPinia()

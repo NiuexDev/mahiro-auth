@@ -1,14 +1,19 @@
 import type { Enum } from "~/type/enum"
 
-export namespace APIType {
-    export const ResponseType = {
-        success: 0,
-        fail: 1,
-        error: 2
+export namespace CommonAPI {
+    export const ResponseStatus = {
+        SUCCESS: 0,
+        FAIL: 1,
+        ERROR: 2
     } as const
 
+    export type FailResponse<T> = {
+        state: typeof CommonAPI.ResponseStatus.FAIL,
+        type: Enum<T>
+    }
+
     export type ErrorResponse = {
-        state: typeof ResponseType.error,
+        state: typeof ResponseStatus.ERROR,
         reason?: any
     }
 }

@@ -1,15 +1,15 @@
-import { APIType } from "~/type/api/common"
+import { CommonAPI } from "~/type/api/common"
 import type { Enum } from "~/type/enum"
 
-export namespace getVcode {
+export namespace GetVcodeAPI {
     export const endpoint = "/getvcode"
 
     export const method = "POST"
 
     export const VcodeType = {
-        register: 0,
-        login: 1,
-        resetpasswd: 2
+        REGISTER: 0,
+        LOGIN: 1,
+        RESETPASSWD: 2
     } as const
 
     export type Request = {
@@ -18,17 +18,13 @@ export namespace getVcode {
     }
 
     export const FailType = {
-        userExist: 0,
-        userNotExist: 1
+        USER_EXIST: 0,
+        USER_NOT_EXIST: 1,
+        REQUEST_TOO_FAST: 2
     } as const
 
     export type Response = {
-        state: typeof APIType.ResponseType.success
-        data: {
-            vcodeid: string
-        }
-    } | {
-        state: typeof APIType.ResponseType.fail,
-        type: Enum<typeof FailType>
-    } | APIType.ErrorResponse
+        state: typeof CommonAPI.ResponseStatus.SUCCESS
+    } | CommonAPI.FailResponse<typeof FailType>
+    | CommonAPI.ErrorResponse
 }

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { config } from "@/../config"
-import icon from "@/assets/image/icon.png"
+import icon from "~/assets/icon.svg"
+import LangSwitch from "@/components/LangSelector.vue"
 import { NButton, type c } from "naive-ui"
 import logo from "~/assets/logo.svg"
 
@@ -16,21 +17,22 @@ const blurValue = () => {
 </script>
 
 <template>
-    <main :class="$style.main" v-if="config.ui.home.html === null" :style="{ backdropFilter: blurValue() }">
+    <main :class="$style.main" v-if="config.ui.home.html === null" :style="{ backdropFilter: blurValue(), backgroundColor: config.ui.home.bgColor }">
         <header>
+            <LangSwitch/>
             <NButton :text-color="config.ui.home.buttonColor" quaternary @click="$router.push('/auth/login')">登录</NButton>
             <NButton :text-color="config.ui.home.buttonColor" secondary type="primary" @click="$router.push('/auth/signup')">注册</NButton>
         </header>
         <div :class="$style.content">
             <div :class="$style.title" :style="{ color: config.ui.home.color }">
-                <img :src="logo" alt="">
+                <img :src="/*config.assets.logo ?? */logo" alt="">
                 <div :class="$style.text">
                     <h1>{{ config.ui.home.title }}</h1>
                     <p>{{ config.ui.home.description }}</p>
                 </div>
             </div>
         </div>
-        <footer :style="{ color: config.ui.footer.color }">
+        <footer :style="{ color: config.ui.footer.color, backgroundColor: config.ui.footer.bgColor }">
             <div :class="$style.link">
                 <a v-for="link in config.ui.footer.link" :href="link.url">{{ link.name }}</a>
             </div>
@@ -49,17 +51,12 @@ main.main {
 }
 
 main.main header {
-    padding: 1.5em 6vw 1em;
+    padding: 1.5em 6vw 0;
     display: flex;
     flex-direction: row;
     justify-content: end;
-    gap: 1em;
+    gap: 0.5em;
 }
-
-/* main.main header .login {
-    padding: 0.5em 1em;
-    border-radius: 0.5em;
-} */
 
 main.main .content {
     flex: 1;
@@ -77,6 +74,8 @@ main.main .content .title {
     justify-content: center;
     padding: 11vh 0 10vh;
     font-weight: normal;
+    pointer-events: none;
+    user-select: none;
 }
 
 main.main .content .title img {
@@ -91,8 +90,8 @@ main.main footer {
     padding: 28px 48px;
     text-align: center;
     font-size: 0.8em;
-    color:#888;
-    background-color: rgba(0, 0, 0, 0.03);
+    pointer-events: none;
+    user-select: none;
 }
 
 main.main footer .link {
@@ -101,6 +100,8 @@ main.main footer .link {
     gap: 0.5em 2.5em;
     flex-wrap: wrap;
     margin-bottom: 1em;
+    pointer-events: initial;
+    user-select: initial;
 }
 
 main.main footer .link a {

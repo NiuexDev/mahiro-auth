@@ -9,7 +9,7 @@
         <n-form-item path="vcode" :label="$t('auth.register.code')" first>
             <n-flex :wrap="false" :size="12" style="width: 100%;">
                 <n-input v-model:value="form.vcode" placeholder="请输入验证码" :maxlength="vcodeLength"/>
-                <n-button @click="sendVcode()">发送验证码</n-button>
+                <n-button @click="sendVcode()">{{ getVcodeInterval ===  null ? "发送验证码" : getVcodeInterval+"秒后重试"}}</n-button>
             </n-flex>
         </n-form-item>
 
@@ -49,17 +49,17 @@
 
 <script lang="ts" setup>
 import { fetch } from "@/utils/fetch"
+import { login } from "@/utils/login"
 import { NButton, NFlex, NForm, NFormItem, NIcon, NInput, NPopover, useMessage, type FormRules } from 'naive-ui'
-import { reactive, useTemplateRef } from 'vue'
+import { reactive, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { APIType } from "~/type/api/common"
-import { getVcode } from "~/type/api/getvcode"
-import { register } from "~/type/api/register"
+import { CommonAPI } from "~/type/api/common"
+import { GetVcodeAPI } from "~/type/api/getvcode"
+import { RegisterAPI } from "~/type/api/register"
 import { isEamil } from "~/type/validator/email"
 import { hasCharacter, hasLowerCase, hasNumber, hasSymbol, hasUpperCase, isStrongPasswd } from "~/type/validator/strong-passwd"
 import { isVcode, vcodeLength } from "~/type/validator/vcode"
-import { base64ToCJKC as base64ToCJKC } from "~/util/encoding"
 import { tryCatch } from "~/util/try-catch"
 
 const { t: i18n } = useI18n()
@@ -74,8 +74,11 @@ const toLoginPage = () => {
 const form = reactive({
     email: "",
     password: "",
-    vcode: "",
-    vcodeid: null as null | string,
+    vcode: ""
+})
+
+watch(() => form.email, () => {
+    getVcodeInterval.value = null
 })
 
 const formRef = useTemplateRef("formRef")
@@ -86,65 +89,94 @@ const validateErrorMessage = (error: any[][] | undefined) => {
     })
 }
 
-async function sendVcode() {
+let getVcodeInterval = ref<null | number>(null)
+
+const sendVcode = async () => {
+    if (getVcodeInterval.value !== null) {
+        message.warning( "请等待"+getVcodeInterval.value+"秒后重试" )
+        return
+    }
     await formRef.value?.validate(validateErrorMessage, (rule => rule?.key === "email"))
     const { error, data: res } = await tryCatch(fetch<
-        getVcode.Request,
-        getVcode.Response
+        GetVcodeAPI.Request,
+        GetVcodeAPI.Response
     >(
-        getVcode.endpoint,
+        GetVcodeAPI.endpoint,
         {
-            type: getVcode.VcodeType.register,
+            type: GetVcodeAPI.VcodeType.REGISTER,
             email: form.email
         }
     ))
-    if (error || res.state === APIType.ResponseType.error) {
-        message.error("获取验证码失败！")
+    if (error || res.state === CommonAPI.ResponseStatus.ERROR) {
+        message.error("获取验证码失败")
         return
     }
-    if (res.state === APIType.ResponseType.fail) {
-        if (res.type === getVcode.FailType.userExist) {
-            message.warning("该邮箱已经注册")
+    if (res.state === CommonAPI.ResponseStatus.FAIL) {
+        switch (res.type) {
+            case GetVcodeAPI.FailType.USER_EXIST: {
+                message.warning("该邮箱已经注册")
+                return
+            }
+            case GetVcodeAPI.FailType.REQUEST_TOO_FAST: {
+                message.warning("获取验证码过于频繁，请稍后再试")
+                return
+            }
         }
+    }
+    if (res.state === CommonAPI.ResponseStatus.SUCCESS) {
+        getVcodeInterval.value = 60
+        const interval = setInterval(() => {
+            if (getVcodeInterval.value === 0 || getVcodeInterval.value === null) {
+                clearInterval(interval)
+                return
+            }
+            getVcodeInterval.value!--
+            if (getVcodeInterval.value === 0 || getVcodeInterval.value === null) {
+                getVcodeInterval.value = null
+                clearInterval(interval)
+            }
+        }, 1000)
+        message.success("已发送验证码")
         return
     }
-    form.vcodeid = base64ToCJKC(res.data.vcodeid) + "啊啊啊"
-    message.success("已发送验证码！")
 }
 
-async function submit() {
-    if (form.vcodeid === null) {
-        message.warning("请获取验证码")
-        return
-    }
+const submit = async () => {
     await formRef.value?.validate(validateErrorMessage)
     const { error, data: res } = await tryCatch(fetch<
-        register.Request,
-        register.Response
+        RegisterAPI.Request,
+        RegisterAPI.Response
     >(
-        register.endpoint,
+        RegisterAPI.endpoint,
         {
             email: form.email,
             password: form.password,
             vcode: form.vcode,
-            vcodeid: form.vcodeid,
         }
     ))
-    if (error || res.state === APIType.ResponseType.error) {
-        message.error("出现意外的错误！")
+    if (error || res.state === CommonAPI.ResponseStatus.ERROR) {
+        message.error("出现意外的错误")
         return
     }
-    if (res.state === APIType.ResponseType.fail) {
+    if (res.state === CommonAPI.ResponseStatus.FAIL) {
         switch (res.type) {
-            case register.FailType.userExist:
+            case RegisterAPI.FailType.USER_EXIST:
                 message.warning("该邮箱已经注册")
                 break
-            case register.FailType.vcodeError:
+            case RegisterAPI.FailType.VCODE_ERROR:
                 message.warning("验证码错误")
                 break
         }
+        return
     }
-    message.success("注册成功！")
+    if (res.state === CommonAPI.ResponseStatus.SUCCESS) {
+        login(res.data.session)
+        message.success("注册成功")
+        setTimeout(() => {
+            router.replace("/user/welcome")
+        }, 1000)
+        return
+    }
 }
 
 const rule: FormRules = {
@@ -166,13 +198,11 @@ const rule: FormRules = {
     ],
     vcode: [
         {
-            key: "vcode",
             required: true,
             message: i18n('auth.register.validator.Code-Should-Not-Be-Empty'),
             trigger: 'input'
         },
         {
-            key: "vcode",
             validator(_rule, value) {
                 return value === "" || isVcode(value)
             },
@@ -182,13 +212,11 @@ const rule: FormRules = {
     ],
     password: [
         {
-            key: "password",
             required: true,
             message: i18n('auth.register.validator.Password-Should-Not-Be-Empty'),
             trigger: 'input'
         },
         {
-            key: "password",
             validator(_rule, value) {
                 return value === "" || isStrongPasswd(value)
             },
@@ -196,7 +224,6 @@ const rule: FormRules = {
             trigger: "blur"
         },
         {
-            key: "password",
             validator(_rule, value: string) {
                 return value.length <= 32
             },

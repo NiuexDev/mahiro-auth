@@ -28,7 +28,7 @@ import { RouterView } from 'vue-router'
 
 @supports (backdrop-filter: blur(10px)) {
     .box {
-        background-color: rgba(255, 255, 255, 0.9);
+        background-color: var(--card-bg-color);
         backdrop-filter: blur(10px);
     }
 }
@@ -56,6 +56,10 @@ import { RouterView } from 'vue-router'
 
 .box :deep(.submit) {
     margin-bottom: 17px;
+}
+
+.box :deep(.n-tabs-pane-wrapper) {
+    padding-bottom: 2px;
 }
 
 :deep(.password input) {

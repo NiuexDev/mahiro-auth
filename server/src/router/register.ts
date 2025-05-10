@@ -1,81 +1,72 @@
-import { log } from "console"
-import { defineEventHandler, eventHandler, readBody, sendWebResponse, setResponseStatus } from "h3"
-import { encryptedPasswd, userSchema, userModel } from "@/model/user"
-import { setRouter } from "@/service/router"
-import { register } from "~/type/api/register"
-import { StringValidator, verify as verifySchema } from "~/util/schema"
-import { isEamil } from "~/type/validator/email"
-import { isVcode } from "~/type/validator/vcode"
-import { isStrongPasswd } from "~/type/validator/strong-passwd"
+import { generate, sessionModel } from "@/model/session"
+import { encryptedPasswd, userModel } from "@/model/user"
 import { verify } from "@/model/verification-code"
-import { CJKCToUint8Array } from "~/util/encoding"
-import { APIType } from "~/type/api/common"
+import { setRouter } from "@/service/router"
+import { eventHandler, readBody, setResponseStatus } from "h3"
+import { CommonAPI } from "~/type/api/common"
+import { RegisterAPI } from "~/type/api/register"
+import { isEamil } from "~/type/validator/email"
+import { isStrongPasswd } from "~/type/validator/strong-passwd"
+import { isVcode } from "~/type/validator/vcode"
+import { StringValidator, verify as verifySchema } from "~/util/schema"
 
 const uuidRegExp = new RegExp(/^[0-9a-fA-F]{32}$/)
 
-setRouter("post", register.endpoint, eventHandler(async (event): Promise<register.Response> => {
-    const body: register.Request = await readBody(event)
+setRouter("post", RegisterAPI.endpoint, eventHandler(async (event): Promise<RegisterAPI.Response> => {
+    const body: RegisterAPI.Request = await readBody(event)
     const verifyResult = verifySchema(body, {
         email: new StringValidator(),
         password: new StringValidator(),
         vcode: new StringValidator(),
-        vcodeid: new StringValidator()
     })
     if (verifyResult !== true) {
-        setResponseStatus(event, 400)
         return {
-            state: APIType.ResponseType.error,
+            state: CommonAPI.ResponseStatus.ERROR,
             reason: verifyResult
         }
     }
     if (!isEamil(body.email)) {
         return {
-            state: APIType.ResponseType.error,
+            state: CommonAPI.ResponseStatus.ERROR,
             reason: "不是合法的邮箱"
         }
     }
     if (!isStrongPasswd(body.password)) {
         return {
-            state: APIType.ResponseType.error,
+            state: CommonAPI.ResponseStatus.ERROR,
             reason: "密码不安全"
         }
     }
     if (!isVcode(body.vcode)) {
         return {
-            state: APIType.ResponseType.error,
+            state: CommonAPI.ResponseStatus.ERROR,
             reason: "不是合法的验证码"
         }
     }
-    const vcodeid = Buffer.from(CJKCToUint8Array(body.vcodeid)).toString("hex")
-    if (uuidRegExp.test(vcodeid) === false) {
-        return {
-            state: APIType.ResponseType.error,
-            reason: "不是合法的验证码id"
-        }
-    }
 
-    if (!await verify(vcodeid, body.email, body.vcode)) {
+    if (!await verify(body.email, body.vcode)) {
         return {
-            state: APIType.ResponseType.fail,
-            type: register.FailType.vcodeError
+            state: CommonAPI.ResponseStatus.FAIL,
+            type: RegisterAPI.FailType.VCODE_ERROR
         }
     }
     if (await userModel.exists({ email: body.email }) !== null) {
         return {
-            state: APIType.ResponseType.fail,
-            type: register.FailType.userExist
+            state: CommonAPI.ResponseStatus.FAIL,
+            type: RegisterAPI.FailType.USER_EXIST
         }
     }
 
-    userModel.create({
+    const user = await userModel.create({
         email: body.email,
         password: await encryptedPasswd(body.password)
     })
+    const sessionId = await generate(user._id)
 
     return {
-        state: APIType.ResponseType.success,
+        state: CommonAPI.ResponseStatus.SUCCESS,
         data: {
-            token: ""
+            session: sessionId
         }
     }
 }))

@@ -17,14 +17,15 @@ export const startServer = async () => {
 
     const app = createApp({
         onError(error, event) {
-            // 匹配 404 错误码并处理
+            sendWebResponse(event, new Response(null, { status: error.statusCode, /*statusText:  */}))
+            logger.error(`${error.statusCode} - ${error.message}`)
             if (error.statusCode === 404) {
-                sendWebResponse(event, new Response(null, {status: 404}))
+                logger.warn(`未找到路由：${event.path}`)
             }
             if (error.statusCode === 500) {
-                sendWebResponse(event, new Response(null, {status: 500}))
-                logger.error(error)
+                logger.error(error.stack ?? "无栈信息")
             }
+            return
         }
     })
 

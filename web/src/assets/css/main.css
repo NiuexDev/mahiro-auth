@@ -8,6 +8,10 @@ html {
     min-height: 350px;
 }
 
+:root {
+    --card-bg-color: rgba(255, 255, 255, 0.9)
+}
+
 body {
     background-color: #fff;
     scrollbar-width: thin;
@@ -23,9 +27,14 @@ body::-webkit-scrollbar-thumb {
 }
 
 a {
-    color: unset;
+    color: inherit;
 }
 
 h1, h2, h3, h4, h5, h6 {
-    font-weight: normal;
+    font-weight: inherit;
+}
+
+.n-modal-mask {
+    backdrop-filter: blur(5px);
+    background-color: rgba(0, 0, 0, .2);
 }

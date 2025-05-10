@@ -38,6 +38,6 @@ const style: StyleValue = config.assets.background === null ? {} : {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    /* background-image: url(@/assets/image/Girls_Band_Cry_KV2.webp) !important; */
+    background-image: url(@/assets/image/09.png) !important;
 }
 </style>

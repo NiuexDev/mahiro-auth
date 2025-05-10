@@ -10,6 +10,9 @@ const router = createRouter({
         {
             path: "/auth",
             component: () => import("@/views/auth/Layout.vue"),
+            meta: {
+                unauth: true
+            },
             children: [
                 {
                     path: "",
@@ -26,14 +29,38 @@ const router = createRouter({
             ]
         },
         {
-            path: "/user",
-            component: () => import("@/views/user/Layout.vue")
+            path: "/user/welcome",
+            component: () => import("@/views/user/Welcome.vue"),
+            meta: {
+                auth: true
+            }
         },
         {
-            path: "/user/welcome",
-            component: () => import("@/views/user/Welcome.vue")
-        }
+            path: "/user",
+            component: () => import("@/views/user/Layout.vue"),
+            meta: {
+                auth: true
+            }
+        },
     ]
+})
+
+router.beforeEach((to, from, next) => {
+    if (to.meta.auth) {
+        if (localStorage.getItem("session") === null) {
+            next("/auth/login")
+        } else {
+            next()
+        }
+    } else if (to.meta.unauth) {
+        if (localStorage.getItem("session") === null) {
+            next()
+        } else {
+            next("/user")
+        }
+    } else {
+        next()
+    }
 })
 
 export default router

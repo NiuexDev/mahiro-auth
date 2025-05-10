@@ -1,5 +1,5 @@
 import "@/assets/css/main.css"
-import Icon from "@/assets/image/icon.png"
+import Icon from "~/assets/icon.png"
 
 import { name, version } from "@/../package.json"
 import { config, shortCommitHash } from "@/../config"

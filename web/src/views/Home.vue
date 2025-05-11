@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { config } from "@/../config"
-import icon from "~/assets/icon.svg"
+import DarkToggle from "@/components/DarkToggle.vue"
 import LangSwitch from "@/components/LangSelector.vue"
-import { NButton, type c } from "naive-ui"
-import logo from "~/assets/logo.svg"
+import { NButton } from "naive-ui"
+import icon from "~/assets/icon.svg"
 
 const blurValue = () => {
     if (config.ui.home.blur === false) {
@@ -14,40 +14,52 @@ const blurValue = () => {
     }
     return `blur(${config.ui.home.blur}px)`
 }
+
+const ui = config.ui
 </script>
 
 <template>
-    <main :class="$style.main" v-if="config.ui.home.html === null" :style="{ backdropFilter: blurValue(), backgroundColor: config.ui.home.bgColor }">
+    <main class="main" :style="{ backdropFilter: blurValue() }">
         <header>
+            <DarkToggle/>
             <LangSwitch/>
-            <NButton :text-color="config.ui.home.buttonColor" quaternary @click="$router.push('/auth/login')">登录</NButton>
-            <NButton :text-color="config.ui.home.buttonColor" secondary type="primary" @click="$router.push('/auth/signup')">注册</NButton>
+            <NButton quaternary @click="$router.push('/auth/login')">登录</NButton>
+            <NButton secondary type="primary" @click="$router.push('/auth/signup')">注册</NButton>
         </header>
-        <div :class="$style.content">
-            <div :class="$style.title" :style="{ color: config.ui.home.color }">
-                <img :src="/*config.assets.logo ?? */logo" alt="">
-                <div :class="$style.text">
-                    <h1>{{ config.ui.home.title }}</h1>
-                    <p>{{ config.ui.home.description }}</p>
+        <div v-if="ui.home.html === null" class="content">
+            <div class="title">
+                <img :src="config.assets.logo" alt="">
+                <div class="text">
+                    <h1>{{ ui.home.title }}</h1>
+                    <p>{{ ui.home.description }}</p>
                 </div>
             </div>
         </div>
-        <footer :style="{ color: config.ui.footer.color, backgroundColor: config.ui.footer.bgColor }">
-            <div :class="$style.link">
-                <a v-for="link in config.ui.footer.link" :href="link.url">{{ link.name }}</a>
+        <div v-else v-html="ui.home.html"></div>
+        <footer>
+            <div class="link">
+                <a v-for="link in ui.home.footer.link" :href="link.url">{{ link.name }}</a>
             </div>
-            <p :class="$style.copyright">{{ config.ui.footer.copyright }}</p>
-            <p :class="$style.powered">Powered by <img :src="icon" />Mahiro Auth</p>
+            <p class="copyright">{{ ui.home.footer.copyright }}</p>
+            <p v-if="ui.home.footer.showpowered" class="powered">Powered by <img :src="icon" />Mahiro Auth</p>
         </footer>
     </main>
-    <main v-else v-html="config.ui.home.html"></main>
 </template>
 
-<style module>
+<style scoped>
 main.main {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    --homo-title-color: rgb(20, 20, 20);
+    --home-footer-bg-color:rgba(0, 0, 0, 0.05);
+    --home-footer-text-color: rgba(33, 33, 33, 0.6);
+}
+
+:global(.dark) main.main {
+    --homo-title-color: rgb(250, 250, 250);
+    --home-footer-bg-color:rgba(255, 255, 255, 0.05);
+    --home-footer-text-color: rgba(220, 220, 220, 0.6);
 }
 
 main.main header {
@@ -76,6 +88,7 @@ main.main .content .title {
     font-weight: normal;
     pointer-events: none;
     user-select: none;
+    color: var(--homo-title-color);
 }
 
 main.main .content .title img {
@@ -92,6 +105,8 @@ main.main footer {
     font-size: 0.8em;
     pointer-events: none;
     user-select: none;
+    color: var(--home-footer-text-color);
+    background-color: var(--home-footer-bg-color);
 }
 
 main.main footer .link {
@@ -101,7 +116,6 @@ main.main footer .link {
     flex-wrap: wrap;
     margin-bottom: 1em;
     pointer-events: initial;
-    user-select: initial;
 }
 
 main.main footer .link a {
@@ -120,6 +134,5 @@ main.main footer .powered img {
     height: 1em;
     vertical-align: -7%;
     padding: 0 0.1em;
-    pointer-events: none;
 }
 </style>

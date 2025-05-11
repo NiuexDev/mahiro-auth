@@ -3,10 +3,14 @@
         <div class="box">
             <RouterView></RouterView>
         </div>
+        <LangSelector class="lang-selector" :secondary="true"/>
+        <DarkToggle/>
     </div>
 </template>
 
 <script lang="ts" setup>
+import LangSelector from "@/components/LangSelector.vue"
+import DarkToggle from "@/components/DarkToggle.vue"
 import { RouterView } from 'vue-router'
 </script>
 
@@ -16,6 +20,12 @@ import { RouterView } from 'vue-router'
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.lang-selector {
+    position: absolute;
+    top: 1.5em;
+    right: 6vw;
 }
 
 .box {
@@ -51,6 +61,7 @@ import { RouterView } from 'vue-router'
 }
 
 .box :deep(h1) {
+    color: var(--text-color);
     margin-bottom: 15px;
 }
 

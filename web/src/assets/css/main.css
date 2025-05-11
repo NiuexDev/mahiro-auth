@@ -4,16 +4,33 @@
 }
 
 html {
-    min-width: 250px;
+    min-width: 260px;
     min-height: 350px;
 }
 
-:root {
-    --card-bg-color: rgba(255, 255, 255, 0.9)
+html {
+    background-color:rgb(255, 255, 255);
+
+    --text-color: rgb(0, 0, 0);
+    --card-bg-color: rgba(255, 255, 255, 0.9);
+    --button-hover-color: rgba(0, 0, 0, 0.1);
+    --modal-mask-color: rgba(0, 0, 0, 0.2);
+}
+
+html.dark {
+    background-color:rgb(36, 36, 36);
+
+    --text-color: rgb(245, 245, 245);
+    --card-bg-color: rgba(45, 45, 45, 0.9);
+    --button-hover-color: rgba(255, 255, 255, 0.1);
+    --modal-mask-color: rgba(0, 0, 0, 0.25);
 }
 
 body {
-    background-color: #fff;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    
     scrollbar-width: thin;
     scrollbar-color: #a6a6a6 #f4f6f9;
 }
@@ -36,5 +53,5 @@ h1, h2, h3, h4, h5, h6 {
 
 .n-modal-mask {
     backdrop-filter: blur(5px);
-    background-color: rgba(0, 0, 0, .2);
+    background-color: var(--modal-mask-color);
 }

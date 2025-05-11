@@ -1,43 +1,52 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
-import { NConfigProvider, NMessageProvider, type GlobalThemeOverrides } from 'naive-ui'
-import type { StyleValue } from "vue"
 import { config } from "@/../config"
+import { mode } from "@/stores/darkMode"
+import { darkTheme, NConfigProvider, NMessageProvider, type GlobalThemeOverrides } from 'naive-ui'
+import { RouterView } from 'vue-router'
+import { deepMerge } from "~/util/obj-deep"
 
-const themeOverrides: GlobalThemeOverrides = {
+const common = {
+    color: "rgb(147, 187, 96)",
+    colorHover: "rgb(137, 174, 55)",
+    colorPressed: 'rgb(74, 121, 12)',
+    colorSuppl: 'rgb(133, 174, 55)',
+}
+
+const customTheme: GlobalThemeOverrides = {
     common: {
         borderRadius: '15px',
-        primaryColor: "rgb(147, 187, 96)",
-        primaryColorHover: "rgba(137, 174, 55, 1)",
-        primaryColorPressed: 'rgba(74, 121, 12, 1)',
-        primaryColorSuppl: 'rgba(133, 174, 55, 1)',
+        primaryColor: common.color,
+        primaryColorHover: common.colorHover,
+        primaryColorPressed: common.colorPressed,
+        primaryColorSuppl: common.colorSuppl,
 
-        inputColor: "transparent"
-    }
+        successColor: common.color,
+        successColorHover: common.colorHover,
+        successColorPressed: common.colorPressed,
+        successColorSuppl: common.colorSuppl,
+    },
 }
 
-const style: StyleValue = config.assets.background === null ? {} : {
-    backgroundImage: `url("${ config.assets.background[Math.floor(Math.random() * config.assets.background.length)] }")`
-}
+const customLightTheme = deepMerge(customTheme, {
+    common: {
+        inputColor: "transparent",
+    },
+})
+
+const customDarkTheme = deepMerge(customTheme)
 </script>
 
 <template>
     <n-config-provider
+    :style="{ backgroundColor: mode === 'dark' ? config.ui.bgColor.dark : config.ui.bgColor.light }"
     class="container"
-    :theme-overrides="themeOverrides"
-    inline-theme-disabled
-    :style="style">
-        <n-message-provider>
-            <RouterView />
-        </n-message-provider>
+    :theme="mode === 'dark' ? darkTheme : null"
+    :theme-overrides="mode === 'dark' ? customDarkTheme : customLightTheme"
+    inline-theme-disabled>
+        <!-- <n-theme-editor> -->
+            <n-message-provider>
+                <RouterView />
+            </n-message-provider>
+        <!-- </n-theme-editor> -->
     </n-config-provider>
 </template>
-
-<style scoped>
-.container {
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-image: url(@/assets/image/09.png) !important;
-}
-</style>

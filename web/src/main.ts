@@ -1,5 +1,6 @@
 import "@/assets/css/main.css"
 import Icon from "~/assets/icon.png"
+import BgImage from "@/assets/image/09.png"
 
 import { name, version } from "@/../package.json"
 import { config, shortCommitHash } from "@/../config"
@@ -26,6 +27,10 @@ icon.setAttribute("rel", "icon")
 icon.setAttribute("type", "image/x-icon")
 icon.setAttribute("href", config.meta.icon ?? Icon)
 document.head.appendChild(icon)
+ 
+if (config.assets.background !== null) {
+    document.body.style.backgroundImage = `url("${BgImage ?? config.assets.background[Math.floor(Math.random() * config.assets.background.length)]}")`
+}
 
 const pinia = createPinia()
 const app = createApp(App)

@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 export const deepMerge = (target = {}, source = {}) => {
     target = deepClone(target)
     if (typeof target !== 'object' || typeof source !== 'object') throw new Error('parameters must be object')

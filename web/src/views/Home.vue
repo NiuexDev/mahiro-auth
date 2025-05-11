@@ -56,7 +56,7 @@ main.main {
     --home-footer-text-color: rgba(33, 33, 33, 0.6);
 }
 
-:global(.dark) main.main {
+.dark main.main {
     --homo-title-color: rgb(250, 250, 250);
     --home-footer-bg-color:rgba(255, 255, 255, 0.05);
     --home-footer-text-color: rgba(220, 220, 220, 0.6);

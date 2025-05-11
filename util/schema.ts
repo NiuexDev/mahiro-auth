@@ -104,7 +104,7 @@ export const verify = (obj: any, schema: Schema) => {
     const iterator = (schema: any, obj: any) => {
         for (const key in schema) {
             path.push(key)
-            if (obj[key] === undefined || obj[key] === null) {
+            if (obj[key] === undefined) {
                 resultList.push({
                     path: path.join("."),
                     value: null,
@@ -170,7 +170,7 @@ export const fix = (obj: any, schema: Schema) => {
     const iterator = (schema: any, obj: any) => {
         for (const key in schema) {
             path.push(key)
-            if (obj[key] === undefined || obj[key] === null) {
+            if (obj[key] === undefined) {
                 if (ValueValidator.isInstance(schema[key])) {
                     obj[key] = (schema[key] as ValueValidator).create()
                 } else if (typeof schema[key] === "object") {
@@ -218,7 +218,7 @@ export const put = (obj: any, schema: Schema) => {
     const iterator = (schema: any, obj: any) => {
         for (const key in schema) {
             path.push(key)
-            if (obj[key] === undefined || obj[key] === null) {
+            if (obj[key] === undefined) {
                 if (ValueValidator.isInstance(schema[key])) {
                     obj[key] = (schema[key] as ValueValidator).create()
                 } else if (typeof schema[key] === "object") {

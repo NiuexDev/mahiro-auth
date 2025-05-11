@@ -29,23 +29,24 @@ export type Config = {
         background: string[], //  处理后导出为 backgroundUrl
     },
     ui: {
+        bgColor: {
+            light: string,
+            dark: string,
+        },
         home: {
             html: string | null
             title: string,
             description: string,
-            color: string,
-            buttonColor: string,
-            bgColor: string,
             blur: boolean,
-        },
-        footer: {
-            color: string,
-            bgColor: string,
-            copyright: string,
-            link: {
-                name: string,
-                url: string,
-            }[],
+
+            footer: {
+                copyright: string,
+                link: {
+                    name: string,
+                    url: string,
+                }[],
+                showpowered: boolean
+            },
         },
     }
     // language: Record<"zh-cn" | "en", any>
@@ -81,6 +82,10 @@ const configSchema = {
         },
     },
     ui: {
+        bgColor: {
+            light: new StringValidator("rgba(0, 0, 0, 0)"),
+            dark: new StringValidator("rgba(0, 0, 0, 0)"),
+        },
         home: {
             html: new StringAbleNullValidator(null),
             title: new StringValidator("Mahiro  验证"),
@@ -100,37 +105,33 @@ const configSchema = {
                     if (typeof value !== "boolean" && typeof value !== "number") return this.error
                 }
             },
-            color: new StringValidator("#000"),
-            buttonColor: new StringValidator("#333639"),
-            bgColor: new StringValidator("transparent"),
-        },
-        footer: {
-            color: new StringValidator("rgba(38, 40, 48, 0.5)"),
-            bgColor: new StringValidator("rgba(0, 0, 0, 0.03)"),
-            copyright: new StringValidator("© 2025 Niuex Dev / Mahiro Auth"),
-            link: new class extends ValueValidator {
-                private value: any;
-                private error: string;
-                constructor(value: any = [], error: string = "须为数组") {
-                    super()
-                    this.value = value
-                    this.error = error
-                }
-                create() {
-                    return [
-                        {
-                            name: "Github",
-                            url: "https://github.com/NiuexDev/mahiro-auth",
-                        },
-                    ]
-                }
-                verify(value: any) {
-                    if (Array.isArray(value) === false) return this.error
-                    if (value.every(item => typeof item === "object") === false) return this.error
-                    if (value.every(item => typeof item.name === "string" && typeof item.url === "string") === false) return this.error
-                }
+            footer: {
+                link: new class extends ValueValidator {
+                    private value: any;
+                    private error: string;
+                    constructor(value: any = [], error: string = "须为数组") {
+                        super()
+                        this.value = value
+                        this.error = error
+                    }
+                    create() {
+                        return [
+                            {
+                                name: "Github",
+                                url: "https://github.com/NiuexDev/mahiro-auth",
+                            },
+                        ]
+                    }
+                    verify(value: any) {
+                        if (Array.isArray(value) === false) return this.error
+                        if (value.every(item => typeof item === "object") === false) return this.error
+                        if (value.every(item => typeof item.name === "string" && typeof item.url === "string") === false) return this.error
+                    }
+                },
+                copyright: new StringValidator("© 2025 Niuex Dev / Mahiro Auth"),
+                showpowered: new BooleanValidator(true),
             }
-        }
+        },
     }
 }
 

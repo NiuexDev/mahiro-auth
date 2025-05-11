@@ -13,7 +13,14 @@
       "devDependencies": {
         "@tsconfig/node20": "^20.1.5",
         "@types/node": "^20.17.32",
-        "@vicons/material": "^0.12.0",
+        "@vicons/antd": "^0.13.0",
+        "@vicons/carbon": "^0.13.0",
+        "@vicons/fa": "^0.13.0",
+        "@vicons/fluent": "^0.13.0",
+        "@vicons/ionicons4": "^0.13.0",
+        "@vicons/ionicons5": "^0.13.0",
+        "@vicons/material": "^0.13.0",
+        "@vicons/tabler": "^0.13.0",
         "@vitejs/plugin-legacy": "^6.1.1",
         "@vitejs/plugin-vue": "^5.2.3",
         "@vue/tsconfig": "^0.5.1",
@@ -420,7 +427,21 @@
 
     "@types/webxr": ["@types/webxr@0.5.19", "https://registry.npmmirror.com/@types/webxr/-/webxr-0.5.19.tgz", {}, "sha512-4hxA+NwohSgImdTSlPXEqDqqFktNgmTXQ05ff1uWam05tNGroCMp4G+4XVl6qWm1p7GQ/9oD41kAYsSssF6Mzw=="],
 
-    "@vicons/material": ["@vicons/material@0.12.0", "https://registry.npmmirror.com/@vicons/material/-/material-0.12.0.tgz", {}, "sha512-chv1CYAl8P32P3Ycwgd5+vw/OFNc2mtkKdb1Rw4T5IJmKy6GVDsoUKV3N2l208HATn7CCQphZtuPDdsm7K2kmA=="],
+    "@vicons/antd": ["@vicons/antd@0.13.0", "https://registry.npmmirror.com/@vicons/antd/-/antd-0.13.0.tgz", {}, "sha512-yrUGoUSz2BbGupk9ghQOahc04n5H3MwUDM9pVPsLh9U1uqB47oRWZvYRiZaT1JKPqgTgSE6BXcVw4i9MOF4M+g=="],
+
+    "@vicons/carbon": ["@vicons/carbon@0.13.0", "https://registry.npmmirror.com/@vicons/carbon/-/carbon-0.13.0.tgz", {}, "sha512-Z/jExyyS4gsXJc66oTqV/j98nsaiX2JlQ0IUwu9Ms3rztf8VOHEQRuX8Jey1/zbxJpFY/tU+bWvKPRFYGIvCWQ=="],
+
+    "@vicons/fa": ["@vicons/fa@0.13.0", "https://registry.npmmirror.com/@vicons/fa/-/fa-0.13.0.tgz", {}, "sha512-BFcDewcT78fSn4Y/fOgqlswbLUEW3+qJK2iJiNtgmkMzadBVpDXhNyVKsYM3V2uKPvDUrZT0JCWDWVRCiBXJZA=="],
+
+    "@vicons/fluent": ["@vicons/fluent@0.13.0", "https://registry.npmmirror.com/@vicons/fluent/-/fluent-0.13.0.tgz", {}, "sha512-bYGZsOE3qzvm3Cm43e7tybgGlr5ZUpYqtRZq0g0Tfupe8jIzLolpvQLNUt1zS8Mgt6goTbUk5YH7Fkv16jkykg=="],
+
+    "@vicons/ionicons4": ["@vicons/ionicons4@0.13.0", "https://registry.npmmirror.com/@vicons/ionicons4/-/ionicons4-0.13.0.tgz", {}, "sha512-5WHIl/4R5a4i9GONa+hIQWxg/WczrbsCdqxawHZvdd3drsEr+Q3yzlfS+NNRO4WS3uDW2uWLCwoW+yp5TgcKeQ=="],
+
+    "@vicons/ionicons5": ["@vicons/ionicons5@0.13.0", "https://registry.npmmirror.com/@vicons/ionicons5/-/ionicons5-0.13.0.tgz", {}, "sha512-zvZKBPjEXKN7AXNo2Na2uy+nvuv6SP4KAMQxpKL2vfHMj0fSvuw7JZcOPCjQC3e7ayssKnaoFVAhbYcW6v41qQ=="],
+
+    "@vicons/material": ["@vicons/material@0.13.0", "https://registry.npmmirror.com/@vicons/material/-/material-0.13.0.tgz", {}, "sha512-lKVxFNprM+CaBkUH3gt6VjIeiMsKQl2zARQMwTCZruQl2vRHzyeZiKeCflWS99CEfv2JzX/6y697smxlzyxcVw=="],
+
+    "@vicons/tabler": ["@vicons/tabler@0.13.0", "https://registry.npmmirror.com/@vicons/tabler/-/tabler-0.13.0.tgz", {}, "sha512-AykuhiqjszkIoAL/7knIFm6RDOBS1ZmQdJfQ+RNLEah0fVsxykUFCfMBSNZh8lOzC85EtdD1k5g/sv5GYk0Ohg=="],
 
     "@vitejs/plugin-legacy": ["@vitejs/plugin-legacy@6.1.1", "https://registry.npmmirror.com/@vitejs/plugin-legacy/-/plugin-legacy-6.1.1.tgz", { "dependencies": { "@babel/core": "^7.26.10", "@babel/preset-env": "^7.26.9", "browserslist": "^4.24.4", "browserslist-to-esbuild": "^2.1.1", "core-js": "^3.41.0", "magic-string": "^0.30.17", "regenerator-runtime": "^0.14.1", "systemjs": "^6.15.1" }, "peerDependencies": { "terser": "^5.16.0", "vite": "^6.0.0" } }, "sha512-BvusL+mYZ0q5qS5Rq3D70QxZBmhyiHRaXLtYJHH5AEsAmdSqJR4xe5KwMi1H3w8/9lVJwhkLYqFQ9vmWYWy6kA=="],
 

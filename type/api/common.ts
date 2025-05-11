@@ -7,7 +7,7 @@ export namespace CommonAPI {
         ERROR: 2
     } as const
 
-    export type FailResponse<T> = {
+    export type FailResponse<T extends Record<string, any>> = {
         state: typeof CommonAPI.ResponseStatus.FAIL,
         type: Enum<T>
     }

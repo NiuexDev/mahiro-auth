@@ -29,7 +29,7 @@ icon.setAttribute("href", config.meta.icon ?? Icon)
 document.head.appendChild(icon)
  
 if (config.assets.background !== null) {
-    document.body.style.backgroundImage = `url("${BgImage ?? config.assets.background[Math.floor(Math.random() * config.assets.background.length)]}")`
+    document.body.style.backgroundImage = `url("${import.meta.env.MODE === "development" ? BgImage : config.assets.background[Math.floor(Math.random() * config.assets.background.length)]}")`
 }
 
 const pinia = createPinia()

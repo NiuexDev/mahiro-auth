@@ -1,5 +1,4 @@
 import { CommonAPI } from "~/type/api/common"
-import { Enum } from "~/type/enum"
 
 export namespace LoginAPI {
     export const endpoint = "/login"

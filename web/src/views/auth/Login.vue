@@ -67,7 +67,7 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { CommonAPI } from "~/type/api/common"
 import { GetVcodeAPI } from "~/type/api/getvcode"
-import { LoginAPI as LoginAPI } from "~/type/api/login"
+import { LoginAPI } from "~/type/api/login"
 import { isEamil } from "~/type/validator/email"
 import { isVcode, vcodeLength } from "~/type/validator/vcode"
 import { tryCatch } from "~/util/try-catch"

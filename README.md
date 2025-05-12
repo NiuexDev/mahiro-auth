@@ -1,1 +1,3 @@
 ![mahiro-auth](https://socialify.git.ci/NiuexDev/mahiro-auth/image?custom_description=%E5%9F%BA%E4%BA%8ETypescipt%2C+Vue%E7%9A%84%E5%85%A8%E6%96%B0Minecraft%E9%AA%8C%E8%AF%81%E6%9C%8D%E5%8A%A1&description=1&font=Raleway&forks=1&issues=1&logo=https%3A%2F%2Fraw.githubusercontent.com%2FNiuexDev%2Fmahiro-auth%2F06a0added7f3d85d11e4abc04f0d4523129f53c4%2Fassets%2Flogo.png&name=1&pattern=Plus&pulls=1&stargazers=1&theme=Light)
+
+[QQ群聊](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=Mmv_Pu_tfux_idEBnOEKg4lK8ifZx8UB&authKey=4H%2FlEmQdNInhzmxkLZOzwqVRHhRpjVqaxjXhMIhhSpTxPKjEMqN8WbDLovjSk1Am&noverify=0&group_code=536134254)

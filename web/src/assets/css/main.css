@@ -18,7 +18,7 @@ html {
 }
 
 html.dark {
-    background-color:rgb(36, 36, 36);
+    background-color:rgb(55, 55, 55);
 
     --text-color: rgb(245, 245, 245);
     --card-bg-color: rgba(45, 45, 45, 0.9);

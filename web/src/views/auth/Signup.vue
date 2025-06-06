@@ -16,7 +16,7 @@
         <n-form-item path="password" :label="$t('auth.register.password')" first>
             <NPopover trigger="focus" placement="top" class="password-strength" :show-arrow="false" header-class="header" width="trigger">
                 <template #trigger>
-                    <n-input class="password" v-model:value="form.password" placeholder="请输入密码" show-password-on="click" type="password" :input-props="{ autocomplete: 'new-password' }"/>
+                    <n-input class="password" v-model:value="form.password" placeholder="请输入密码" show-password-on="click" type="password" :input-props="{ autocomplete: 'new-password', inputmode: 'text' }"/>
                 </template>
                 <template #header>
                     <NIcon v-if="isStrongPasswd(form.password)" color="#4cbe17">

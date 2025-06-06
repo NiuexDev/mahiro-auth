@@ -1,5 +1,5 @@
 import "@/assets/css/main.css"
-import Icon from "~/assets/icon.png"
+import iconUrl from "~/assets/icon.png"
 import BgImage from "@/assets/image/09.png"
 
 import { name, version } from "@/../package.json"
@@ -25,7 +25,7 @@ document.head.appendChild(description)
 const icon = document.createElement("link")
 icon.setAttribute("rel", "icon")
 icon.setAttribute("type", "image/x-icon")
-icon.setAttribute("href", config.meta.icon ?? Icon)
+icon.setAttribute("href", config.meta.icon ?? iconUrl)
 document.head.appendChild(icon)
  
 if (config.assets.background !== null) {

@@ -3,8 +3,10 @@
         <div class="box">
             <RouterView></RouterView>
         </div>
-        <LangSelector class="lang-selector" :secondary="true"/>
-        <DarkToggle/>
+        <div class="toolbar">
+            <DarkToggle/>
+            <LangSelector :secondary="true"/>
+        </div>
     </div>
 </template>
 
@@ -20,12 +22,6 @@ import { RouterView } from 'vue-router'
     display: flex;
     justify-content: center;
     align-items: center;
-}
-
-.lang-selector {
-    position: absolute;
-    top: 1.5em;
-    right: 6vw;
 }
 
 .box {
@@ -76,5 +72,16 @@ import { RouterView } from 'vue-router'
 :deep(.password input) {
     padding: 0 2px;
     letter-spacing: 0.1em;
+}
+
+.toolbar {
+    position: absolute;
+    top: 1.5em;
+    right: 6vw;
+    /* margin-top: 1em; */
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    gap: 0.5em;
 }
 </style>

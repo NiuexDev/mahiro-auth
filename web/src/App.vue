@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { config } from "@/../config"
 import { mode } from "@/stores/darkMode"
-import { darkTheme, NConfigProvider, NMessageProvider, type GlobalThemeOverrides } from 'naive-ui'
+import { darkTheme, NConfigProvider, NMessageProvider, type GlobalThemeOverrides, NThemeEditor } from 'naive-ui'
 import { RouterView } from 'vue-router'
 import { deepMerge } from "~/util/obj-deep"
 
@@ -30,10 +30,16 @@ const customTheme: GlobalThemeOverrides = {
 const customLightTheme = deepMerge(customTheme, {
     common: {
         inputColor: "transparent",
+        
+        popoverColor: "rgb(255, 255, 255)"
     },
 })
 
-const customDarkTheme = deepMerge(customTheme)
+const customDarkTheme = deepMerge(customTheme, {
+    common: {        
+        popoverColor: "rgb(65, 65, 65)"
+    },
+})
 </script>
 
 <template>

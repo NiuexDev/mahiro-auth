@@ -83,8 +83,8 @@ const configSchema = {
     },
     ui: {
         bgColor: {
-            light: new StringValidator("rgba(0, 0, 0, 0)"),
-            dark: new StringValidator("rgba(0, 0, 0, 0)"),
+            light: new StringValidator("transparent"),
+            dark: new StringValidator("rgba(0, 0, 0, 0.3)"),
         },
         home: {
             html: new StringAbleNullValidator(null),

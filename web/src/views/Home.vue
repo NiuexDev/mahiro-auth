@@ -3,7 +3,7 @@ import { config } from "@/../config"
 import DarkToggle from "@/components/DarkToggle.vue"
 import LangSwitch from "@/components/LangSelector.vue"
 import { NButton } from "naive-ui"
-import icon from "~/assets/icon.svg"
+import MahiroAuthIcon from "~/assets/icon.svg?raw"
 
 const blurValue = () => {
     if (config.ui.home.blur === false) {
@@ -41,28 +41,26 @@ const ui = config.ui
                 <a v-for="link in ui.home.footer.link" :href="link.url">{{ link.name }}</a>
             </div>
             <p class="copyright">{{ ui.home.footer.copyright }}</p>
-            <p v-if="ui.home.footer.showpowered" class="powered">Powered by <img :src="icon" />Mahiro Auth</p>
+            <p v-if="ui.home.footer.showpowered" class="powered">Powered by <span class="icon" v-html="MahiroAuthIcon"></span> Mahiro Auth</p>
         </footer>
     </main>
 </template>
 
 <style scoped>
-main.main {
+.main {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     --homo-title-color: rgb(20, 20, 20);
-    --home-footer-bg-color:rgba(0, 0, 0, 0.05);
     --home-footer-text-color: rgba(33, 33, 33, 0.6);
 }
 
-.dark main.main {
+.dark .main {
     --homo-title-color: rgb(250, 250, 250);
-    --home-footer-bg-color:rgba(255, 255, 255, 0.05);
     --home-footer-text-color: rgba(220, 220, 220, 0.6);
 }
 
-main.main header {
+.main header {
     padding: 1.5em 6vw 0;
     display: flex;
     flex-direction: row;
@@ -70,7 +68,7 @@ main.main header {
     gap: 0.5em;
 }
 
-main.main .content {
+.main .content {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -79,7 +77,7 @@ main.main .content {
     padding: 10vh 10vw;
 }
 
-main.main .content .title {
+.main .content .title {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -91,25 +89,24 @@ main.main .content .title {
     color: var(--homo-title-color);
 }
 
-main.main .content .title img {
+.main .content .title img {
     height: 100px;
 }
 
-main.main .content .text {
+.main .content .text {
     padding-top: 1.5em;
 }
 
-main.main footer {
+.main footer {
     padding: 28px 48px;
     text-align: center;
     font-size: 0.8em;
     pointer-events: none;
     user-select: none;
     color: var(--home-footer-text-color);
-    background-color: var(--home-footer-bg-color);
 }
 
-main.main footer .link {
+.main footer .link {
     display: flex;
     justify-content: center;
     gap: 0.5em 2.5em;
@@ -118,20 +115,22 @@ main.main footer .link {
     pointer-events: initial;
 }
 
-main.main footer .link a {
+.main footer .link a {
     text-decoration: none;
 }
 
-main.main footer .link a:hover {
+.main footer .link a:hover {
     text-decoration: underline;
 }
 
-main.main footer .copyright {
+.main footer .copyright {
     margin-bottom: 0.3em;
 }
 
-main.main footer .powered img {
+.main footer .powered span :deep(svg) {
+    color: var(--home-footer-text-color);
     height: 1em;
+    width: 1em;
     vertical-align: -7%;
     padding: 0 0.1em;
 }

@@ -54,7 +54,7 @@ const select = (lang: any) => {
 
 <style scoped>
 .button {
-    margin: 0 -6px;
+    padding-left: 10px;
 }
 .card {
     display: inline-block;

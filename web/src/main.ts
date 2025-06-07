@@ -38,3 +38,17 @@ app.use(router)
 app.use(i18n)
 app.use(pinia)
 app.mount("body")
+
+const today = new Date()
+if (today.getMonth() === 2 && today.getDate() === 6) {
+    console.log(
+        '%c绪山真寻%c生日快乐！\n' +
+        '%c前往%cBangumi%c条%c目：https://bgm.tv/character/58444',
+        'font-size: 32px; color: #e5d0ca; font-weight: bold;',
+        'font-size: 24px; color: #bfada8; font-weight: bold;',
+        'font-size: 18px; color: #62b7d9; font-weight: bold;',
+        'font-size: 18px; color: #926454; font-weight: bold;',
+        'font-size: 18px; color: #ef858c; font-weight: bold;',
+        'font-size: 18px; color: #926454; font-weight: bold;',
+    )
+}

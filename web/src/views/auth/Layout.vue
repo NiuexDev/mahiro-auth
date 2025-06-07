@@ -5,7 +5,7 @@
         </div>
         <div class="toolbar">
             <DarkToggle/>
-            <LangSelector :secondary="true"/>
+            <LangSelector/>
         </div>
     </div>
 </template>

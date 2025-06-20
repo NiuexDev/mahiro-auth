@@ -2,6 +2,7 @@ import { createTransport } from "nodemailer"
 import { Config, useConfig } from "@/service/config"
 import { readFile } from "fs/promises"
 import defaultTemplate from "@/assets/email_templa.html"
+// const defaultTemplate = ""
 import { Logger } from "winston"
 import { getLogger } from "@/service/logger"
 import { load as loadHtml } from "cheerio"
@@ -80,8 +81,8 @@ export const sendEmail = async (title: string, content: string, to: string) => {
 }
 
 const setting = {
-    sitename: "まひろ验证",
-    copyright: "版权所有"
+    sitename: "Mahiro Auth",
+    copyright: "© Mahiro Auth"
 }
 
 type TemplateType = "default" | "register" | "login" | "resetpasswd"

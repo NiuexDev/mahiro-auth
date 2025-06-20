@@ -1,7 +1,7 @@
 import { ObjectId, UUID } from "mongodb"
 import { model, Schema } from "mongoose"
-import { randomBytes, randomUUID } from "node:crypto"
-import * as jose from 'jose'
+import { randomUUID, hash } from "node:crypto"
+import { compare } from "bcrypt"
 
 export const userSchema = new Schema({
     _id: { type: UUID, required: true, default: randomUUID },
@@ -24,10 +24,10 @@ export const userModel = model("user", userSchema, "user")
  * @returns 加密后的密码
  */
 export const encryptedPasswd = async (password: string): Promise<string> => {
-    return await Bun.password.hash(password, {
+    /* return await hash("bcrypt", password) /* Bun.password.hash(password, {
         algorithm: "bcrypt",
         cost: 12
-    })
+    }) */
 }
 
 const textEncoder = new TextEncoder()

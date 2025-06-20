@@ -1,5 +1,6 @@
 import { userSchema, userModel } from "@/model/user"
 import { generate, vcodeModel } from "@/model/verification-code"
+import { sendEmail, sendTemplate } from "@/service/email"
 import { getLogger } from "@/service/logger"
 import { setRouter } from "@/service/router"
 import { defineEventHandler, eventHandler, readBody, setResponseStatus } from "h3"
@@ -60,6 +61,7 @@ setRouter("post", GetVcodeAPI.endpoint, eventHandler(async (event): Promise<GetV
 
     const vcode = await generate(body.email, vcodeLength, 5 * 60)
     getLogger("vcode").debug(JSON.stringify(vcode))
+    await sendTemplate("register", vcode.code, body.email)
     return {
         state: CommonAPI.ResponseStatus.SUCCESS
     }

@@ -34,7 +34,7 @@ setRouter("post", LoginAPI.endpoint, eventHandler(async (event): Promise<LoginAP
                 state: CommonAPI.ResponseStatus.FAIL,
                 type: LoginAPI.FailType.USER_NOT_EXIST,
             }
-            const verify = await Bun.password.verify(body.password, user.password)
+            // const verify = await Bun.password.verify(body.password, user.password)
             if (!verify) {
                 return {
                     state: CommonAPI.ResponseStatus.FAIL,

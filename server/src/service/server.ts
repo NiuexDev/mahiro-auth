@@ -1,6 +1,7 @@
 // import { useRouter } from "@/router"
 import { createApp, sendWebResponse, defineEventHandler, getRequestIP, setResponseHeader, getHeader, toNodeListener, setResponseHeaders, getRequestHeader } from "h3"
 import { createServer } from "http"
+import { createServer as createNatServer } from "net"
 import { useConfig } from "@/service/config"
 import { getLogger } from "@/service/logger"
 import { useRouter } from "@/service/router"
@@ -75,7 +76,6 @@ export const startServer = async () => {
 
     const port = await checkPort(config.server.port)
     createServer(toNodeListener(app)).listen(port, config.server.host)
-
     logger.info(`服务已运行于：http://${config.server.host}:${port}，YggdrasilAPI位于：${config.server.yggdrasilApiUrl}`)
 }
 
@@ -84,19 +84,22 @@ const checkPort = async (port: number) => {
     let i = 0
     while (true) {
         i++
+        const server = createServer()
         const occupied = await new Promise(
-            (resolve) => {
-                const server = createServer().listen(port)
-                server.on("listening", () => {
-                    server.close()
-                    resolve(false)
-                })
-                server.on("error", () => { 
+            (resolve, reject) => {
+                server.once("error", (err: any) => {
                     server.close()
                     resolve(true)
                 })
+                server.once("listening", () => {
+                    server.close()
+                    console.log(3)
+                    resolve(false)
+                })
+                server.listen(port)
             }
         )
+        console.log(occupied)
         if (!occupied) {
             return port
         } else {

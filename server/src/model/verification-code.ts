@@ -15,7 +15,7 @@ export const vcodeModel = model("vcode", vcodeSchema, "vcode")
 
 export const generate = async (email: string, length: number, expires: number) => {
     const code = Array.from({ length: length }, () => char[Math.floor(Math.random() * char.length)]).join("")
-    await vcodeModel.create({
+    return await vcodeModel.create({
         email: email,
         code,
         expires: Date.now() + expires * 1000

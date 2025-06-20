@@ -24,13 +24,13 @@
     "noEmitOnError": true,
     "paths": {
       "@/*": ["./src/*"],
-      "~/*": ["../*"]
+      "~/*": ["../common/*"],
+      "~web/*": ["../web/*"],
     }
   },
   "include": [
     "src/**/*",
+    "../common/**/*",
     "../web/config.ts",
-    "../util/**/*",
-    "../type.d.ts"
   ]
 }

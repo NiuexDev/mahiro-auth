@@ -1,11 +1,10 @@
 import { createTransport } from "nodemailer"
-import { Config, useConfig } from "@/service/config"
+import { type Config, useConfig } from "@/service/config"
 import { readFile } from "fs/promises"
-import defaultTemplate from "@/assets/email_templa.html"
+import defaultTemplate from "@/assets/email_templa.html" with { type: "text" }
 // const defaultTemplate = ""
 import { Logger } from "winston"
 import { getLogger } from "@/service/logger"
-import { load as loadHtml } from "cheerio"
 import { useDataPath } from "./config"
 
 let transporter: any
@@ -87,16 +86,13 @@ const setting = {
 
 type TemplateType = "default" | "register" | "login" | "resetpasswd"
 export const sendTemplate = async (type: TemplateType, code: string, to: string) => {
-    const html = loadHtml(
-        fillTemplate(
-            emailTemplate[type], {
-                sitename: setting.sitename,
-                code,
-                copyright: setting.copyright
-            }
-        )
+    const title = "标题"
+    const content = fillTemplate(
+        emailTemplate[type], {
+            sitename: setting.sitename,
+            code,
+            copyright: setting.copyright
+        }
     )
-    const title = html("title").text()
-    const content = html("div").first().html()!
     await sendEmail(title, content, to)
 }

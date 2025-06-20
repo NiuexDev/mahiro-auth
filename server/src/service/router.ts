@@ -1,5 +1,6 @@
-import { Config, useConfig } from "@/service/config"
-import { createRouter, EventHandler, HTTPMethod, Router, RouterMethod } from "h3"
+import { type Config, useConfig } from "@/service/config"
+import type {EventHandler, HTTPMethod, Router, RouterMethod } from "h3"
+import { createRouter } from "h3"
 import { useBaseUrl } from "~/util/useBaseUrl"
 
 let config: Config

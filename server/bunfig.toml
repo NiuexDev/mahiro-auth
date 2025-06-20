@@ -1,4 +1,0 @@
-[define]
-"process.env.develop" = "true"
-[loader]
-".html" = "text"

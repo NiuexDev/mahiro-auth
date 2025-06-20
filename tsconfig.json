@@ -1,16 +1,10 @@
 {
   "compilerOptions": {
     "paths": {
-      "~/*": ["./*"]
+      "~/*": ["./common/*"]
     },
   },
   "include": [
-    "type/**/*",
-    "util/**/*",
-    "assets/**/*",
-    "type.d.ts",
-    "server/**/*",
-    "web/**/*",
-    "web-builder/**/*",
+    "common/**/*"
   ]
 }

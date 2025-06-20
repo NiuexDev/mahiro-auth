@@ -87,19 +87,17 @@ const checkPort = async (port: number) => {
         const server = createServer()
         const occupied = await new Promise(
             (resolve, reject) => {
-                server.once("error", (err: any) => {
+                server.once("error", () => {
                     server.close()
                     resolve(true)
                 })
                 server.once("listening", () => {
                     server.close()
-                    console.log(3)
                     resolve(false)
                 })
                 server.listen(port)
             }
         )
-        console.log(occupied)
         if (!occupied) {
             return port
         } else {

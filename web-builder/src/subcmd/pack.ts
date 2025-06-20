@@ -5,9 +5,9 @@ import ora from "ora"
 import Path, { join } from "path"
 import { parse as parseYaml } from "yaml"
 import { tryCatch } from "~/util/try-catch"
-import { Config } from "~/web/config"
+import { Config } from "~web/config"
 
-let configBuilder: typeof import("~/web/config")
+let configBuilder: typeof import("~web/config")
 
 const publicPath = "code/web/public/"
 const assetsPath = join(publicPath, "assets/")

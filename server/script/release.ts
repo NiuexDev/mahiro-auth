@@ -1,5 +1,4 @@
-// @ts-nocheck
-import { version } from "@/../package.json"
+import { version } from "../package.json" with { type: "json" }
 import { execSync } from "child_process"
 import { log } from "console"
 import { readFile, readdir, stat } from "fs/promises"
@@ -20,22 +19,22 @@ const octokit = new Octokit({
     auth: githubToken
 })
 
-let preTagName = null
+let preTagName = undefined as string | undefined
 let page = 1
 do {
     const { data: releaseList } = await octokit.rest.repos.listReleases({
         owner: meta.owner,
         repo: meta.repo,
         page
-    }) as {tag_name: string}[]
+    })
     
     
     preTagName = releaseList.find(({tag_name}) => tag_name.includes("server-v"))?.tag_name
     page++
-} while (preTagName === null)
+} while (preTagName === undefined)
 
 let preVersion = preTagName
-    .match(/server-v(\d+\.\d+\.\d+)/)![1]
+    .match(/server-v(\d+\.\d+\.\d+)/)![1]!
     .split(".")
     .map(n => {
         return Number(n)
@@ -45,7 +44,7 @@ const currentVersion = version.split(".").map(n => {
     return Number(n)
 })
 
-const isUpdate = currentVersion.some((v, i) => v > preVersion[i])
+const isUpdate = currentVersion.some((v, i) => v > preVersion[i]!)
 if (!isUpdate) {
     console.log("版本无变化")
     console.log(`pre: ${preTagName}, now: ${version}`)
@@ -95,6 +94,6 @@ for await (const fileName of distList) {
             'content-type': mimeType,
             'content-length': fileInfo.size,
         },
-        data: fileData,
+        data: fileData as any,
     })
 }

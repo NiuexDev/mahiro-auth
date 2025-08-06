@@ -4,13 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "bun script/dev.ts",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
-    "build-only": "vite build",
+    "build-only": "bun script/build.ts",
     "type-check": "vue-tsc --build --force",
     "build:config": "vite build --mode production --ssr config.ts --outDir dist --emptyOutDir false",
-    "release": "bun release.ts"
+    "release": "bun script/release.ts"
   },
   "dependencies": {
     "pinia": "^2.3.1",

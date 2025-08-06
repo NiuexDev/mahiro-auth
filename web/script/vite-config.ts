@@ -1,8 +1,8 @@
-import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import VueDevTools from 'vite-plugin-vue-devtools'
 import legacy from '@vitejs/plugin-legacy'
+import path from "node:path"
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -15,8 +15,8 @@ export default defineConfig({
   ],
   resolve: { 
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-      '~': fileURLToPath(new URL('../', import.meta.url))
+      '@': path.join(process.cwd(), "./src"),
+      '~': path.join(process.cwd(), "../common")
     }
   },
   build: {

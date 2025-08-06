@@ -4,14 +4,13 @@
   "private": true,
   "scripts": {
     "test": "tsc",
-    "build": "bun build.ts",
-    "release": "bun run build && bun release.ts"
+    "build": "bun script/build.ts",
+    "release": "bun script/release.ts"
   },
   "devDependencies": {
     "@types/adm-zip": "^0.5.7",
     "@types/bun": "^1.2.9",
-    "@types/serve-handler": "^6.1.4",
-    "esbuild": "^0.25.2"
+    "@types/serve-handler": "^6.1.4"
   },
   "peerDependencies": {
     "typescript": "^5"

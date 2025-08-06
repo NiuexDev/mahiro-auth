@@ -1,6 +1,3 @@
-import { build } from "esbuild"
-import { execSync } from "node:child_process"
-import { log } from "node:console"
 import { access, constants, mkdir } from "node:fs/promises"
 
 try {
@@ -9,19 +6,16 @@ try {
     await mkdir("dist")
 }
 
-// ESM 构建配置
-await build({
-    entryPoints: ["src/main.ts"],
-    bundle: true,
-    packages: "bundle", // 自动处理依赖
-    platform: "node",
-    target: "esnext",
-    keepNames: true,
+await Bun.build({
+    entrypoints: ["src/main.ts"],
+    packages: "bundle",
+    target: "node",
     format: "esm",
-    outfile: "dist/web-builder.js",
+    outdir: "dist/",
+    naming: "web-builder.js",
     define: {
-        "import.meta.env.commitHash": process.env.COMMIT_HASH ? JSON.stringify(process.env.COMMIT_HASH.slice(0, 7)) : JSON.stringify(null),
-        "import.meta.env.longCommitHash": process.env.COMMIT_HASH ? JSON.stringify(process.env.COMMIT_HASH) : JSON.stringify(null),
+        "import.meta.env.commitHash": process.env.COMMIT_HASH ? JSON.stringify(process.env.COMMIT_HASH.slice(0, 7)) : JSON.stringify("development"),
+        "import.meta.env.longCommitHash": process.env.COMMIT_HASH ? JSON.stringify(process.env.COMMIT_HASH) : JSON.stringify("development"),
         "import.meta.env.develop": JSON.stringify(false)
     }
 })
